@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "zero918nobita.net.kyotob"
+        applicationId "com.kyotob.client"
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 1

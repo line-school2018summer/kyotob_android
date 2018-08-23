@@ -1,4 +1,4 @@
-package zero918nobita.net.kyotob
+package com.kyotob.client
 
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
