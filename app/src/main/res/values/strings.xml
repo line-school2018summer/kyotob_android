@@ -4,4 +4,5 @@
     <string name="open_chat_list_activity">Chat List</string>
     <string name="open_setting_activity">Setting</string>
     <string name="open_login_activity">Login</string>
+    <string name="open_register_activity">Register</string>
 </resources>
