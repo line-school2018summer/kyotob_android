@@ -12,6 +12,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
+    fun openLoginActivity(view: View) {
+        startActivity(Intent(this, LoginActivity::class.java))
+    }
+
     fun openChatActivity(view: View) {
         startActivity(Intent(this, ChatActivity::class.java))
     }
