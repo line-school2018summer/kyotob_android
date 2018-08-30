@@ -15,7 +15,7 @@
         android:onClick="openChatListActivity"
         android:text="@string/open_chat_list_activity"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/openChatActivity2" />
+        app:layout_constraintTop_toBottomOf="@+id/openChatActivity3" />
 
     <Button
         android:id="@+id/openChatActivity2"
@@ -23,9 +23,20 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:layout_marginTop="36dp"
+        android:onClick="openSettingActivity"
+        android:text="@string/open_setting_activity"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/openChatActivity3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="36dp"
         android:onClick="openChatActivity"
         android:text="@string/open_chat_activity"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/openChatActivity2" />
 
 </android.support.constraint.ConstraintLayout>

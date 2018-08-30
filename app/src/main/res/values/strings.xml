@@ -2,4 +2,5 @@
     <string name="app_name">電信</string>
     <string name="open_chat_activity">Chat</string>
     <string name="open_chat_list_activity">Chat List</string>
+    <string name="open_setting_activity">Setting</string>
 </resources>
