@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">KyotoB</string>
+    <string name="open_chat_activity">Chat</string>
 </resources>

@@ -12,7 +12,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
-    fun onClick(view: View) {
+    fun openChatActivity(view: View) {
         startActivity(Intent(this, ChatActivity::class.java))
     }
 }
