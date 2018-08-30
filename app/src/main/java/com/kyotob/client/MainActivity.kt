@@ -15,4 +15,8 @@ class MainActivity : AppCompatActivity() {
     fun openChatActivity(view: View) {
         startActivity(Intent(this, ChatActivity::class.java))
     }
+
+    fun openChatListActivity(view: View) {
+        startActivity(Intent(this, ChatListActivity::class.java))
+    }
 }

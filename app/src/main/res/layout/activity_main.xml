@@ -8,6 +8,17 @@
 
     <Button
         android:id="@+id/openChatActivity"
+        android:layout_width="102dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="36dp"
+        android:onClick="openChatActivity"
+        android:text="@string/open_chat_list_activity"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/openChatActivity2" />
+
+    <Button
+        android:id="@+id/openChatActivity2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"

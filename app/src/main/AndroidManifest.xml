@@ -19,7 +19,7 @@
         <activity android:name=".ChatActivity" />
         <activity android:name=".ChatListActivity" />
         <activity android:name=".LoginActivity" />
-        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".RegisterActivity" />
     </application>
 
 </manifest>
