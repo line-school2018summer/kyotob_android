@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import com.kyotob.client.entities.Message
 import com.kyotob.client.view.MessageView
-import java.sql.Timestamp
 
 class MessageListAdapter(private val context: Context): BaseAdapter() {
     var messages: MutableList<Message> = mutableListOf()
