@@ -1,0 +1,24 @@
+package com.kyotob.client.adapter
+
+import android.content.Context
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import com.kyotob.client.entities.Message
+import com.kyotob.client.view.MessageView
+import java.sql.Timestamp
+
+class MessageListAdapter(private val context: Context): BaseAdapter() {
+    var messages: MutableList<Message> = mutableListOf()
+
+    override fun getCount(): Int = messages.size
+
+    override fun getItem(position: Int): Any? = messages[position]
+
+    override fun getItemId(position: Int): Long = position.toLong()
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View =
+            ((convertView as? MessageView) ?: MessageView(context)).apply {
+                setMessage(messages[position])
+            }
+}
