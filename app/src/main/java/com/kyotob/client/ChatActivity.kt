@@ -24,5 +24,5 @@ class ChatActivity : AppCompatActivity() {
     private fun getDummyMessages() =
             mutableListOf(
                     Message(1, 1, 1, "foo", Timestamp(1536133785)),
-                    Message(1, 2, 1, "bar", Timestamp(1536137278)))
+                    Message(2, 2, 1, "bar", Timestamp(1536137278)))
 }
