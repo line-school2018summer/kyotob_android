@@ -1,7 +1,6 @@
 package com.kyotob.client
 
 import android.content.Intent
-import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
@@ -10,17 +9,12 @@ import com.kyotob.client.entities.Room
 import android.widget.*
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
-import org.json.JSONArray
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.logging.Logger
-
 
 class ChatListActivity : AppCompatActivity() {
 
@@ -36,7 +30,7 @@ class ChatListActivity : AppCompatActivity() {
 
         val retrofit = Retrofit.Builder()
 //                .baseUrl(getString(R.string.baseUrl))  // PC 側の localhost
-                .baseUrl("https://api.myjson.com/")
+                .baseUrl("https://api.myjson.com/") // テスト用
                 // レスポンスからオブジェクトへのコンバータファクトリを設定する
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
@@ -46,7 +40,8 @@ class ChatListActivity : AppCompatActivity() {
         val client = retrofit.create(Client::class.java)
 
         // 通信
-        client.makeList("ic9jo", "aaa").enqueue(object : Callback<List<Room>> {
+//        client.makeList("foo").enqueue(object : Callback<List<Room>> { // 本番用
+        client.makeList("ic9jo", "aaa").enqueue(object : Callback<List<Room>> { // テスト用
             // Request成功時に呼ばれる
             override fun onResponse(call: Call<List<Room>>, response: Response<List<Room>>) {
                 // 通信成功時

@@ -1,22 +1,29 @@
 package com.kyotob.client
 
-import com.kyotob.client.entities.Room
-import com.kyotob.client.entities.SearchUser
-import com.kyotob.client.entities.User
+import com.kyotob.client.entities.*
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface Client {
     @GET("/user")
-    fun getUser(@Query("id") query: String): User?
+    fun getUser(@Query("id") query: String): UserResponse?
 
+    // チャット一覧画面生成用テスト用
     @GET("/bins/{id}/")
     fun makeList(@Path("id") Id : String, @Header("token") token: String): Call<List<Room>>
 
+    // User検索用
+    @GET("/user/search/{user_name}")
+    fun searchUser(@Path("user_name") Id : String, @Header("Token") token: String): Call<SearchUserResponse>
 
-    @GET("/bins/{id}/")
-    fun searchUser(@Path("id") Id : String, @Header("token") token: String): Call<SearchUser>
+    // Room追加用
+    @POST("/room/pair")
+    fun makeroom(@Body body: AddUserRequest, @Header("access_token") token: String): Call<AddUserResponse>
+
+//    // チャット一覧画面生成本番用
+//    @GET("/room/")
+//    fun makeList(@Header("access_token") token: String): Call<List<Room>>
+//
+//
+
 }

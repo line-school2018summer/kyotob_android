@@ -15,17 +15,13 @@ import android.widget.TextView
 import android.widget.Toast
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
-import com.kyotob.client.entities.Room
-import com.kyotob.client.entities.SearchUser
-import org.json.JSONArray
+import com.kyotob.client.entities.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import java.net.HttpURLConnection
-import java.net.URL
 
 
 // Dialogの諸々の設定ををするクラス
@@ -50,22 +46,24 @@ class SearchUserDialog : DialogFragment() {
 
         val retrofit = Retrofit.Builder()
 //                .baseUrl(getString(R.string.baseUrl))  // PC 側の localhost
-                .baseUrl("https://api.myjson.com/")
+//                .baseUrl("https://api.myjson.com/") // テスト用
+                .baseUrl("https://4f6ab630.ngrok.io/") // テスト用
                 // レスポンスからオブジェクトへのコンバータファクトリを設定する
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build()
+        // クライアントの実装の生成
+        val client = retrofit.create(Client::class.java)
 
 
         // エンターキー押下時の挙動
         dialogEditText.setOnKeyListener { view, keyCode, event ->
             (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN).apply {
-                // クライアントの実装の生成
-                val client = retrofit.create(Client::class.java)
+
                 // 通信
-                client.searchUser("7z4oc", "aaa").enqueue(object : Callback<SearchUser> {
+                client.searchUser(dialogEditText.text.toString(), "foo").enqueue(object : Callback<SearchUserResponse> {
                     // Request成功時に呼ばれる
-                    override fun onResponse(call: Call<SearchUser>, response: Response<SearchUser>) {
+                    override fun onResponse(call: Call<SearchUserResponse>, response: Response<SearchUserResponse>) {
                         val notFoundView = inflater.findViewById(R.id.dialog_not_found_text_view) as TextView
                         val foundView = inflater.findViewById(R.id.dialog_found_user) as ConstraintLayout
                         val foundText = inflater.findViewById(R.id.dialog_user_name_text_view) as TextView
@@ -87,7 +85,7 @@ class SearchUserDialog : DialogFragment() {
                     }
 
                     // Request失敗時に呼ばれる
-                    override fun onFailure(call: Call<SearchUser>?, t: Throwable?) {
+                    override fun onFailure(call: Call<SearchUserResponse>?, t: Throwable?) {
                         // Fail to connect Internet access
                         Toast.makeText(context, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
                     }
@@ -96,6 +94,27 @@ class SearchUserDialog : DialogFragment() {
         }
 
         addUserButton.setOnClickListener {
+            // roomの追加
+            client.makeroom(AddUserRequest("foo", dialogEditText.text.toString()), "aaa").enqueue(object : Callback<AddUserResponse> {
+                // Request成功時に呼ばれる
+                override fun onResponse(call: Call<AddUserResponse>, response: Response<AddUserResponse>) {
+                    // 通信成功時
+                    if(response.isSuccessful) {
+//                        Toast.makeText(context, "Successful", Toast.LENGTH_LONG).show()
+                    }
+                    // Bad request
+                    else {
+//                        Toast.makeText(context, "Bad request", Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                // Request失敗時に呼ばれる
+                override fun onFailure(call: Call<AddUserResponse>?, t: Throwable?) {
+                    // Fail to connect Internet access
+//                    Toast.makeText(context, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
+                }
+            })
+
             // ダイアログを閉じる
             dialog.dismiss()
         }
