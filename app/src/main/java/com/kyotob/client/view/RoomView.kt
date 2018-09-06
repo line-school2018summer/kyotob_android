@@ -12,9 +12,7 @@ import com.kyotob.client.entities.Room
 
 // 個々のRoomViewの雛形を作るつくるクラス
 // RoomViewAdapterで利用する
-class RoomView: FrameLayout {
-    // FrameLayoutが持っているコンストラクタを実装する
-    constructor(context: Context?) : super(context)
+class RoomView(context: Context): FrameLayout(context) {
 //    無くてもいいんじゃね?
 //    constructor(context: Context?,
 //                attrs: AttributeSet?) : super(context, attrs)
