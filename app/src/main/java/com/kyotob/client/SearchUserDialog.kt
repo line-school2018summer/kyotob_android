@@ -12,7 +12,18 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
+import com.google.gson.FieldNamingPolicy
+import com.google.gson.GsonBuilder
+import com.kyotob.client.entities.Room
+import com.kyotob.client.entities.SearchUser
 import org.json.JSONArray
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -26,24 +37,66 @@ class SearchUserDialog : DialogFragment() {
         val builder = AlertDialog.Builder(activity)
         // dialog.xmlをつかって、ダイアログをデザインする
         val inflater = activity!!.layoutInflater.inflate(R.layout.dialog, null)
-
+        // ユーザー検索欄
         val dialogEditText: EditText = inflater.findViewById(R.id.dialog_edit_text)
-
+        // ユーザー追加ボタン
         val addUserButton: Button = inflater.findViewById(R.id.addUser)
+
+        /* JSON のスネークケースで表現されるフィールド名を、
+           Java オブジェクトでキャメルケースに対応させるための設定 */
+        val gson = GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .create()
+
+        val retrofit = Retrofit.Builder()
+//                .baseUrl(getString(R.string.baseUrl))  // PC 側の localhost
+                .baseUrl("https://api.myjson.com/")
+                // レスポンスからオブジェクトへのコンバータファクトリを設定する
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build()
+
 
         // エンターキー押下時の挙動
         dialogEditText.setOnKeyListener { view, keyCode, event ->
             (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN).apply {
-                // URLをセット
-                val url = "https://api.myjson.com/bins/c8dng"
-                // 非同期で通信し、responseを使って、画面描画する
-                val ac = AsyncConnecter()
-                ac.iView = inflater
-                ac.execute(url)
+                // クライアントの実装の生成
+                val client = retrofit.create(Client::class.java)
+                // 通信
+                client.searchUser("7z4oc", "aaa").enqueue(object : Callback<SearchUser> {
+                    // Request成功時に呼ばれる
+                    override fun onResponse(call: Call<SearchUser>, response: Response<SearchUser>) {
+                        val notFoundView = inflater.findViewById(R.id.dialog_not_found_text_view) as TextView
+                        val foundView = inflater.findViewById(R.id.dialog_found_user) as ConstraintLayout
+                        val foundText = inflater.findViewById(R.id.dialog_user_name_text_view) as TextView
+
+                        // 通信成功時
+                        if(response.isSuccessful) {
+                            // TEST
+                            // ユーザー表示名の変更
+                            foundText.text = response.body().screenName
+
+                            foundView.visibility = View.VISIBLE
+                            notFoundView.visibility = View.INVISIBLE
+                        }
+                        // Bad request
+                        else {
+                            foundView.visibility = View.INVISIBLE
+                            notFoundView.visibility = View.VISIBLE
+                        }
+                    }
+
+                    // Request失敗時に呼ばれる
+                    override fun onFailure(call: Call<SearchUser>?, t: Throwable?) {
+                        // Fail to connect Internet access
+                        Toast.makeText(context, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
+                    }
+                })
             }
         }
 
         addUserButton.setOnClickListener {
+            // ダイアログを閉じる
             dialog.dismiss()
         }
 
@@ -53,83 +106,4 @@ class SearchUserDialog : DialogFragment() {
         // bulderを返す
         return builder.create()
     }
-
-
-    // 非同期で通信するための内部クラス"url"を引数にとる
-    inner class AsyncConnecter : AsyncTask<String, String, String>() {
-        val requestMethod = "GET"
-        val accessToken = "f7d30ccc-6fd0-4c53-9cc7-ae9ad4846b69"
-        var iView = View(context)
-
-        // AsyncTaskが呼び出されると、まずdoInBackgroundがbackgroundで動く
-        override fun doInBackground(vararg url: String?): String {
-            // responseをためておく変数
-            var text: String
-            // 接続用の設定
-            val connection = URL(url[0]).openConnection() as HttpURLConnection
-            // 接続用の設定をする
-            // Request Method
-            connection.setRequestMethod(requestMethod)
-            // Request Header
-            connection.addRequestProperty("access_token", accessToken)
-
-            // 接続を試みる
-            try {
-                // 通信開始
-                connection.connect()
-
-                // responseを変数(text)に入れる
-                text = connection.inputStream.use { it.reader().use { reader -> reader.readText() } }
-            } catch (e: Exception) { // 例外時の処理。要検討
-                text = ""
-            } finally {
-                // 通信が成功しても、失敗しても最後に、切断する
-                connection.disconnect()
-            }
-            // 通信結果をdoInBackgroundに返す
-            return text
-        }
-
-        // doInBackgroundが終了するとonPostExecuteがUIスレッドから呼び出される
-        override fun onPostExecute(result: String?) { // 引数(result)はdoInBackgroundの戻り値(return text)
-            super.onPostExecute(result)
-
-            showResult(result)
-        }
-
-        // 通信結果のJsonをパースして、UIに反映させる
-        private fun showResult(jsonString: String?) {
-        val notFoundView = iView.findViewById(R.id.dialog_not_found_text_view) as TextView
-        val foundView = iView.findViewById(R.id.dialog_found_user) as ConstraintLayout
-        val foundText = iView.findViewById(R.id.dialog_user_name_text_view) as TextView
-
-        Log.d("text", jsonString)
-
-        if (jsonString != "") {
-
-            // 文字列 -> JSONに
-            val jsonArray = JSONArray(jsonString)
-
-            // JSONをパースして、President型に形成し、Arrayに追加する
-            for( i in 0..(jsonArray.length()-1)) {
-                val jsonObject = jsonArray.getJSONObject(i)
-                foundText.text = jsonObject.getString("screen_name")
-            }
-
-
-
-            // TEST
-            foundView.visibility = View.VISIBLE
-            notFoundView.visibility = View.INVISIBLE
-        } else { // エラー時(Tokenのミスマッチ)の処理。要検討！！
-            foundView.visibility = View.INVISIBLE
-            notFoundView.visibility = View.VISIBLE
-        }
-
-
-        }
-    }
-
-
-
 }
