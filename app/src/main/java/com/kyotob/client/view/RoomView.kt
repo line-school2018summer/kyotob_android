@@ -28,9 +28,9 @@ class RoomView(context: Context): FrameLayout(context) {
 
     // layoutファイルにある部品を変数(プロパティ)として持たせる
     // extensions.ktを使い、簡潔ににResourceIDからオブジェクトを見つけて、変数(プロパティ)に代入する
-    val profileImageView: ImageView by bindView(R.id.profile_image_view)
-    val userNameTextView: TextView by bindView(R.id.user_name_text_view)
-    val latestMessageTextView: TextView by bindView(R.id.latest_message_text_view)
+    private val profileImageView: ImageView by bindView(R.id.profile_image_view)
+    private val userNameTextView: TextView by bindView(R.id.user_name_text_view)
+    private val latestMessageTextView: TextView by bindView(R.id.latest_message_text_view)
 
     // 初期化
     init {
