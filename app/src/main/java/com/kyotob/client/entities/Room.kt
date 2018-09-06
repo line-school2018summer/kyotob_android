@@ -5,3 +5,4 @@ data class Room(val roomId: Int,
                 val userName: String,
                 val userScreenName: String,
                 val recentMessage: String)
+

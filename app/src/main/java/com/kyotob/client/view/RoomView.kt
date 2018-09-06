@@ -12,9 +12,8 @@ import com.kyotob.client.entities.Room
 
 // 個々のRoomViewの雛形を作るつくるクラス
 // RoomViewAdapterで利用する
-class RoomView: FrameLayout {
+class RoomView(context: Context): FrameLayout(context) {
     // FrameLayoutが持っているコンストラクタを実装する
-    constructor(context: Context?) : super(context)
 //    無くてもいいんじゃね?
 //    constructor(context: Context?,
 //                attrs: AttributeSet?) : super(context, attrs)
@@ -30,9 +29,9 @@ class RoomView: FrameLayout {
 
     // layoutファイルにある部品を変数(プロパティ)として持たせる
     // extensions.ktを使い、簡潔ににResourceIDからオブジェクトを見つけて、変数(プロパティ)に代入する
-    val profileImageView: ImageView by bindView(R.id.profile_image_view)
-    val userNameTextView: TextView by bindView(R.id.user_name_text_view)
-    val latestMessageTextView: TextView by bindView(R.id.latest_message_text_view)
+    private val profileImageView: ImageView by bindView(R.id.profile_image_view)
+    private val userNameTextView: TextView by bindView(R.id.user_name_text_view)
+    private val latestMessageTextView: TextView by bindView(R.id.latest_message_text_view)
 
     // 初期化
     init {
@@ -42,10 +41,10 @@ class RoomView: FrameLayout {
 
     fun setRoom(room: Room) {
         // 文字をセット
-        userNameTextView?.text = room.userScreenName
-        latestMessageTextView?.text = room.recentMessage
+        userNameTextView.text = room.userScreenName
+        latestMessageTextView.text = room.recentMessage
 
         // 画像をセットする
-        profileImageView?.setBackgroundColor(Color.RED)
+        profileImageView.setBackgroundColor(Color.RED)
     }
 }

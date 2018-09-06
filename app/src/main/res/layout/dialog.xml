@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -36,13 +35,6 @@
             android:hint="ユーザーIDを入力"
             android:inputType="textPersonName"
             android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/search_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="SEARCH" />
     </LinearLayout>
 
     <TextView
@@ -50,11 +42,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="見つかりません"
-        android:visibility="invisible" />
+        android:visibility="visible" />
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/dialog_found_user"
         android:layout_width="match_parent"
         android:layout_height="170dp"
@@ -87,7 +78,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/addUser"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -102,8 +93,4 @@
             app:layout_constraintStart_toStartOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
-
-
-
-
 </LinearLayout>
