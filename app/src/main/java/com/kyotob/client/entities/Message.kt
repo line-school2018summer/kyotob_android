@@ -7,3 +7,8 @@ data class Message(val id: Int,
                    val roomId: Int,
                    val content: String,
                    val created: Timestamp)
+
+data class GetMessageResponse(val createdAt: Timestamp,
+                              val userName: String,
+                              val userScreenName: String,
+                              val content: String)

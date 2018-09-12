@@ -6,7 +6,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import com.kyotob.client.R
-import com.kyotob.client.entities.Message
+import com.kyotob.client.entities.GetMessageResponse
 
 class MessageView(context: Context) : FrameLayout(context) {
     private var profileImageView: ImageView
@@ -22,8 +22,8 @@ class MessageView(context: Context) : FrameLayout(context) {
         contentView = findViewById(R.id.content_view)
     }
 
-    fun setMessage(message: Message) {
-        userNameTextView.text = "Sender Id: ${message.senderId}"
+    fun setMessage(message: GetMessageResponse) {
+        userNameTextView.text = message.userScreenName
         contentView.text = message.content
     }
 }
