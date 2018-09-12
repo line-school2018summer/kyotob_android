@@ -18,4 +18,31 @@
         android:background="#DDDDDD"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="283dp"
+        android:layout_height="49dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button2"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <android.support.design.widget.TextInputEditText
+            android:layout_width="307dp"
+            android:layout_height="wrap_content"
+            android:hint="hint" />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="52dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_weight="1"
+        android:text="Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </android.support.constraint.ConstraintLayout>
