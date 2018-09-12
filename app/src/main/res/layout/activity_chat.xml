@@ -41,7 +41,7 @@
         android:layout_marginBottom="4dp"
         android:layout_marginEnd="4dp"
         android:layout_weight="1"
-        android:text="Button"
+        android:text="@string/send"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
