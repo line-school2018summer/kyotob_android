@@ -16,15 +16,9 @@
 package com.kyotob.client.repositories.user
 
 import com.kyotob.client.repositories.user.remote.UsersRemoteDataSource
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.async
-import kotlin.coroutines.experimental.coroutineContext
 
-class UsersRepositry(
-        val usersRemoteDataSource: UsersRemoteDataSource = UsersRemoteDataSource()
+class UsersRepository(
+        private val usersRemoteDataSource: UsersRemoteDataSource = UsersRemoteDataSource()
 ) {
-
-
     fun updateUserName(name: String, accessToken: String, newName: String) = usersRemoteDataSource.updateUser(name, accessToken, newName)
 }
