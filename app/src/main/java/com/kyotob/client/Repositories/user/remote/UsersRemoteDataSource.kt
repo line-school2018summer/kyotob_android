@@ -15,7 +15,6 @@
  */
 package com.kyotob.client.repositories.user.remote
 
-import com.kyotob.client.BuildConfig
 import com.kyotob.client.repositories.remoteUtil.CommonInterceptor
 import okhttp3.OkHttpClient
 import retrofit2.Call
