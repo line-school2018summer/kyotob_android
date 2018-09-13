@@ -13,5 +13,6 @@ interface Client {
     fun getUser(@Query("id") query: String): User?
 
     @GET("/room/{room_id}/messages")
-    fun getMessages(@Path("room_id") roomId: Int, @Header("token") token: String): Call<Array<GetMessageResponse>>
+    fun getMessages(@Path("room_id") roomId: Int,
+                    @Header("token") token: String): Call<Array<GetMessageResponse>>
 }
