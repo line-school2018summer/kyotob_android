@@ -20,11 +20,12 @@ import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.kyotob.client.baseUrl
 
 class UsersRemoteDataSource
- {
-     val retrofit = Retrofit.Builder()
-             .baseUrl("http://localhost:8080/")
+{
+     private val retrofit = Retrofit.Builder()
+             .baseUrl(baseUrl)
              .client(OkHttpClient.Builder().addInterceptor(CommonInterceptor()).build())
              .addConverterFactory(GsonConverterFactory.create())
              .build()
