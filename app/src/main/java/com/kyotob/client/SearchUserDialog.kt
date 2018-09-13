@@ -72,7 +72,7 @@ class SearchUserDialog : DialogFragment() {
                         if(response.isSuccessful) {
                             // TEST
                             // ユーザー表示名の変更
-                            foundText.text = response.body().screenName
+                            foundText.text = response.body()!!.screenName
 
                             foundView.visibility = View.VISIBLE
                             notFoundView.visibility = View.INVISIBLE

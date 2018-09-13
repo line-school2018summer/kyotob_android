@@ -45,11 +45,9 @@ class ChatListActivity : AppCompatActivity() {
             // Request成功時に呼ばれる
             override fun onResponse(call: Call<List<Room>>, response: Response<List<Room>>) {
                 // 通信成功時
-                if(response.isSuccessful) {
-                    makeList(response.body())
-                }
-                // Bad request
-                else {
+                if (response.isSuccessful) {
+                    makeList(response.body()!!)
+                } else { // Bad request
                     Toast.makeText(applicationContext, "Bad Request", Toast.LENGTH_LONG).show()
                 }
             }
