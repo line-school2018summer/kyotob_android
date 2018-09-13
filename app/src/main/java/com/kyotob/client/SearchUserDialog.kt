@@ -57,7 +57,7 @@ class SearchUserDialog : DialogFragment() {
 
 
         // エンターキー押下時の挙動
-        dialogEditText.setOnKeyListener { view, keyCode, event ->
+        dialogEditText.setOnKeyListener { _, keyCode, event ->
             (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN).apply {
 
                 // 通信
