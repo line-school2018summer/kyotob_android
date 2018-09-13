@@ -3,7 +3,10 @@ package com.kyotob.client
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.EditText
+import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_register.*
 
 class RegisterActivity : AppCompatActivity() {
@@ -15,7 +18,13 @@ class RegisterActivity : AppCompatActivity() {
         //ユーザー登録する
         register_button_register.setOnClickListener(object: View.OnClickListener{
             override fun onClick(v: View){
+
+                val name: String = findViewById<EditText>(R.id.id_edittext_register).text.toString()
+                val screen_name : String = findViewById<EditText>(R.id.username_edittext_register).text.toString()
+                val password: String = findViewById<EditText>(R.id.password_edittext_register).text.toString()
+
                 //Todo APIにname,screen_name,password投げてユーザー登録
+
             }
         })
 
