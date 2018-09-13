@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity() {
 
@@ -12,22 +13,18 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        //Register画面へ遷移
-        val toRegisterBtn: Button = findViewById(R.id.toRegisterBtn)
-        toRegisterBtn.setOnClickListener(object: View.OnClickListener{
+        //ログインする
+        login_button_login.setOnClickListener(object: View.OnClickListener{
             override fun onClick(v: View){
-                //Register画面へ遷移
-                val registerActivityIntent = Intent(this@LoginActivity, RegisterActivity::class.java)
-                startActivity(registerActivityIntent)
+                //Todo APIにname,password投げてログイン
             }
         })
+        
+        //登録画面に遷移する
+        create_new_account_text_view.setOnClickListener{
+            val intent =  Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
+        }
 
-        //Loginする
-        val loginBtn: Button = findViewById(R.id.loginBtn)
-        loginBtn.setOnClickListener(object: View.OnClickListener{
-            override fun onClick(v: View){
-                //Todo APIにnameとpassword投げてログイン
-            }
-        })
     }
 }
