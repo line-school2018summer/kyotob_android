@@ -43,10 +43,7 @@ class SearchUserDialog : DialogFragment() {
                 .create()
 
         val retrofit = Retrofit.Builder()
-                .baseUrl(baseUrl)  // PC 側の localhost
-                //.baseUrl("https://api.myjson.com/") // テスト用
-                //.baseUrl("https://4f6ab630.ngrok.io/") // テスト用
-                // レスポンスからオブジェクトへのコンバータファクトリを設定する
+                .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build()
@@ -93,7 +90,7 @@ class SearchUserDialog : DialogFragment() {
 
         addUserButton.setOnClickListener {
             // roomの追加
-            client.makeroom(AddUserRequest("foo", dialogEditText.text.toString()), "aaa").enqueue(object : Callback<AddUserResponse> {
+            client.makeRoom(AddUserRequest("foo", dialogEditText.text.toString()), "aaa").enqueue(object : Callback<AddUserResponse> {
                 // Request成功時に呼ばれる
                 override fun onResponse(call: Call<AddUserResponse>, response: Response<AddUserResponse>) {
                     // 通信成功時

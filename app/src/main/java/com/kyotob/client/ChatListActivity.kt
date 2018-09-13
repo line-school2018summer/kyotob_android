@@ -1,5 +1,6 @@
 package com.kyotob.client
 
+import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
@@ -19,7 +20,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import android.widget.Toast
 // WebSocket用
 import java.net.URI
-import javax.websocket.ContainerProvider
+import javax.websocket.*
 
 
 class ChatListActivity : AppCompatActivity() {
@@ -42,7 +43,7 @@ class ChatListActivity : AppCompatActivity() {
             // タップしたアイテムの情報を取得
             val itemInfo = listAdapter.rooms[position]
             // Debug: トーストを表示
-            Toast.makeText(this, "Clicked: ${itemInfo.userScreenName}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Clicked: ${itemInfo.roomName}", Toast.LENGTH_SHORT).show()
             // ChatActivityを表示
             val chatActivityIntent = Intent(this, ChatActivity::class.java)
             // 遷移先に値を渡す
@@ -71,10 +72,15 @@ class ChatListActivity : AppCompatActivity() {
 //            // サーバー・エンドポイントの URI
 //            val uri = URI.create("ws://10.129.173.46:8181/chat/abc") // LocalHostはだめ
 //            // サーバー・エンドポイントとのセッションを確立する
-//            container.connectToServer(ClientEndpoint(), uri)
+//            container.connectToServer(WebSocketEndPoint {
+//                    updateChatList(listAdapter)
+//            }, uri)
+//
+//
 //        }.execute()
 //        // ----------------------------------------
     }
+
 
     // 通信結果のJsonをパースして、UIに反映させる
     fun updateChatList(chatListAdapter: RoomListAdapter) {
@@ -86,7 +92,7 @@ Java オブジェクトでキャメルケースに対応させるための設定
 
         val retrofit = Retrofit.Builder()
 //                .baseUrl(getString(R.string.baseUrl))  // PC 側の localhost
-                .baseUrl("https://api.myjson.com/") // テスト用
+                .baseUrl(baseUrl) // テスト用
                 // レスポンスからオブジェクトへのコンバータファクトリを設定する
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
@@ -97,7 +103,7 @@ Java オブジェクトでキャメルケースに対応させるための設定
 
         // 通信
 //        client.makeList("foo").enqueue(object : Callback<List<Room>> { // 本番用
-        client.makeList("ic9jo", "aaa").enqueue(object : Callback<List<Room>> { // テスト用
+        client.makeList("foo").enqueue(object : Callback<List<Room>> { // テスト用
             // Request成功時に呼ばれる
             override fun onResponse(call: Call<List<Room>>, response: Response<List<Room>>) {
                 // 通信成功時
@@ -125,5 +131,35 @@ class DoAsync(private val handler: () -> Unit) : AsyncTask<Void, Void, Void>() {
     override fun doInBackground(vararg params: Void?): Void? {
         handler()
         return null
+    }
+}
+
+// WebSocket
+@javax.websocket.ClientEndpoint
+class WebSocketEndPoint(private val handler: () -> Unit) {
+
+    // Socket通信を開始するときに呼び出される
+    @OnOpen
+    fun onOpen(session: Session, config: EndpointConfig) {
+        println("client-[open] " + session)
+    }
+
+    // Message受信時に呼び出される
+    @OnMessage
+    fun onMessage(message: String, session: Session) {
+        println("client-[message][$message] $session")
+        handler()
+    }
+
+    // Socket通信を終了するときに呼び出される
+    @OnClose
+    fun onClose(session: Session) {
+        println("client-[close] $session")
+    }
+
+    // ERRORのログを取る
+    @OnError
+    fun onError(session: Session?, t: Throwable?) {
+        println("client-[error] ${t?.message} $session")
     }
 }

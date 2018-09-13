@@ -40,7 +40,7 @@ class RoomView(context: Context): FrameLayout(context) {
 
     fun setRoom(room: Room) {
         // 文字をセット
-        userNameTextView.text = room.userScreenName
+        userNameTextView.text = room.roomName
         latestMessageTextView.text = room.recentMessage
 
         // 画像をセットする
