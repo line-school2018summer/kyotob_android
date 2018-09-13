@@ -47,7 +47,7 @@ class SearchUserDialog : DialogFragment() {
         val retrofit = Retrofit.Builder()
 //                .baseUrl(getString(R.string.baseUrl))  // PC 側の localhost
 //                .baseUrl("https://api.myjson.com/") // テスト用
-                .baseUrl("https://4f6ab630.ngrok.io/") // テスト用
+                .baseUrl("http://10.129.173.46:8080/") // テスト用
                 // レスポンスからオブジェクトへのコンバータファクトリを設定する
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())

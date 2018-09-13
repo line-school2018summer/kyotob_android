@@ -10,11 +10,11 @@ interface Client {
 
     // チャット一覧画面生成用テスト用
     @GET("/bins/{id}/")
-    fun makeList(@Path("id") Id : String, @Header("token") token: String): Call<List<Room>>
+    fun makeList(@Path("id") Id : String, @Header("access_token") token: String): Call<List<Room>>
 
     // User検索用
     @GET("/user/search/{user_name}")
-    fun searchUser(@Path("user_name") Id : String, @Header("Token") token: String): Call<SearchUserResponse>
+    fun searchUser(@Path("user_name") Id : String, @Header("access_token") token: String): Call<SearchUserResponse>
 
     // Room追加用
     @POST("/room/pair")

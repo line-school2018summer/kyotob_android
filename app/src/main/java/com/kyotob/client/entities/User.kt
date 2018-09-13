@@ -15,3 +15,7 @@ data class AddUserRequest(val myUserName: String,
 
 data class AddUserResponse(val roomId: String,
                            val friendScreenName: String)
+
+data class WebSocketMSG(
+        val content: String
+)
