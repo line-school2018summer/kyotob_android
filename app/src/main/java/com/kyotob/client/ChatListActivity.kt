@@ -18,8 +18,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import android.widget.Toast
 // WebSocket用
-import java.net.URI
-import javax.websocket.ContainerProvider
+//import javax.websocket.ContainerProvider
 
 
 class ChatListActivity : AppCompatActivity() {
