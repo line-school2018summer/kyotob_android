@@ -105,9 +105,7 @@ Java オブジェクトでキャメルケースに対応させるための設定
                     // 一覧を更新する
                     chatListAdapter.rooms = response.body()
                     chatListAdapter.notifyDataSetChanged()
-                }
-                // Bad request
-                else {
+                } else { // Bad request
                     Toast.makeText(applicationContext, "Bad Request", Toast.LENGTH_LONG).show()
                 }
             }

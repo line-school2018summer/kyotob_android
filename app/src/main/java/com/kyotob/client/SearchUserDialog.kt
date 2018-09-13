@@ -4,9 +4,7 @@ import android.app.Dialog
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.app.AlertDialog
-import android.os.AsyncTask
 import android.support.constraint.ConstraintLayout
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.widget.Button
@@ -45,9 +43,9 @@ class SearchUserDialog : DialogFragment() {
                 .create()
 
         val retrofit = Retrofit.Builder()
-//                .baseUrl(getString(R.string.baseUrl))  // PC 側の localhost
-//                .baseUrl("https://api.myjson.com/") // テスト用
-                .baseUrl("http://10.129.173.46:8080/") // テスト用
+                .baseUrl(baseUrl)  // PC 側の localhost
+                //.baseUrl("https://api.myjson.com/") // テスト用
+                //.baseUrl("https://4f6ab630.ngrok.io/") // テスト用
                 // レスポンスからオブジェクトへのコンバータファクトリを設定する
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
@@ -57,7 +55,7 @@ class SearchUserDialog : DialogFragment() {
 
 
         // エンターキー押下時の挙動
-        dialogEditText.setOnKeyListener { view, keyCode, event ->
+        dialogEditText.setOnKeyListener { _, keyCode, event ->
             (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN).apply {
 
                 // 通信
@@ -72,7 +70,7 @@ class SearchUserDialog : DialogFragment() {
                         if(response.isSuccessful) {
                             // TEST
                             // ユーザー表示名の変更
-                            foundText.text = response.body().screenName
+                            foundText.text = response.body()!!.screenName
 
                             foundView.visibility = View.VISIBLE
                             notFoundView.visibility = View.INVISIBLE
@@ -122,7 +120,7 @@ class SearchUserDialog : DialogFragment() {
         // builderにビューをセットする
         builder.setView(inflater)
 
-        // bulderを返す
+        // builderを返す
         return builder.create()
     }
 }
