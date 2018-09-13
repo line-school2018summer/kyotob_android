@@ -78,7 +78,7 @@ class ChatListActivity : AppCompatActivity() {
         // 2, データクラスのリストを用意する
         listAdapter.rooms = list
         // 3, listViewのインスタンスをつくる
-        var listView = findViewById<ListView>(R.id.chats_list)
+        val listView = findViewById<ListView>(R.id.chats_list)
         // 4, このクラスのインスタンスをlistViewのadapterに代入することで簡単にlistのitemをデザインできる
         listView.adapter = listAdapter
 
