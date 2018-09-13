@@ -28,7 +28,7 @@ class UsersRemoteDataSource
              .client(OkHttpClient.Builder().addInterceptor(CommonInterceptor()).build())
              .addConverterFactory(GsonConverterFactory.create())
              .build()
-     val api = retrofit.create(UserApi::class.java)
+     private val api = retrofit.create(UserApi::class.java)
 
     fun updateUser(name: String, accessToken: String, newName: String): Call<Void> {
         return api.putName(name, accessToken, hashMapOf("new_screen_name" to newName))
