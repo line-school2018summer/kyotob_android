@@ -1,7 +1,8 @@
-package com.kyotob.client
+package com.kyotob.client.login
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.kyotob.client.R
 
 class LoginActivity : AppCompatActivity() {
 

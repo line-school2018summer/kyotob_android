@@ -1,7 +1,8 @@
-package com.kyotob.client
+package com.kyotob.client.register
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.kyotob.client.R
 
 class RegisterActivity : AppCompatActivity() {
 
