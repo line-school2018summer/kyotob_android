@@ -122,7 +122,7 @@ class SearchUserDialog : DialogFragment() {
         // builderにビューをセットする
         builder.setView(inflater)
 
-        // bulderを返す
+        // builderを返す
         return builder.create()
     }
 }
