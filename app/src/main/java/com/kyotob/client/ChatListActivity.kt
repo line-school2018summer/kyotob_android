@@ -21,6 +21,7 @@ import android.widget.Toast
 // WebSocket用
 import java.net.URI
 import javax.websocket.*
+//import javax.websocket.ContainerProvider
 
 
 class ChatListActivity : AppCompatActivity() {
