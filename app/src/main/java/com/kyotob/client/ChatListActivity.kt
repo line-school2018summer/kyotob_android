@@ -103,7 +103,7 @@ Java オブジェクトでキャメルケースに対応させるための設定
                 // 通信成功時
                 if (response.isSuccessful) {
                     // 一覧を更新する
-                    chatListAdapter.rooms = response.body()
+                    chatListAdapter.rooms = response.body()!!
                     chatListAdapter.notifyDataSetChanged()
                 } else { // Bad request
                     Toast.makeText(applicationContext, "Bad Request", Toast.LENGTH_LONG).show()
