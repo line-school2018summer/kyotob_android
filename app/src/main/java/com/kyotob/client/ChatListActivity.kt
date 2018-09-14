@@ -1,6 +1,5 @@
 package com.kyotob.client
 
-import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
@@ -21,7 +20,6 @@ import android.widget.Toast
 // WebSocket用
 import java.net.URI
 import javax.websocket.*
-//import javax.websocket.ContainerProvider
 
 
 class ChatListActivity : AppCompatActivity() {
@@ -71,13 +69,12 @@ class ChatListActivity : AppCompatActivity() {
 //            // 初期化のため WebSocket コンテナのオブジェクトを取得する
 //            val container = ContainerProvider.getWebSocketContainer()
 //            // サーバー・エンドポイントの URI
-//            val uri = URI.create("ws://10.129.173.46:8181/chat/abc") // LocalHostはだめ
+//            val uri = URI.create("ws://10.129.173.46:8181/user_name") // 適宜変更
 //            // サーバー・エンドポイントとのセッションを確立する
 //            container.connectToServer(WebSocketEndPoint {
-//                    updateChatList(listAdapter)
+//                // Messageを受信すると、chatListの表示を更新する
+//                updateChatList(listAdapter)
 //            }, uri)
-//
-//
 //        }.execute()
 //        // ----------------------------------------
     }
@@ -149,7 +146,9 @@ class WebSocketEndPoint(private val handler: () -> Unit) {
     @OnMessage
     fun onMessage(message: String, session: Session) {
         println("client-[message][$message] $session")
-        handler()
+        if(message != "WebSocket通信を開始します。") { // 最初のメッセージは無視する
+            handler()
+        }
     }
 
     // Socket通信を終了するときに呼び出される
