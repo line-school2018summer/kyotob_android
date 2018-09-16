@@ -22,16 +22,33 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class UsersRemoteDataSource
- {
-     val retrofit = Retrofit.Builder()
-             .baseUrl("http://localhost:8080/")
-             .client(OkHttpClient.Builder().addInterceptor(CommonInterceptor()).build())
-             .addConverterFactory(GsonConverterFactory.create())
-             .build()
-     val api = retrofit.create(UserApi::class.java)
+class UsersRemoteDataSource {
+    val retrofit = Retrofit.Builder()
+            .baseUrl("http://localhost:8080/")
+            .client(OkHttpClient.Builder().addInterceptor(CommonInterceptor()).build())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    val api = retrofit.create(UserApi::class.java)
 
-    fun updateUser(name: String, accessToken: String, newName: String): Call<Void> {
+    fun updateUser(name: String, accessToken: String, newName: String): Call<Unit> {
         return api.putName(name, accessToken, hashMapOf("new_screen_name" to newName))
     }
+
+    fun register(name: String, screenName: String, password: String) = api.postUser(createRegisterRequest(name,screenName,password))
+
+    fun createRegisterRequest(name: String, screenName: String, password: String): HashMap<String,String> {
+        val hashMap: HashMap<String,String> = HashMap()
+        hashMap.put("name", name)
+        hashMap.put("screen_name", screenName)
+        hashMap.put("password", password)
+        return hashMap
+    }
+
+    fun createLoginRequest(name: String, password: String): HashMap<String,String> {
+        val hashMap: HashMap<String,String> = HashMap()
+        hashMap.put("name", name)
+        hashMap.put("password", password)
+        return hashMap
+    }
+    fun login(name:String, password: String) = api.loginUser(createLoginRequest(name,password))
 }

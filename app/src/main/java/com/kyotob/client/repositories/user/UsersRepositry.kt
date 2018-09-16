@@ -27,4 +27,8 @@ class UsersRepositry(
 
 
     fun updateUserName(name: String, accessToken: String, newName: String) = usersRemoteDataSource.updateUser(name, accessToken, newName)
+
+    fun register(name: String, screenName: String, password: String) = usersRemoteDataSource.register(name, screenName, password)
+
+    fun login(name: String, password: String) = usersRemoteDataSource.login(name, password)
 }

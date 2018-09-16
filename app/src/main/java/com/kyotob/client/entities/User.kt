@@ -15,3 +15,5 @@ data class AddUserRequest(val myUserName: String,
 
 data class AddUserResponse(val roomId: String,
                            val friendScreenName: String)
+
+data class LoginResponse(val token: String)
