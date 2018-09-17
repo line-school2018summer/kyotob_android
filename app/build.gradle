@@ -57,6 +57,9 @@ dependencies {
 
     // Jackson
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.0"
+
+    // Picasso 画像用
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
 
 

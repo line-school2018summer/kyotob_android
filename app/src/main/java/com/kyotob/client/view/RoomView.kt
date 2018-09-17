@@ -12,6 +12,7 @@ import com.kyotob.client.bindView
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.database.RoomsMidokuModel
 import com.kyotob.client.entities.Room
+import com.squareup.picasso.Picasso
 
 // 個々のRoomViewの雛形を作るつくるクラス
 // RoomViewAdapterで利用する
@@ -50,7 +51,9 @@ class RoomView(context: Context): FrameLayout(context) {
         timeTextView.text = room.createdAt.toString().substring(11, 16)
 
         // 画像をセットする
-        profileImageView.setBackgroundColor(Color.RED)
+        profileImageView.setBackgroundColor(Color.WHITE)
+
+        Picasso.get().load("http://192.168.1.35:8080/image/download/def.png").into(profileImageView)
 
         // ---------- SQLITE ----------------
         val roomDatabaseHelper = RoomDatabaseHelper(context) // インスタンス
