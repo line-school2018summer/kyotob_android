@@ -109,7 +109,6 @@ class SearchUserDialog : DialogFragment() {
 //                    Toast.makeText(context, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
                 }
             })
-
             // ダイアログを閉じる
             dialog.dismiss()
         }
