@@ -61,7 +61,7 @@ class ChatListActivity : AppCompatActivity() {
             // ----------------------------------
             updateChatList(listAdapter) // 画面の更新
             // Debug: トーストを表示
-            Toast.makeText(this, "Clicked: ${itemInfo.name}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Clicked: ${itemInfo.roomName}", Toast.LENGTH_SHORT).show()
             // ChatActivityを表示
             val chatActivityIntent = Intent(this, ChatActivity::class.java)
             // 遷移先に値を渡す
@@ -88,7 +88,7 @@ class ChatListActivity : AppCompatActivity() {
             // 初期化のため WebSocket コンテナのオブジェクトを取得する
             val container = ContainerProvider.getWebSocketContainer()
             // サーバー・エンドポイントの URI
-            val uri = URI.create("ws://192.168.10.139:8181/0918nobita") // 適宜変更
+            val uri = URI.create("ws://192.168.1.35:8181/0918nobita") // 適宜変更
             // サーバー・エンドポイントとのセッションを確立する
             container.connectToServer(WebSocketEndPoint { msg ->
                 // jsonパース
@@ -124,8 +124,7 @@ Java オブジェクトでキャメルケースに対応させるための設定
                 .create()
 
         val retrofit = Retrofit.Builder()
-//                .baseUrl(getString(R.string.baseUrl))  // PC 側の localhost
-                .baseUrl("http://192.168.10.139:8080/") // テスト用
+                .baseUrl(baseUrl)
                 // レスポンスからオブジェクトへのコンバータファクトリを設定する
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
@@ -135,8 +134,7 @@ Java オブジェクトでキャメルケースに対応させるための設定
         val client = retrofit.create(Client::class.java)
 
         // 通信
-//        client.makeList("foo").enqueue(object : Callback<List<Room>> { // 本番用
-        client.makeList("foo").enqueue(object : Callback<List<Room>> { // テスト用
+        client.makeList("foo").enqueue(object : Callback<List<Room>> {
             // Request成功時に呼ばれる
             override fun onResponse(call: Call<List<Room>>, response: Response<List<Room>>) {
                 // 通信成功時

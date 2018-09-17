@@ -46,9 +46,10 @@ class RoomView(context: Context): FrameLayout(context) {
 
     fun setRoom(room: Room) {
         // 文字をセット
-        userNameTextView.text = room.name
+        userNameTextView.text = room.roomName
+
         latestMessageTextView.text = room.recentMessage
-        timeTextView.text = room.createdAt.toString().substring(11, 16)
+//        timeTextView.text = room.createdAt.toString().substring(11, 16)
 
         // 画像をセットする
         profileImageView.setBackgroundColor(Color.WHITE)

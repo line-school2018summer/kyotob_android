@@ -9,7 +9,7 @@ import java.sql.Timestamp
 
 data class Room(
         val roomId: Int,
-        val name: String,
+        val roomName: String,
         val recentMessage: String,
         val createdAt: Timestamp
 )
