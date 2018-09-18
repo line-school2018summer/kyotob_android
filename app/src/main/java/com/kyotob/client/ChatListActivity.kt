@@ -3,6 +3,7 @@ package com.kyotob.client
 import android.content.Intent
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
+
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.view.View

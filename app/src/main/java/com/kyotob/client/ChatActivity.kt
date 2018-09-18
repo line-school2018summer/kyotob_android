@@ -39,7 +39,7 @@ class ChatActivity : AppCompatActivity() {
                 .create()
 
         val retrofit = Retrofit.Builder()
-                .baseUrl(baseUrl)  // PC 側の localhost
+                .baseUrl(baseUrl)
                 // レスポンスからオブジェクトへのコンバータファクトリを設定する
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())

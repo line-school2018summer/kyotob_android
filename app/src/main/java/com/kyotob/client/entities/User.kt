@@ -24,3 +24,5 @@ data class WebSocketMessage(
         val roomId: String,
         val content: String
 )
+
+data class LoginResponse(val token: String)
