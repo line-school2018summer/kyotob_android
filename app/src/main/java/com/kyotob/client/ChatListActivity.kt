@@ -89,27 +89,33 @@ class ChatListActivity : AppCompatActivity() {
             val container = ContainerProvider.getWebSocketContainer()
             // サーバー・エンドポイントの URI
             val uri = URI.create("ws://192.168.1.35:8181/0918nobita") // 適宜変更
-            // サーバー・エンドポイントとのセッションを確立する
-            container.connectToServer(WebSocketEndPoint { msg ->
-                // jsonパース
-                val mapper = jacksonObjectMapper()
-                val webSocketMessage = mapper.readValue<WebSocketMessage>(msg)
+            try {
+                // サーバー・エンドポイントとのセッションを確立する
+                container.connectToServer(WebSocketEndPoint { msg ->
+                    // jsonパース
+                    val mapper = jacksonObjectMapper()
+                    val webSocketMessage = mapper.readValue<WebSocketMessage>(msg)
 
-                // ---------- SQLITE ----------------
-                val roomDatabaseHelper = RoomDatabaseHelper(this) // インスタンス
-                // データを検索
-                val midokuNum = roomDatabaseHelper.searchData(webSocketMessage.roomId)
-                if (midokuNum == -1) { // 新規Roomの場合
-                    val midokuModel = RoomsMidokuModel(webSocketMessage.roomId, 0) // データ
-                    roomDatabaseHelper.inserData(midokuModel) // データの挿入
-                } else {// 既存のRoomの場合
-                    roomDatabaseHelper.updateData(webSocketMessage.roomId, midokuNum+1) // データの挿入
-                }
-                // ----------------------------------
+                    // ---------- SQLITE ----------------
+                    val roomDatabaseHelper = RoomDatabaseHelper(this) // インスタンス
+                    // データを検索
+                    val midokuNum = roomDatabaseHelper.searchData(webSocketMessage.roomId)
+                    if (midokuNum == -1) { // 新規Roomの場合
+                        val midokuModel = RoomsMidokuModel(webSocketMessage.roomId, 0) // データ
+                        roomDatabaseHelper.inserData(midokuModel) // データの挿入
+                    } else {// 既存のRoomの場合
+                        roomDatabaseHelper.updateData(webSocketMessage.roomId, midokuNum+1) // データの挿入
+                    }
+                    // ----------------------------------
 
-                // Messageを受信すると、chatListの表示を更新する
-                updateChatList(listAdapter)
-            }, uri)
+                    // Messageを受信すると、chatListの表示を更新する
+                    updateChatList(listAdapter)
+                }, uri)
+            } catch (e: Exception) {
+                // Fail to connect Internet access
+                println("Fail to Connect Websocket Access")
+            }
+
         }.execute()
         // ----------------------------------------
     }
