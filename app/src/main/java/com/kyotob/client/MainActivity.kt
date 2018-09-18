@@ -14,6 +14,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val p = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
+        val editor = p.edit()
+        editor.putString(USERNAMEKEY, "test")
+        editor.putString(USERSCREENNAMEKEY, "Test User #1")
+        editor.putString(TOKENKEY, "bar")
+        editor.apply()
     }
 
     fun openRegisterActivity(view: View) {
@@ -33,12 +39,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openSettingActivity(view: View) {
-        val p = getSharedPreferences("userData", Context.MODE_PRIVATE)
-        val editor = p.edit()
-        editor.putString("name", "test")
-        editor.putString("screenName", "Test User #1")
-        editor.putString("accessToken", "bar")
-        editor.apply()
         startActivity(Intent(this, SettingActivity::class.java))
     }
 }
