@@ -23,6 +23,9 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
+import net.gotev.uploadservice.MultipartUploadRequest
+import net.gotev.uploadservice.UploadNotificationConfig
+import net.gotev.uploadservice.UploadService
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -35,6 +38,8 @@ class RegisterActivity : AppCompatActivity() {
     var currentPath: String? = null
     val TAKE_PICTURE = 1
     val SELECT_PICTURE = 2
+    var uri:Uri? = null
+
 
     val job = Job()
 
@@ -50,13 +55,13 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
+        // NAMESPACE PARAMETER FOR UPLOADSERVICE
+        UploadService.NAMESPACE = "com.kyotob.client"
+
         val sharedPreferences = getSharedPreferences("userData", Context.MODE_PRIVATE)
         //ユーザー登録する
         findViewById<Button>(R.id.register_button_register).setOnClickListener(object: View.OnClickListener{
             override fun onClick(v: View){
-
-
-
                 val name: String = findViewById<EditText>(R.id.id_edittext_register).text.toString()
                 val screen_name : String = findViewById<EditText>(R.id.username_edittext_register).text.toString()
                 val password: String = findViewById<EditText>(R.id.password_edittext_register).text.toString()
@@ -98,7 +103,8 @@ class RegisterActivity : AppCompatActivity() {
                         when(num) {
                             0 -> { dispatchCameraIntent() }
                             1 -> { despatchGallaryIntent() }
-                            2 -> {findViewById<ImageView>(R.id.user_icon).setImageResource(R.drawable.boy)}
+                            2 -> {findViewById<ImageView>(R.id.user_icon).setImageResource(R.drawable.boy)
+                                  uri = null}
                         }
                     })
                     .show()
@@ -112,8 +118,9 @@ class RegisterActivity : AppCompatActivity() {
         if(requestCode == TAKE_PICTURE && resultCode == Activity.RESULT_OK) {
             try {
                 val file = File(currentPath)
-                val uri = Uri.fromFile(file)
+                uri = Uri.fromFile(file)
                 findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
+                uploadImage()
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -121,11 +128,28 @@ class RegisterActivity : AppCompatActivity() {
         // アルバムから画像を選んだときの挙動
         if(requestCode == SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
             try {
-                val uri = data!!.data
+                uri = data!!.data
                 findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
+                uploadImage()
             } catch (e: IOException) {
                 e.printStackTrace()
             }
+        }
+    }
+
+    // UPLOAD IMAGE
+    fun uploadImage() {
+        Log.d("imagepath", uri!!.path.replace(".*:".toRegex(), "/sdcard/"))
+        try {
+
+            MultipartUploadRequest(this, UUID.randomUUID().toString(), "https://e78b7e2e.ngrok.io/image/upload")
+                    .addFileToUpload(uri!!.path.replace(".*:".toRegex(), "/sdcard/"), "file")
+                    .setNotificationConfig(UploadNotificationConfig())
+                    .setMaxRetries(2)
+                    .startUpload()
+            Log.d("finishflag", "aaa")
+        } catch (e: Exception) {
+            Log.e("AndroidUploadService", e.toString())
         }
     }
 

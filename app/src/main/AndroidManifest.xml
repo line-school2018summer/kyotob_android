@@ -9,6 +9,8 @@
     <!-- PERMISSION FOR CAMERA -->
     <uses-feature android:name="android.hardware.camera2" android:required="true" />
     <uses-permission android:name="android.permission.WHITE_EXTERNAL_STORAGE" />
+    <!-- PERMISSION FOR IMAGE UPLOAD -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
 
