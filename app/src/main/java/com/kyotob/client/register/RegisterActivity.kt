@@ -23,9 +23,8 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
-import net.gotev.uploadservice.MultipartUploadRequest
-import net.gotev.uploadservice.UploadNotificationConfig
-import net.gotev.uploadservice.UploadService
+import net.gotev.uploadservice.*
+import org.glassfish.tyrus.server.Server
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -142,10 +141,13 @@ class RegisterActivity : AppCompatActivity() {
         Log.d("imagepath", uri!!.path.replace(".*:".toRegex(), "/sdcard/"))
         try {
 
-            MultipartUploadRequest(this, UUID.randomUUID().toString(), "https://e78b7e2e.ngrok.io/image/upload")
+            MultipartUploadRequest(this, UUID.randomUUID().toString(), "http://192.168.10.139:8080/image/upload")
                     .addFileToUpload(uri!!.path.replace(".*:".toRegex(), "/sdcard/"), "file")
                     .setNotificationConfig(UploadNotificationConfig())
                     .setMaxRetries(2)
+                    .setDelegate(DelegeteForUpload { response ->
+                        Log.d("response", response)
+                    })
                     .startUpload()
             Log.d("finishflag", "aaa")
         } catch (e: Exception) {
@@ -187,5 +189,28 @@ class RegisterActivity : AppCompatActivity() {
         var image = File.createTempFile(imageName, ".jpg", storageDir)
         currentPath = image.absolutePath
         return image
+    }
+}
+
+// HANDLER FOR UPLOADING IMAGE RESPONSE
+class DelegeteForUpload(private val handler: (response: String) -> Unit) : UploadStatusDelegate {
+    override fun onProgress(context: Context, uploadInfo: UploadInfo) {
+        // your code here
+    }
+
+    override fun onError(context: Context, uploadInfo: UploadInfo, serverResponse: ServerResponse, exception: Exception) {
+        // your code here
+    }
+
+    override fun onCompleted(context: Context, uploadInfo: UploadInfo, serverResponse: ServerResponse) {
+        handler(serverResponse.bodyAsString)
+        // your code here
+        // if you have mapped your server response to a POJO, you can easily get it:
+        // YourClass obj = new Gson().fromJson(serverResponse.getBodyAsString(), YourClass.class);
+
+    }
+
+    override fun  onCancelled(context: Context, uploadInfo: UploadInfo) {
+        // your code here
     }
 }
