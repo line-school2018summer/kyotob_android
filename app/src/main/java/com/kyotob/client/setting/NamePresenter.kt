@@ -1,6 +1,9 @@
 package com.kyotob.client.setting
 
 import android.content.SharedPreferences
+import com.kyotob.client.TOKENKEY
+import com.kyotob.client.USERNAMEKEY
+import com.kyotob.client.USERSCREENNAMEKEY
 import com.kyotob.client.repositories.user.UsersRepository
 import kotlinx.coroutines.experimental.*
 import ru.gildor.coroutines.retrofit.await
@@ -18,18 +21,18 @@ class NamePresenter(
 
     override fun start() {
         if (!view.isActive) return
-        view.showName(sharedPreferences.getString("screenName","default")!!)
+        view.showName(sharedPreferences.getString(USERSCREENNAMEKEY,"default")!!)
     }
 
     override suspend fun updateName(newName: String) {
-        val token = sharedPreferences.getString("accessToken","default")
-        val name = sharedPreferences.getString("name", "default")
+        val token = sharedPreferences.getString(TOKENKEY,"default")
+        val name = sharedPreferences.getString(USERNAMEKEY, "default")
         try {
             withContext(CommonPool) {
                 usersRepository.updateUserName(name!!,token!!, newName).awaitResponse()
             }
             val editor = sharedPreferences.edit()
-            editor.putString("screenName", newName)
+            editor.putString(USERSCREENNAMEKEY, newName)
             editor.apply()
 
             view.hideKeyBoard()

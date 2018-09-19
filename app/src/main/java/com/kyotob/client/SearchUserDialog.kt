@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.app.AlertDialog
+import android.content.Context
 import android.support.constraint.ConstraintLayout
 import android.view.KeyEvent
 import android.view.View
@@ -50,13 +51,16 @@ class SearchUserDialog : DialogFragment() {
         // クライアントの実装の生成
         val client = retrofit.create(Client::class.java)
 
+        val sharedPreferences = activity!!.getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
+        val token = sharedPreferences.getString(TOKENKEY, null) ?: throw Exception("token is null")
+        val userName = sharedPreferences.getString(USERNAMEKEY, null) ?: throw Exception("userName is null")
 
         // エンターキー押下時の挙動
         dialogEditText.setOnKeyListener { _, keyCode, event ->
             (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN).apply {
 
                 // 通信
-                client.searchUser(dialogEditText.text.toString(), "foo").enqueue(object : Callback<SearchUserResponse> {
+                client.searchUser(dialogEditText.text.toString(), token).enqueue(object : Callback<SearchUserResponse> {
                     // Request成功時に呼ばれる
                     override fun onResponse(call: Call<SearchUserResponse>, response: Response<SearchUserResponse>) {
                         val notFoundView = inflater.findViewById(R.id.dialog_not_found_text_view) as TextView
@@ -90,7 +94,7 @@ class SearchUserDialog : DialogFragment() {
 
         addUserButton.setOnClickListener {
             // roomの追加
-            client.makeRoom(AddUserRequest("foo", dialogEditText.text.toString()), "aaa").enqueue(object : Callback<AddUserResponse> {
+            client.makeRoom(AddUserRequest(userName , dialogEditText.text.toString()), token).enqueue(object : Callback<AddUserResponse> {
                 // Request成功時に呼ばれる
                 override fun onResponse(call: Call<AddUserResponse>, response: Response<AddUserResponse>) {
                     // 通信成功時
