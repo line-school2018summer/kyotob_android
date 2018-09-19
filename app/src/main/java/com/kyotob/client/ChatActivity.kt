@@ -1,5 +1,6 @@
 package com.kyotob.client
 
+import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -48,6 +49,11 @@ class ChatActivity : AppCompatActivity() {
         // クライアントの実装の生成
         val client = retrofit.create(Client::class.java)
 
+        val sharedPreferences = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
+        val token = sharedPreferences.getString(TOKENKEY, null) ?: throw Exception("token is null")
+        val userName = sharedPreferences.getString(USERNAMEKEY, null) ?: throw Exception("userName is null")
+
+
         client.getMessages(1, "foo").enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
                 listAdapter.messages = response?.body() ?: emptyArray()
@@ -61,7 +67,7 @@ class ChatActivity : AppCompatActivity() {
         val textArea = findViewById<TextInputEditText>(R.id.message)
 
         submitButton.setOnClickListener {
-            client.sendMessage(1, PostMessageRequest("0918nobita", textArea.text.toString()), "foo")
+            client.sendMessage(1, PostMessageRequest(userName, textArea.text.toString()), token)
                   .enqueue(object : Callback<Boolean> {
                       override fun onResponse(call: Call<Boolean>?, response: Response<Boolean>?) {
                           Log.i("code", response?.code().toString())

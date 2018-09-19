@@ -1,5 +1,6 @@
 package com.kyotob.client
 
+import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
@@ -50,6 +51,7 @@ class ChatListActivity : AppCompatActivity() {
         var listView = findViewById<ListView>(R.id.chats_list)
         // 3, このクラスのインスタンスをlistViewのadapterに代入することで簡単にlistのitemをデザインできる
         listView.adapter = listAdapter
+
 
         // リスト項目タップ時のアクション
         listView.setOnItemClickListener{ _, _, position, _ ->
@@ -124,6 +126,10 @@ class ChatListActivity : AppCompatActivity() {
 
     // 通信結果のJsonをパースして、UIに反映させる
     fun updateChatList(chatListAdapter: RoomListAdapter) {
+
+        val sharedPreferences = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
+        val token = sharedPreferences.getString(TOKENKEY, null) ?: throw Exception("token is null")
+
         /* JSON のスネークケースで表現されるフィールド名を、
 Java オブジェクトでキャメルケースに対応させるための設定 */
         val gson = GsonBuilder()
@@ -141,7 +147,7 @@ Java オブジェクトでキャメルケースに対応させるための設定
         val client = retrofit.create(Client::class.java)
 
         // 通信
-        client.makeList("foo").enqueue(object : Callback<List<Room>> {
+        client.makeList(token).enqueue(object : Callback<List<Room>> {
             // Request成功時に呼ばれる
             override fun onResponse(call: Call<List<Room>>, response: Response<List<Room>>) {
                 // 通信成功時
