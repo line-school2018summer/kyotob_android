@@ -18,21 +18,22 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.*
 
 class ChatActivity : AppCompatActivity() {
+
+    private val timer = Timer()
+    private lateinit var listAdapter: MessageListAdapter
+    private lateinit var client: Client
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
         title = "チャット"
 
-        val intent = Intent(this, ChatListActivity::class.java)
+        // val intent = Intent(this, ChatListActivity::class.java)
 
-        val roomId = intent.getIntExtra("ROOM_ID", -1)
-
-        val listAdapter = MessageListAdapter(applicationContext)
-
-        val listView = findViewById<ListView>(R.id.list_view)
+        // val roomId = intent.getIntExtra("ROOM_ID", -1)
 
         val gson = GsonBuilder()
                 //.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -46,10 +47,13 @@ class ChatActivity : AppCompatActivity() {
                 .build()
 
         // クライアントの実装の生成
-        val client = retrofit.create(Client::class.java)
+        client = retrofit.create(Client::class.java)
+
+        listAdapter = MessageListAdapter(applicationContext)
 
         client.getMessages(1, "foo").enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
+                val listView = findViewById<ListView>(R.id.list_view)
                 listAdapter.messages = response?.body() ?: emptyArray()
                 listView.adapter = listAdapter
             }
@@ -81,5 +85,20 @@ class ChatActivity : AppCompatActivity() {
                       override fun onFailure(call: Call<Boolean>, t: Throwable) {}
                   })
         }
+
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() = updateMessages()
+        }, 5000, 5000)
+    }
+
+    fun updateMessages() {
+        client.getMessages(1, "foo").enqueue(object : Callback<Array<GetMessageResponse>> {
+            override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
+                listAdapter.messages = response?.body() ?: emptyArray()
+                listAdapter.notifyDataSetChanged()
+            }
+
+            override fun onFailure(call: Call<Array<GetMessageResponse>>?, t: Throwable?) {}
+        })
     }
 }
