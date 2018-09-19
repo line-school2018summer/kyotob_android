@@ -1,6 +1,5 @@
 package com.kyotob.client
 
-import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.TextInputEditText
@@ -26,15 +25,18 @@ class ChatActivity : AppCompatActivity() {
     private val timer = Timer()
     private lateinit var listAdapter: MessageListAdapter
     private lateinit var client: Client
+    private var roomId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
         title = "チャット"
 
-        // val intent = Intent(this, ChatListActivity::class.java)
-
-        // val roomId = intent.getIntExtra("ROOM_ID", -1)
+        roomId = intent.getIntExtra("ROOM_ID", -1)
+        if (roomId == -1) {
+            Toast.makeText(applicationContext, "ルームIDの取得に失敗しました", Toast.LENGTH_SHORT).show()
+            finish()
+        }
 
         val gson = GsonBuilder()
                 //.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -52,7 +54,7 @@ class ChatActivity : AppCompatActivity() {
 
         listAdapter = MessageListAdapter(applicationContext)
 
-        client.getMessages(1, "foo").enqueue(object : Callback<Array<GetMessageResponse>> {
+        client.getMessages(roomId, "foo").enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
                 val listView = findViewById<ListView>(R.id.list_view)
                 listAdapter.messages = response?.body() ?: emptyArray()
@@ -94,7 +96,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     fun updateMessages() {
-        client.getMessages(1, "foo").enqueue(object : Callback<Array<GetMessageResponse>> {
+        client.getMessages(roomId, "foo").enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
                 listAdapter.messages = response?.body() ?: emptyArray()
                 listAdapter.notifyDataSetChanged()

@@ -23,7 +23,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun openChatActivity(view: View) {
-        startActivity(Intent(this, ChatActivity::class.java))
+        val intent = Intent(this, ChatActivity::class.java)
+        intent.putExtra("ROOM_ID", 1)
+        startActivity(intent)
     }
 
     fun openChatListActivity(view: View) {
