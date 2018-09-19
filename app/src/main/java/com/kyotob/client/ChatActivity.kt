@@ -27,9 +27,11 @@ class ChatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_chat)
         title = "チャット"
 
-        val intent = Intent(this, ChatListActivity::class.java)
-
-        val roomId = intent.getIntExtra("ROOM_ID", -1)
+//        val intent = Intent(this, ChatListActivity::class.java)
+//
+//        val roomId = intent.getIntExtra("ROOM_ID", -1)
+        val i = this.intent
+        val roomId = i.getIntExtra("ROOM_ID", -1)
 
         val listAdapter = MessageListAdapter(applicationContext)
 
@@ -54,7 +56,7 @@ class ChatActivity : AppCompatActivity() {
         val userName = sharedPreferences.getString(USERNAMEKEY, null) ?: throw Exception("userName is null")
 
 
-        client.getMessages(1, "foo").enqueue(object : Callback<Array<GetMessageResponse>> {
+        client.getMessages(roomId, token).enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
                 listAdapter.messages = response?.body() ?: emptyArray()
                 listView.adapter = listAdapter
@@ -67,7 +69,7 @@ class ChatActivity : AppCompatActivity() {
         val textArea = findViewById<TextInputEditText>(R.id.message)
 
         submitButton.setOnClickListener {
-            client.sendMessage(1, PostMessageRequest(userName, textArea.text.toString()), token)
+            client.sendMessage(roomId, PostMessageRequest(userName, textArea.text.toString()), token)
                   .enqueue(object : Callback<Boolean> {
                       override fun onResponse(call: Call<Boolean>?, response: Response<Boolean>?) {
                           Log.i("code", response?.code().toString())
