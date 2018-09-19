@@ -76,7 +76,7 @@ class ChatListActivity : AppCompatActivity() {
         // FloatingIconをクリックしたときの処理
         addUserButton.setOnClickListener {
             // SearchUserDialogのインスタンスをつくる
-            val dialog = SearchUserDialog()
+            val dialog = Dialog()
             // Dialogを表示
             dialog.show(supportFragmentManager, "dialog")
         }
