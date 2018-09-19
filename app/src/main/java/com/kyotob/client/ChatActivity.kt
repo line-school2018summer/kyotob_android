@@ -7,6 +7,7 @@ import android.support.design.widget.TextInputEditText
 import android.util.Log
 import android.widget.Button
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import com.google.gson.GsonBuilder
 import com.kyotob.client.adapter.MessageListAdapter
@@ -77,6 +78,7 @@ class ChatActivity : AppCompatActivity() {
                                   Toast.makeText(applicationContext, "送信が拒否されました", Toast.LENGTH_SHORT).show()
                               }
                               else -> {
+                                  textArea.setText("", TextView.BufferType.EDITABLE)
                                   Toast.makeText(applicationContext, "送信成功: " + response.body(), Toast.LENGTH_SHORT).show()
                               }
                           }
