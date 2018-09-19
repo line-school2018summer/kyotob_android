@@ -14,14 +14,14 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_login.*
 import com.kyotob.client.register.RegisterActivity
-import com.kyotob.client.repositories.user.UsersRepositry
+import com.kyotob.client.repositories.user.UsersRepository
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
 import ru.gildor.coroutines.retrofit.awaitResponse
 
 class LoginActivity : AppCompatActivity() {
 
-    private val usersRepositry = UsersRepositry()
+    private val usersRepositry = UsersRepository()
 
 
     private val job = Job()

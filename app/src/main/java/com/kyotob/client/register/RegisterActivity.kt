@@ -14,7 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_register.*
 import com.kyotob.client.login.LoginActivity
-import com.kyotob.client.repositories.user.UsersRepositry
+import com.kyotob.client.repositories.user.UsersRepository
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
@@ -25,7 +25,7 @@ class RegisterActivity : AppCompatActivity() {
     val job = Job()
 
 
-    val usersRepositry = UsersRepositry()
+    val usersRepositry = UsersRepository()
 
     fun showToast(message: String) {
         val toast = Toast.makeText(this, message, Toast.LENGTH_LONG)
