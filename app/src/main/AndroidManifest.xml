@@ -35,6 +35,7 @@
         <activity android:name=".register.RegisterActivity" />
         <activity android:name=".setting.SettingActivity" />
         <activity android:name=".setting.NameActivity" />
+        <activity android:name=".TimerMessageActivity" />
 
         <!-- PROVIDER FOR CAMERA -->
         <provider

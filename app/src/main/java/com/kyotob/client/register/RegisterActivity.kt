@@ -119,7 +119,6 @@ class RegisterActivity : AppCompatActivity() {
                 val file = File(currentPath)
                 uri = Uri.fromFile(file)
                 findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
-                uploadImage()
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -129,32 +128,11 @@ class RegisterActivity : AppCompatActivity() {
             try {
                 uri = data!!.data
                 findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
-                uploadImage()
             } catch (e: IOException) {
                 e.printStackTrace()
             }
         }
     }
-
-    // UPLOAD IMAGE
-    fun uploadImage() {
-        Log.d("imagepath", uri!!.path.replace(".*:".toRegex(), "/sdcard/"))
-        try {
-
-            MultipartUploadRequest(this, UUID.randomUUID().toString(), "http://192.168.10.139:8080/image/upload")
-                    .addFileToUpload(uri!!.path.replace(".*:".toRegex(), "/sdcard/"), "file")
-                    .setNotificationConfig(UploadNotificationConfig())
-                    .setMaxRetries(2)
-                    .setDelegate(DelegeteForUpload { response ->
-                        Log.d("response", response)
-                    })
-                    .startUpload()
-            Log.d("finishflag", "aaa")
-        } catch (e: Exception) {
-            Log.e("AndroidUploadService", e.toString())
-        }
-    }
-
     // GallaryActivity
     fun despatchGallaryIntent() {
         val intent = Intent()
@@ -189,28 +167,5 @@ class RegisterActivity : AppCompatActivity() {
         var image = File.createTempFile(imageName, ".jpg", storageDir)
         currentPath = image.absolutePath
         return image
-    }
-}
-
-// HANDLER FOR UPLOADING IMAGE RESPONSE
-class DelegeteForUpload(private val handler: (response: String) -> Unit) : UploadStatusDelegate {
-    override fun onProgress(context: Context, uploadInfo: UploadInfo) {
-        // your code here
-    }
-
-    override fun onError(context: Context, uploadInfo: UploadInfo, serverResponse: ServerResponse, exception: Exception) {
-        // your code here
-    }
-
-    override fun onCompleted(context: Context, uploadInfo: UploadInfo, serverResponse: ServerResponse) {
-        handler(serverResponse.bodyAsString)
-        // your code here
-        // if you have mapped your server response to a POJO, you can easily get it:
-        // YourClass obj = new Gson().fromJson(serverResponse.getBodyAsString(), YourClass.class);
-
-    }
-
-    override fun  onCancelled(context: Context, uploadInfo: UploadInfo) {
-        // your code here
     }
 }
