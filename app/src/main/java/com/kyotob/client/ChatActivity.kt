@@ -57,9 +57,9 @@ class ChatActivity : AppCompatActivity() {
 
         listAdapter = MessageListAdapter(applicationContext)
 
-        val sharedPreferences = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
-        token = sharedPreferences.getString(TOKENKEY, null) ?: throw Exception("token is null")
-        val userName = sharedPreferences.getString(USERNAMEKEY, null) ?: throw Exception("userName is null")
+        val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
+        token = sharedPreferences.getString(TOKEN_KEY, null) ?: throw Exception("token is null")
+        val userName = sharedPreferences.getString(USER_NAME_KEY, null) ?: throw Exception("userName is null")
 
         client.getMessages(roomId, token).enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {

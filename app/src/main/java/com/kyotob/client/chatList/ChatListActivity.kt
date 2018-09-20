@@ -132,8 +132,8 @@ class ChatListActivity : AppCompatActivity() {
     // 通信結果のJsonをパースして、UIに反映させる
     fun updateChatList(chatListAdapter: RoomListAdapter) {
 
-        val sharedPreferences = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
-        val token = sharedPreferences.getString(TOKENKEY, null) ?: throw Exception("token is null")
+        val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
+        val token = sharedPreferences.getString(TOKEN_KEY, null) ?: throw Exception("token is null")
 
         /* JSON のスネークケースで表現されるフィールド名を、
 Java オブジェクトでキャメルケースに対応させるための設定 */

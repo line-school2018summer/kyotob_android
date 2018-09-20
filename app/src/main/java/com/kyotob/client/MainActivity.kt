@@ -15,11 +15,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val p = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
+        val p = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
         val editor = p.edit()
-        editor.putString(USERNAMEKEY, "test")
-        editor.putString(USERSCREENNAMEKEY, "Test User #1")
-        editor.putString(TOKENKEY, "bar")
+        editor.putString(USER_NAME_KEY, "test")
+        editor.putString(USER_SCREEN_NAME_KEY, "Test User #1")
+        editor.putString(TOKEN_KEY, "bar")
         editor.apply()
     }
 

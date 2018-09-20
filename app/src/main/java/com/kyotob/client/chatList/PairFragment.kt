@@ -60,9 +60,9 @@ class PairFragment: Fragment() {
         // クライアントの実装の生成
         val client = retrofit.create(Client::class.java)
 
-        val sharedPreferences = activity!!.getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
-        val token = sharedPreferences.getString(TOKENKEY, null) ?: throw Exception("token is null")
-        val userName = sharedPreferences.getString(USERNAMEKEY, null) ?: throw Exception("userName is null")
+        val sharedPreferences = activity!!.getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
+        val token = sharedPreferences.getString(TOKEN_KEY, null) ?: throw Exception("token is null")
+        val userName = sharedPreferences.getString(USER_NAME_KEY, null) ?: throw Exception("userName is null")
 
         // エンターキー押下時の挙動
         dialogEditText.setOnKeyListener { _, keyCode, event ->
