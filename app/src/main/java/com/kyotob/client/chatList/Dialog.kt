@@ -39,7 +39,7 @@ class Dialog : DialogFragment() {
         // builderを返す
         //return builder.create()
 
-        dialog.window.requestFeature(Window.FEATURE_NO_TITLE)
+        dialog?.window?.requestFeature(Window.FEATURE_NO_TITLE)
         dialog.setCanceledOnTouchOutside(true)
 
         return view
