@@ -28,7 +28,8 @@ data class WebSocketMessage(
         val content: String
 )
 
-data class LoginResponse(val token: String)
+data class LoginResponse(val screenName: String,
+                         val token: String)
 
 data class FriendItem(
         val friendScreenName: String,
