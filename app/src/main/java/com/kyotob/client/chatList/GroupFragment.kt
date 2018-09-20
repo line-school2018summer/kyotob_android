@@ -90,7 +90,8 @@ class GroupFragment: Fragment() {
 
     suspend fun clickRegisterButton() {
         val roomName = nameText.text.toString()
-        val memberList: List<String> = adapter.itemList.filter {it.isChecked}.map{it.name} + listOf("test")
+        val name = sharedPreferences.getString(USER_NAME_KEY, "default")
+        val memberList: List<String> = adapter.itemList.filter {it.isChecked}.map{it.name} + listOf(name)
         val token = sharedPreferences.getString(TOKEN_KEY, "default")
         try {
             val response = withContext(CommonPool) {
