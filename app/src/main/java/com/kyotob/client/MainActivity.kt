@@ -5,7 +5,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
-import com.kyotob.client.chatList.ChatListActivity
+//import com.kyotob.client.chatList.ChatListActivity
 import com.kyotob.client.login.LoginActivity
 import com.kyotob.client.register.RegisterActivity
 import com.kyotob.client.setting.SettingActivity

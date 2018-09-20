@@ -14,6 +14,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
+import com.kyotob.client.ChatListActivity
 import com.kyotob.client.R
 import com.kyotob.client.TOKEN_KEY
 import com.kyotob.client.USER_DATA_KEY

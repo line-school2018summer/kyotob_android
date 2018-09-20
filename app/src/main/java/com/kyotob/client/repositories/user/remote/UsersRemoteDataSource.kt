@@ -18,7 +18,6 @@ package com.kyotob.client.repositories.user.remote
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.kyotob.client.baseUrl
-import com.kyotob.client.entities.FriendItem
 import com.kyotob.client.repositories.remoteUtil.CommonInterceptor
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -27,7 +26,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class UsersRemoteDataSource {
-
     val gson = GsonBuilder()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .create()

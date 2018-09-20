@@ -10,7 +10,8 @@ data class UserResponse(val id: Int,
 
 // ユーザー検索時のresponse
 data class SearchUserResponse(val name: String,
-                      val screenName: String)
+                      val screenName: String,
+                      val imageUrl: String)
 
 // ユーザー登録時のrequest
 data class AddUserRequest(

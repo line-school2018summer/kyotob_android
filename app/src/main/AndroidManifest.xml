@@ -9,6 +9,8 @@
     <!-- PERMISSION FOR CAMERA -->
     <uses-feature android:name="android.hardware.camera2" android:required="true" />
     <uses-permission android:name="android.permission.WHITE_EXTERNAL_STORAGE" />
+    <!-- PERMISSION FOR IMAGE UPLOAD -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
 
@@ -28,11 +30,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".ChatActivity" />
-        <activity android:name=".chatList.ChatListActivity" />
+        <activity android:name=".ChatListActivity" />
         <activity android:name=".login.LoginActivity" />
         <activity android:name=".register.RegisterActivity" />
         <activity android:name=".setting.SettingActivity" />
         <activity android:name=".setting.NameActivity" />
+        <activity android:name=".TimerMessageActivity" />
 
         <!-- PROVIDER FOR CAMERA -->
         <provider

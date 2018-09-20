@@ -1,12 +1,15 @@
-package com.kyotob.client.chatList
+package com.kyotob.client
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.FloatingActionButton
+import android.view.View
 import com.kyotob.client.adapter.RoomListAdapter
 import com.kyotob.client.entities.Room
 import android.widget.*
@@ -22,6 +25,7 @@ import android.widget.Toast
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.kyotob.client.*
+import com.kyotob.client.chatList.Dialog
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.database.RoomsMidokuModel
 // WebSocket用
@@ -39,20 +43,14 @@ data class WebSocketMessage(
 
 class ChatListActivity : AppCompatActivity() {
 
-    lateinit var listAdapter: RoomListAdapter
-
-    override fun onResume() {
-        super.onResume()
-        updateChatList(listAdapter)
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_list)
 
         // RoomsViewでカスタマイズされたListViewにデータを入れて、表示させる。その際に、Adapterが緩衝材になる
         // 1, ListViewAdapterのインスタンスをつくる
+        val listAdapter = RoomListAdapter(applicationContext)
         // 2, listViewのインスタンスをつくる
-        listAdapter = RoomListAdapter(applicationContext)
         var listView = findViewById<ListView>(R.id.chats_list)
         // 3, このクラスのインスタンスをlistViewのadapterに代入することで簡単にlistのitemをデザインできる
         listView.adapter = listAdapter
@@ -68,8 +66,6 @@ class ChatListActivity : AppCompatActivity() {
             roomDatabaseHelper.updateData(itemInfo.roomId, 0) // データの挿入
             // ----------------------------------
             updateChatList(listAdapter) // 画面の更新
-            // Debug: トーストを表示
-            Toast.makeText(this, "Clicked: ${itemInfo.roomName}", Toast.LENGTH_SHORT).show()
             // ChatActivityを表示
             val chatActivityIntent = Intent(this, ChatActivity::class.java)
             // 遷移先に値を渡す
@@ -93,10 +89,13 @@ class ChatListActivity : AppCompatActivity() {
 
         // WebSocket用の通信を非同期(AsyncTask)で実行
         DoAsync {
+            val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
+            val name = sharedPreferences.getString(USER_NAME_KEY, null) ?: throw Exception("name is null")
+
             // 初期化のため WebSocket コンテナのオブジェクトを取得する
             val container = ContainerProvider.getWebSocketContainer()
             // サーバー・エンドポイントの URI
-            val uri = URI.create("ws://192.168.1.35:8181/0918nobita") // 適宜変更
+            val uri = URI.create("wss://" + baseIP + "/" + name) // 要変更
             try {
                 // サーバー・エンドポイントとのセッションを確立する
                 container.connectToServer(WebSocketEndPoint { msg ->
@@ -131,9 +130,8 @@ class ChatListActivity : AppCompatActivity() {
 
     // 通信結果のJsonをパースして、UIに反映させる
     fun updateChatList(chatListAdapter: RoomListAdapter) {
-
         val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
-        val token = sharedPreferences.getString(TOKEN_KEY, null) ?: throw Exception("token is null")
+        val token = sharedPreferences.getString(TOKEN_KEY, null)
 
         /* JSON のスネークケースで表現されるフィールド名を、
 Java オブジェクトでキャメルケースに対応させるための設定 */
