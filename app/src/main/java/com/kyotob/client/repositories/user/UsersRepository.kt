@@ -33,3 +33,7 @@ class UsersRepository(
 
     fun uploadIcon(file: MultipartBody.Part) = usersRemoteDataSource.uploadIcon(file)
 }
+
+data class IconUploadResponce(
+        val path: String
+)
