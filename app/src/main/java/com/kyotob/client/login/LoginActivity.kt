@@ -6,18 +6,19 @@ import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.kyotob.client.R
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import com.kyotob.client.*
 import kotlinx.android.synthetic.main.activity_login.*
 import com.kyotob.client.register.RegisterActivity
 import com.kyotob.client.repositories.user.UsersRepository
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
 import ru.gildor.coroutines.retrofit.awaitResponse
+import java.net.ConnectException
 
 class LoginActivity : AppCompatActivity() {
 
@@ -36,23 +37,34 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val sharedPreferences = getSharedPreferences("userData", Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
 
         //ログインする
         findViewById<Button>(R.id.login_button_login).setOnClickListener {
             val name: String = findViewById<EditText>(R.id.id_edittext_login).text.toString()
             val password: String = findViewById<EditText>(R.id.password_edittext_login).text.toString()
             launch(CommonPool, parent = job) {
-                val response = usersRepositry.login(name, password).awaitResponse()
-                if (response.isSuccessful) {
-                    val token = response.body()!!.token
-                    val editor = sharedPreferences.edit()
-                    editor.putString("accessToken", token)
-                    editor.apply()
-                } else {
-//                    response.errorBody()?.string()?.let(::showToast)
+                try {
+                    val response = usersRepositry.login(name, password).awaitResponse()
+                    if (response.isSuccessful) {
+                        val token = response.body()!!.token
+                        val screenName = response.body()!!.screenName
+                        val editor = sharedPreferences.edit()
+                        editor.putString(USERNAMEKEY, name)
+                        editor.putString(TOKENKEY, token)
+                        editor.putString(USERSCREENNAMEKEY, screenName)
+                        editor.apply()
+                        withContext(UI) {
+                            showToast("login successed")
+                        }
+                    } else {
+                        withContext(UI) {
+                            showToast( response.code().toString())
+                        }
+                    }
+                } catch (exception: Throwable) {
                     withContext(UI) {
-                        //response.errorBody()!!.string().let{Log.d("error",it)}
+                        showToast(exception.message!!)
                     }
                 }
             }

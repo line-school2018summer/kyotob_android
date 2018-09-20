@@ -1,6 +1,8 @@
 package com.kyotob.client.chatList
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -13,6 +15,9 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import com.kyotob.client.R
+import com.kyotob.client.TOKENKEY
+import com.kyotob.client.USERDATAKEY
+import com.kyotob.client.USERNAMEKEY
 import com.kyotob.client.entities.FriendItem
 import com.kyotob.client.repositories.user.UsersRepository
 import kotlinx.coroutines.experimental.CommonPool
@@ -38,10 +43,12 @@ class GroupFragment: Fragment() {
     lateinit var registerButton: Button
     lateinit var recyclerView: RecyclerView
     lateinit var adapter: RecyclerAdapter
+    lateinit var sharedPreferences: SharedPreferences
     val job = Job()
     val usersRepository = UsersRepository()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        sharedPreferences = activity!!.getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
         val root = inflater.inflate(R.layout.dialog_group, null)
         nameText = root.findViewById(R.id.nameText)
         iconButton = root.findViewById(R.id.iconButton)
@@ -74,24 +81,26 @@ class GroupFragment: Fragment() {
 
     suspend fun getFriendList(): List<FriendItem> {
         return withContext(CommonPool) {
-            usersRepository.getFriendList("test", "bar").await()
+            val name = sharedPreferences.getString(USERNAMEKEY, "default")
+            val token = sharedPreferences.getString(TOKENKEY, "default")
+            usersRepository.getFriendList(name, token).await()
         }
     }
 
     suspend fun clickRegisterButton() {
         val roomName = nameText.text.toString()
         val memberList: List<String> = adapter.itemList.filter {it.isChecked}.map{it.name} + listOf("test")
-        val token = "bar"
+        val token = sharedPreferences.getString(TOKENKEY, "default")
         try {
             val response = withContext(CommonPool) {
-                usersRepository.postGroupRoomRequest(token, roomName, memberList).awaitResponse()
+                usersRepository.postGroupRoomRequest(token!!, roomName, memberList).awaitResponse()
             }
             if(response.isSuccessful) {
                 val intent = Intent(activity?.application, ChatListActivity::class.java)
                 startActivity(intent)
                 activity?.finish()
             }
-        } catch (exception: ConnectException) {
+        } catch (exception: Throwable) {
             if (this.isVisible) Toast.makeText(context, exception.message, Toast.LENGTH_LONG).show()
         }
     }
