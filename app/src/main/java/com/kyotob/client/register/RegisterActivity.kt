@@ -20,13 +20,17 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import ru.gildor.coroutines.retrofit.awaitResponse
 import android.content.DialogInterface
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
-import java.io.File
-import java.io.IOException
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,10 +46,24 @@ class RegisterActivity : AppCompatActivity() {
 
 
     val usersRepositry = UsersRepository()
+    lateinit var iconUri: Uri
+    var isIconChoosed = false
+
+    lateinit var iconImage: ImageView
 
     fun showToast(message: String) {
         val toast = Toast.makeText(this, message, Toast.LENGTH_LONG)
         toast.show()
+    }
+
+    fun makeUploadIconBody(uri: Uri) : MultipartBody.Part{
+        val stream: InputStream = this.contentResolver.openInputStream(uri)!!
+        val bitmap: Bitmap = BitmapFactory.decodeStream(BufferedInputStream(stream))
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 30, byteArrayOutputStream)
+        val byteArray: ByteArray = byteArrayOutputStream.toByteArray()
+        val requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), byteArray)
+        return MultipartBody.Part.createFormData("file", uri.toString(), requestFile)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,14 +75,28 @@ class RegisterActivity : AppCompatActivity() {
         findViewById<Button>(R.id.register_button_register).setOnClickListener(object: View.OnClickListener{
             override fun onClick(v: View){
 
-
-
                 val name: String = findViewById<EditText>(R.id.id_edittext_register).text.toString()
                 val screen_name : String = findViewById<EditText>(R.id.username_edittext_register).text.toString()
                 val password: String = findViewById<EditText>(R.id.password_edittext_register).text.toString()
                     launch(CommonPool, parent = job) {
                         try {
-                            val response = usersRepositry.register(name, screen_name, password).awaitResponse()
+                            val iconPath: String
+                            //画像アップロード
+                            if (isIconChoosed) {
+                                val body: MultipartBody.Part = makeUploadIconBody(iconUri)
+                                val iconResponse = usersRepositry.uploadIcon(body).awaitResponse()
+                                if (iconResponse.isSuccessful)  {
+                                    iconPath = iconResponse.body()!!.path
+                                } else {
+                                    iconPath = "default.jpeg"
+                                    launch(UI) {
+                                        showToast(iconResponse.code().toString())
+                                    }
+                                }
+                            } else iconPath = "default.jpeg"
+
+
+                            val response = usersRepositry.register(name, screen_name, password, iconPath).awaitResponse()
                             if (response.isSuccessful) {
                                 val token = response.body()!!.token
                                 val editor = sharedPreferences.edit()
@@ -95,7 +127,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         // ImageViewのインスタンス
-        val iconImage  = findViewById<ImageView>(R.id.user_icon)
+        iconImage  = findViewById<ImageView>(R.id.user_icon)
         // ImageViewの設定
         iconImage.setImageResource(R.drawable.boy)
         // ImageViewをクリック時の挙動
@@ -123,6 +155,8 @@ class RegisterActivity : AppCompatActivity() {
                 val file = File(currentPath)
                 val uri = Uri.fromFile(file)
                 findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
+                iconUri = uri
+                isIconChoosed = true
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -132,6 +166,8 @@ class RegisterActivity : AppCompatActivity() {
             try {
                 val uri = data!!.data
                 findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
+                iconUri = uri
+                isIconChoosed  = true
             } catch (e: IOException) {
                 e.printStackTrace()
             }

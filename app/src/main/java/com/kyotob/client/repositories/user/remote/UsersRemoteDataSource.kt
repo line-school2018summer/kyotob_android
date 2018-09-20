@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder
 import com.kyotob.client.baseUrl
 import com.kyotob.client.entities.FriendItem
 import com.kyotob.client.repositories.remoteUtil.CommonInterceptor
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -42,13 +43,14 @@ class UsersRemoteDataSource {
         return api.putName(name, accessToken, hashMapOf("new_screen_name" to newName))
     }
 
-    fun register(name: String, screenName: String, password: String) = api.postUser(createRegisterRequest(name,screenName,password))
+    fun register(name: String, screenName: String, password: String, iconPath: String) = api.postUser(createRegisterRequest(name,screenName,password, iconPath))
 
-    fun createRegisterRequest(name: String, screenName: String, password: String): HashMap<String,String> {
+    fun createRegisterRequest(name: String, screenName: String, password: String, iconPath: String): HashMap<String,String> {
         val hashMap: HashMap<String,String> = HashMap()
         hashMap.put("name", name)
         hashMap.put("screen_name", screenName)
         hashMap.put("password", password)
+        hashMap.put("image_url", iconPath)
         return hashMap
     }
 
@@ -67,4 +69,6 @@ class UsersRemoteDataSource {
         val postGroupRoomRequest = PostGroupRoomRequest(roomName, memberList.map { hashMapOf("user_name" to it)})
         return api.postGroupRoom(token, postGroupRoomRequest)
     }
+
+    fun uploadIcon(file: MultipartBody.Part) = api.uploadIcon(file)
 }
