@@ -1,12 +1,15 @@
 package com.kyotob.client
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.FloatingActionButton
+import android.support.v4.app.DialogFragment
 import android.view.View
 import com.kyotob.client.adapter.RoomListAdapter
 import com.kyotob.client.entities.Room
@@ -39,7 +42,6 @@ data class WebSocketMessage(
 
 class ChatListActivity : AppCompatActivity() {
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_list)
@@ -64,7 +66,7 @@ class ChatListActivity : AppCompatActivity() {
             // ----------------------------------
             updateChatList(listAdapter) // 画面の更新
             // Debug: トーストを表示
-            Toast.makeText(this, "Clicked: ${itemInfo.roomName}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Clicked: ${itemInfo.roomInfo.roomName}", Toast.LENGTH_SHORT).show()
             // ChatActivityを表示
             val chatActivityIntent = Intent(this, ChatActivity::class.java)
             // 遷移先に値を渡す
@@ -88,13 +90,17 @@ class ChatListActivity : AppCompatActivity() {
 
         // WebSocket用の通信を非同期(AsyncTask)で実行
         DoAsync {
+            val sharedPreferences = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
+            val name = sharedPreferences.getString("name", null) ?: throw Exception("name is null")
+
             // 初期化のため WebSocket コンテナのオブジェクトを取得する
             val container = ContainerProvider.getWebSocketContainer()
             // サーバー・エンドポイントの URI
-            val uri = URI.create("ws://192.168.1.35:8181/0918nobita") // 適宜変更
+            val uri = URI.create("ws://" + baseWSSIP + name) // 適宜変更
             try {
                 // サーバー・エンドポイントとのセッションを確立する
                 container.connectToServer(WebSocketEndPoint { msg ->
+                    println("message" + msg)
                     // jsonパース
                     val mapper = jacksonObjectMapper()
                     val webSocketMessage = mapper.readValue<WebSocketMessage>(msg)
@@ -126,7 +132,6 @@ class ChatListActivity : AppCompatActivity() {
 
     // 通信結果のJsonをパースして、UIに反映させる
     fun updateChatList(chatListAdapter: RoomListAdapter) {
-
         val sharedPreferences = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
         val token = sharedPreferences.getString(TOKENKEY, null) ?: throw Exception("token is null")
 
@@ -137,7 +142,7 @@ Java オブジェクトでキャメルケースに対応させるための設定
                 .create()
 
         val retrofit = Retrofit.Builder()
-                .baseUrl(baseUrl)
+                .baseUrl("http://" + baseIP)
                 // レスポンスからオブジェクトへのコンバータファクトリを設定する
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
@@ -207,5 +212,14 @@ class WebSocketEndPoint(private val handler: (msg: String) -> Unit) {
     @OnError
     fun onError(session: Session?, t: Throwable?) {
         println("client-[error] ${t?.message} $session")
+    }
+}
+
+class dialogDissmissHandler(private val handler: () -> Unit) : DialogInterface {
+    override fun cancel() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+    override fun dismiss() {
+        handler()
     }
 }

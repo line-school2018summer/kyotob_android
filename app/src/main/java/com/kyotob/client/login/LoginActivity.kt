@@ -47,7 +47,8 @@ class LoginActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val token = response.body()!!.token
                     val editor = sharedPreferences.edit()
-                    editor.putString("accessToken", token)
+                    editor.putString("accessToken", token) // tokenをセット
+                    editor.putString("name", name) // userIdをセット
                     editor.apply()
                 } else {
 //                    response.errorBody()?.string()?.let(::showToast)

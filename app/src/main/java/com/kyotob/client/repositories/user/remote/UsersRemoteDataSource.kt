@@ -15,6 +15,7 @@
  */
 package com.kyotob.client.repositories.user.remote
 
+import com.kyotob.client.baseIP
 import com.kyotob.client.baseUrl
 import com.kyotob.client.repositories.remoteUtil.CommonInterceptor
 import okhttp3.OkHttpClient
@@ -24,7 +25,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class UsersRemoteDataSource {
     private val retrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
+            .baseUrl("http://" + baseIP)
             .client(OkHttpClient.Builder().addInterceptor(CommonInterceptor()).build())
             .addConverterFactory(GsonConverterFactory.create())
             .build()

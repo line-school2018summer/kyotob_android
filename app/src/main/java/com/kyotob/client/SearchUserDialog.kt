@@ -5,16 +5,16 @@ import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
+import android.os.Handler
 import android.support.constraint.ConstraintLayout
 import android.view.KeyEvent
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.kyotob.client.entities.*
+import com.squareup.picasso.Picasso
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -44,7 +44,7 @@ class SearchUserDialog : DialogFragment() {
                 .create()
 
         val retrofit = Retrofit.Builder()
-                .baseUrl(baseUrl)
+                .baseUrl("http://" + baseIP)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build()
@@ -66,12 +66,15 @@ class SearchUserDialog : DialogFragment() {
                         val notFoundView = inflater.findViewById(R.id.dialog_not_found_text_view) as TextView
                         val foundView = inflater.findViewById(R.id.dialog_found_user) as ConstraintLayout
                         val foundText = inflater.findViewById(R.id.dialog_user_name_text_view) as TextView
+                        val profileImageView = inflater.findViewById(R.id.dialog_user_image_view) as ImageView
 
                         // 通信成功時
                         if(response.isSuccessful) {
                             // TEST
                             // ユーザー表示名の変更
                             foundText.text = response.body()!!.screenName
+                            // ユーザーアイコンの変更
+                            Picasso.get().load("http://" + baseIP + "/image/download/" + response.body()!!.imageUrl).into(profileImageView)
 
                             foundView.visibility = View.VISIBLE
                             notFoundView.visibility = View.INVISIBLE

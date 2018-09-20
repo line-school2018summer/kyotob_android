@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import com.kyotob.client.R
+import com.kyotob.client.baseIP
 import com.kyotob.client.bindView
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.database.RoomsMidokuModel
@@ -45,16 +46,16 @@ class RoomView(context: Context): FrameLayout(context) {
     }
 
     fun setRoom(room: Room) {
-        // 文字をセット
-        userNameTextView.text = room.roomName
-
+        // 表示名を変更
+        userNameTextView.text = room.roomInfo.roomName
+        // 最新のメッセージを変更
         latestMessageTextView.text = room.recentMessage
-//        timeTextView.text = room.createdAt.toString().substring(11, 16)
+        // 時間を変更
+        timeTextView.text = room.createdAt.toString().substring(11, 16)
 
         // 画像をセットする
         profileImageView.setBackgroundColor(Color.WHITE)
-
-        Picasso.get().load("http://192.168.1.35:8080/image/download/def.png").into(profileImageView)
+        Picasso.get().load("http://" + baseIP + "/image/download/" + room.roomInfo.imageUrl).into(profileImageView)
 
         // ---------- SQLITE ----------------
         val roomDatabaseHelper = RoomDatabaseHelper(context) // インスタンス

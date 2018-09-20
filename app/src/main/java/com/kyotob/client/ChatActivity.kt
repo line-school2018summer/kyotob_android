@@ -88,7 +88,7 @@ class ChatActivity : AppCompatActivity() {
 
         submitButton.setOnClickListener {
             if(textArea.text!!.isNotEmpty()) {
-                client.sendMessage(roomId, PostMessageRequest(userName, textArea.text.toString()), token)
+                client.sendMessage(roomId, PostMessageRequest(textArea.text.toString(), "string"), token)
                         .enqueue(object : Callback<Boolean> {
                             override fun onResponse(call: Call<Boolean>?, response: Response<Boolean>?) {
                                 Log.i("code", response?.code().toString())
