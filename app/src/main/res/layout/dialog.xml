@@ -7,15 +7,6 @@
     android:orientation="vertical">
 
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="ユーザー検索"
-        android:textColor="@android:color/background_light"
-        android:textSize="30dp"
-        android:textStyle="bold" />
-
     <android.support.design.widget.TabLayout
         android:id="@+id/tabs"
         android:layout_width="match_parent"
@@ -26,7 +17,7 @@
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="300dp">
 
     </android.support.v4.view.ViewPager>
 

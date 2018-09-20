@@ -38,15 +38,20 @@ data class WebSocketMessage(
 
 class ChatListActivity : AppCompatActivity() {
 
+    lateinit var listAdapter: RoomListAdapter
 
+    override fun onResume() {
+        super.onResume()
+        updateChatList(listAdapter)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_list)
 
         // RoomsViewでカスタマイズされたListViewにデータを入れて、表示させる。その際に、Adapterが緩衝材になる
         // 1, ListViewAdapterのインスタンスをつくる
-        val listAdapter = RoomListAdapter(applicationContext)
         // 2, listViewのインスタンスをつくる
+        listAdapter = RoomListAdapter(applicationContext)
         var listView = findViewById<ListView>(R.id.chats_list)
         // 3, このクラスのインスタンスをlistViewのadapterに代入することで簡単にlistのitemをデザインできる
         listView.adapter = listAdapter

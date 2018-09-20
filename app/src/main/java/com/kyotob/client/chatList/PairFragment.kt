@@ -1,7 +1,9 @@
 package com.kyotob.client.chatList
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
+import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -89,7 +91,9 @@ class PairFragment: Fragment() {
                     // Request失敗時に呼ばれる
                     override fun onFailure(call: Call<SearchUserResponse>?, t: Throwable?) {
                         // Fail to connect Internet access
-                        Toast.makeText(context, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
+                        if (activity != null) {
+                                    Toast.makeText(activity?.applicationContext, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
+                                }
                     }
                 })
             }
@@ -97,17 +101,20 @@ class PairFragment: Fragment() {
 
         addUserButton.setOnClickListener {
             // roomの追加
-            client.makeRoom(AddUserRequest("foo", dialogEditText.text.toString()), "aaa").enqueue(object : Callback<AddUserResponse> {
+            client.makeRoom(AddUserRequest( dialogEditText.text.toString()), "foo").enqueue(object : Callback<AddUserResponse> {
                 // Request成功時に呼ばれる
                 override fun onResponse(call: Call<AddUserResponse>, response: Response<AddUserResponse>) {
                     // 通信成功時
                     if(response.isSuccessful) {
-//                        Toast.makeText(context, "Successful", Toast.LENGTH_LONG).show()
+                        //Toast.makeText(activity?.applicationContext, "Successful", Toast.LENGTH_LONG).show()
                     }
                     // Bad request
                     else {
-//                        Toast.makeText(context, "Bad request", Toast.LENGTH_LONG).show()
+                        //Toast.makeText(activity?.applicationContext, "Bad request", Toast.LENGTH_LONG).show()
                     }
+                    val intent = Intent(activity?.application, ChatListActivity::class.java)
+                    startActivity(intent)
+                    activity?.finish()
                 }
 
                 // Request失敗時に呼ばれる
@@ -118,6 +125,7 @@ class PairFragment: Fragment() {
             })
             // ダイアログを閉じる
             //dialog.dismiss()
+            //activity?.recreate()
         }
         return root
     }
