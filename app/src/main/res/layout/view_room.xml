@@ -36,4 +36,27 @@
         android:textColor="@android:color/black"
         android:textSize="14dp"
         tools:text="最新メッセージ" />
+
+    <TextView
+        android:id="@+id/new_message_counter"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignBottom="@+id/profile_image_view"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/frame_style"
+        android:text="2"
+        android:textAlignment="center"
+        android:textColor="@android:color/background_light"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/time_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/profile_image_view"
+        android:text="2:00"
+        android:textSize="12sp" />
+
 </RelativeLayout>

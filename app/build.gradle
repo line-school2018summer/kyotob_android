@@ -54,6 +54,12 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.23.4"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.23.4"
     implementation 'ru.gildor.coroutines:kotlin-coroutines-retrofit:0.12.0'
+
+    // Jackson
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.0"
+
+    // Picasso 画像用
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
 
 

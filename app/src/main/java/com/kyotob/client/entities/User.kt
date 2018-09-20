@@ -1,5 +1,7 @@
 package com.kyotob.client.entities
 
+import java.sql.Timestamp
+
 data class UserResponse(val id: Int,
                 val name: String,
                 val screenName: String,
@@ -16,6 +18,11 @@ data class AddUserRequest(val myUserName: String,
 data class AddUserResponse(val roomId: String,
                            val friendScreenName: String)
 
-data class WebSocketMSG(
+data class WebSocketMessage(
+        val createdAt: Timestamp,
+        val screenName: String,
+        val roomId: String,
         val content: String
 )
+
+data class LoginResponse(val token: String)

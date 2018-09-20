@@ -1,5 +1,6 @@
 package com.kyotob.client
 
+import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.TextInputEditText
@@ -25,6 +26,7 @@ class ChatActivity : AppCompatActivity() {
     private val timer = Timer()
     private lateinit var listAdapter: MessageListAdapter
     private lateinit var client: Client
+    private lateinit var token: String
     private var roomId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +45,7 @@ class ChatActivity : AppCompatActivity() {
                 .create()
 
         val retrofit = Retrofit.Builder()
-                .baseUrl(baseUrl)  // PC 側の localhost
+                .baseUrl(baseUrl)
                 // レスポンスからオブジェクトへのコンバータファクトリを設定する
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
@@ -54,7 +56,11 @@ class ChatActivity : AppCompatActivity() {
 
         listAdapter = MessageListAdapter(applicationContext)
 
-        client.getMessages(roomId, "foo").enqueue(object : Callback<Array<GetMessageResponse>> {
+        val sharedPreferences = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
+        token = sharedPreferences.getString(TOKENKEY, null) ?: throw Exception("token is null")
+        val userName = sharedPreferences.getString(USERNAMEKEY, null) ?: throw Exception("userName is null")
+
+        client.getMessages(roomId, token).enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
                 val listView = findViewById<ListView>(R.id.list_view)
                 listAdapter.messages = response?.body() ?: emptyArray()
@@ -68,7 +74,7 @@ class ChatActivity : AppCompatActivity() {
         val textArea = findViewById<TextInputEditText>(R.id.message)
 
         submitButton.setOnClickListener {
-            client.sendMessage(1, PostMessageRequest("0918nobita", textArea.text.toString()), "foo")
+            client.sendMessage(1, PostMessageRequest(userName, textArea.text.toString()), token)
                   .enqueue(object : Callback<Boolean> {
                       override fun onResponse(call: Call<Boolean>?, response: Response<Boolean>?) {
                           Log.i("code", response?.code().toString())
@@ -96,7 +102,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     fun updateMessages() {
-        client.getMessages(roomId, "foo").enqueue(object : Callback<Array<GetMessageResponse>> {
+        client.getMessages(roomId, token).enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
                 listAdapter.messages = response?.body() ?: emptyArray()
                 listAdapter.notifyDataSetChanged()
