@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.Toast
 import com.kyotob.client.R
 import com.kyotob.client.entities.FriendItem
 import com.kyotob.client.repositories.user.UsersRepository
@@ -21,6 +22,7 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import ru.gildor.coroutines.retrofit.await
 import ru.gildor.coroutines.retrofit.awaitResponse
+import java.net.ConnectException
 
 
 data class FriendItemForView(
@@ -49,14 +51,18 @@ class GroupFragment: Fragment() {
 
         //friendList
         launch(UI, parent = job) {
-            val friendList = getFriendList()
-            val friendForViewList = friendList.map {FriendItemForView(it.friendName,it.friendScreenName)}
-            adapter = RecyclerAdapter(context!!, friendForViewList)
-            recyclerView.adapter = adapter
-            registerButton.setOnClickListener {
-                launch(UI, parent = job) {
-                    clickRegisterButton()
+            try {
+                val friendList = getFriendList()
+                val friendForViewList = friendList.map { FriendItemForView(it.friendName, it.friendScreenName) }
+                adapter = RecyclerAdapter(context!!, friendForViewList)
+                recyclerView.adapter = adapter
+                registerButton.setOnClickListener {
+                    launch(UI, parent = job) {
+                        clickRegisterButton()
+                    }
                 }
+            } catch (exception: ConnectException) {
+                if (this@GroupFragment.isVisible)Toast.makeText(context, exception.message, Toast.LENGTH_LONG).show()
             }
         }
 
@@ -67,23 +73,26 @@ class GroupFragment: Fragment() {
     }
 
     suspend fun getFriendList(): List<FriendItem> {
-        val itemList: List<FriendItem> = withContext(CommonPool) {
+        return withContext(CommonPool) {
             usersRepository.getFriendList("test", "bar").await()
         }
-        return itemList
     }
 
     suspend fun clickRegisterButton() {
         val roomName = nameText.text.toString()
         val memberList: List<String> = adapter.itemList.filter {it.isChecked}.map{it.name} + listOf("test")
         val token = "bar"
-        val response = withContext(CommonPool) {
-            usersRepository.postGroupRoomRequest(token,roomName,memberList).awaitResponse()
-        }
-        if(response.isSuccessful) {
-            val intent = Intent(activity?.application, ChatListActivity::class.java)
-            startActivity(intent)
-            activity?.finish()
+        try {
+            val response = withContext(CommonPool) {
+                usersRepository.postGroupRoomRequest(token, roomName, memberList).awaitResponse()
+            }
+            if(response.isSuccessful) {
+                val intent = Intent(activity?.application, ChatListActivity::class.java)
+                startActivity(intent)
+                activity?.finish()
+            }
+        } catch (exception: ConnectException) {
+            if (this.isVisible) Toast.makeText(context, exception.message, Toast.LENGTH_LONG).show()
         }
     }
 }

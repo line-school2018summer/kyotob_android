@@ -121,7 +121,7 @@ class PairFragment: Fragment() {
                 // Request失敗時に呼ばれる
                 override fun onFailure(call: Call<AddUserResponse>?, t: Throwable?) {
                     // Fail to connect Internet access
-//                    Toast.makeText(context, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
+                    if(this@PairFragment.isVisible) Toast.makeText(context, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
                 }
             })
             // ダイアログを閉じる
