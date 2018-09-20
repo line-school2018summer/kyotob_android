@@ -15,9 +15,9 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import com.kyotob.client.R
-import com.kyotob.client.TOKENKEY
-import com.kyotob.client.USERDATAKEY
-import com.kyotob.client.USERNAMEKEY
+import com.kyotob.client.TOKEN_KEY
+import com.kyotob.client.USER_DATA_KEY
+import com.kyotob.client.USER_NAME_KEY
 import com.kyotob.client.entities.FriendItem
 import com.kyotob.client.repositories.user.UsersRepository
 import kotlinx.coroutines.experimental.CommonPool
@@ -48,7 +48,7 @@ class GroupFragment: Fragment() {
     val usersRepository = UsersRepository()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        sharedPreferences = activity!!.getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
+        sharedPreferences = activity!!.getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
         val root = inflater.inflate(R.layout.dialog_group, null)
         nameText = root.findViewById(R.id.nameText)
         iconButton = root.findViewById(R.id.iconButton)
@@ -81,8 +81,8 @@ class GroupFragment: Fragment() {
 
     suspend fun getFriendList(): List<FriendItem> {
         return withContext(CommonPool) {
-            val name = sharedPreferences.getString(USERNAMEKEY, "default")
-            val token = sharedPreferences.getString(TOKENKEY, "default")
+            val name = sharedPreferences.getString(USER_NAME_KEY, "default")
+            val token = sharedPreferences.getString(TOKEN_KEY, "default")
             usersRepository.getFriendList(name, token).await()
         }
     }
@@ -90,7 +90,7 @@ class GroupFragment: Fragment() {
     suspend fun clickRegisterButton() {
         val roomName = nameText.text.toString()
         val memberList: List<String> = adapter.itemList.filter {it.isChecked}.map{it.name} + listOf("test")
-        val token = sharedPreferences.getString(TOKENKEY, "default")
+        val token = sharedPreferences.getString(TOKEN_KEY, "default")
         try {
             val response = withContext(CommonPool) {
                 usersRepository.postGroupRoomRequest(token!!, roomName, memberList).awaitResponse()

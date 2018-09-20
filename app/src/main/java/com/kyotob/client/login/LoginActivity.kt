@@ -37,7 +37,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val sharedPreferences = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
 
         //ログインする
         findViewById<Button>(R.id.login_button_login).setOnClickListener {
@@ -50,9 +50,9 @@ class LoginActivity : AppCompatActivity() {
                         val token = response.body()!!.token
                         val screenName = response.body()!!.screenName
                         val editor = sharedPreferences.edit()
-                        editor.putString(USERNAMEKEY, name)
-                        editor.putString(TOKENKEY, token)
-                        editor.putString(USERSCREENNAMEKEY, screenName)
+                        editor.putString(USER_NAME_KEY, name)
+                        editor.putString(TOKEN_KEY, token)
+                        editor.putString(USER_SCREEN_NAME_KEY, screenName)
                         editor.apply()
                         withContext(UI) {
                             showToast("login successed")
