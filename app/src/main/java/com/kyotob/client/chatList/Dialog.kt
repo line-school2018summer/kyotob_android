@@ -30,7 +30,7 @@ class Dialog : DialogFragment() {
 
         //tabの設定
         mpager = view.findViewById(R.id.viewpager)
-        mpager.adapter = TabAdapter(childFragmentManager?: throw Exception("dialog fragmentManager is null"))
+        mpager.adapter = TabAdapter(childFragmentManager)
         tabLayout = view.findViewById(R.id.tabs)
         tabLayout.setupWithViewPager(mpager)
 
