@@ -1,4 +1,4 @@
-package com.kyotob.client
+package com.kyotob.client.chatList
 
 import android.content.Context
 import android.content.Intent
@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity
 
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
-import android.view.View
 import com.kyotob.client.adapter.RoomListAdapter
 import com.kyotob.client.entities.Room
 import android.widget.*
@@ -22,6 +21,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import android.widget.Toast
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.kyotob.client.*
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.database.RoomsMidokuModel
 // WebSocket用
@@ -39,15 +39,20 @@ data class WebSocketMessage(
 
 class ChatListActivity : AppCompatActivity() {
 
+    lateinit var listAdapter: RoomListAdapter
 
+    override fun onResume() {
+        super.onResume()
+        updateChatList(listAdapter)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_list)
 
         // RoomsViewでカスタマイズされたListViewにデータを入れて、表示させる。その際に、Adapterが緩衝材になる
         // 1, ListViewAdapterのインスタンスをつくる
-        val listAdapter = RoomListAdapter(applicationContext)
         // 2, listViewのインスタンスをつくる
+        listAdapter = RoomListAdapter(applicationContext)
         var listView = findViewById<ListView>(R.id.chats_list)
         // 3, このクラスのインスタンスをlistViewのadapterに代入することで簡単にlistのitemをデザインできる
         listView.adapter = listAdapter
@@ -78,7 +83,7 @@ class ChatListActivity : AppCompatActivity() {
         // FloatingIconをクリックしたときの処理
         addUserButton.setOnClickListener {
             // SearchUserDialogのインスタンスをつくる
-            val dialog = SearchUserDialog()
+            val dialog = Dialog()
             // Dialogを表示
             dialog.show(supportFragmentManager, "dialog")
         }
@@ -107,7 +112,7 @@ class ChatListActivity : AppCompatActivity() {
                         val midokuModel = RoomsMidokuModel(webSocketMessage.roomId, 0) // データ
                         roomDatabaseHelper.inserData(midokuModel) // データの挿入
                     } else {// 既存のRoomの場合
-                        roomDatabaseHelper.updateData(webSocketMessage.roomId, midokuNum+1) // データの挿入
+                        roomDatabaseHelper.updateData(webSocketMessage.roomId, midokuNum + 1) // データの挿入
                     }
                     // ----------------------------------
 

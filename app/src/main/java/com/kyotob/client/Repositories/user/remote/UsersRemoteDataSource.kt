@@ -15,7 +15,10 @@
  */
 package com.kyotob.client.repositories.user.remote
 
+import com.google.gson.FieldNamingPolicy
+import com.google.gson.GsonBuilder
 import com.kyotob.client.baseUrl
+import com.kyotob.client.entities.FriendItem
 import com.kyotob.client.repositories.remoteUtil.CommonInterceptor
 import okhttp3.OkHttpClient
 import retrofit2.Call
@@ -23,10 +26,15 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class UsersRemoteDataSource {
+
+    val gson = GsonBuilder()
+            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+            .create()
+
     private val retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(OkHttpClient.Builder().addInterceptor(CommonInterceptor()).build())
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     private val api = retrofit.create(UserApi::class.java)
 
@@ -50,5 +58,13 @@ class UsersRemoteDataSource {
         hashMap.put("password", password)
         return hashMap
     }
+
     fun login(name:String, password: String) = api.loginUser(createLoginRequest(name,password))
+
+    fun getFriendList(name: String, token: String) = api.getFriendList(name, token)
+
+    fun postGroupRoom(token: String, roomName: String, memberList: List<String>): Call<Unit> {
+        val postGroupRoomRequest = PostGroupRoomRequest(roomName, memberList.map { hashMapOf("user_name" to it)})
+        return api.postGroupRoom(token, postGroupRoomRequest)
+    }
 }

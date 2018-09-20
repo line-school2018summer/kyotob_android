@@ -21,4 +21,12 @@ class UsersRepository(
         private val usersRemoteDataSource: UsersRemoteDataSource = UsersRemoteDataSource()
 ) {
     fun updateUserName(name: String, accessToken: String, newName: String) = usersRemoteDataSource.updateUser(name, accessToken, newName)
+
+    fun register(name: String, screenName: String, password: String) = usersRemoteDataSource.register(name, screenName, password)
+
+    fun login(name: String, password: String) = usersRemoteDataSource.login(name, password)
+
+    fun getFriendList(name: String, token: String) = usersRemoteDataSource.getFriendList(name, token)
+
+    fun postGroupRoomRequest(token: String, roomName: String, memberList: List<String>) = usersRemoteDataSource.postGroupRoom(token, roomName, memberList)
 }
