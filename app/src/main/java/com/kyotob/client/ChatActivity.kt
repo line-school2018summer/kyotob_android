@@ -18,6 +18,7 @@ import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.kyotob.client.adapter.MessageListAdapter
 //import com.kyotob.client.chatList.ChatListActivity
@@ -55,19 +56,19 @@ class ChatActivity : AppCompatActivity() {
 
         // RoomIdを取得する
         val intent = this.intent
-        val roomId = intent.getIntExtra("ROOM_ID", -1)
+        roomId = intent.getIntExtra("ROOM_ID", -1)
         if (roomId == -1) {
             Toast.makeText(applicationContext, "ルームIDの取得に失敗しました", Toast.LENGTH_SHORT).show()
             finish()
         }
 
         // ListAdapterのインスタンスを作る
-        val listAdapter = MessageListAdapter(applicationContext)
+        listAdapter = MessageListAdapter(applicationContext)
         // ListViewのインスタンスを作る
         val listView = findViewById<ListView>(R.id.list_view)
 
         val gson = GsonBuilder()
-                //.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create()
 
         val retrofit = Retrofit.Builder()
@@ -78,10 +79,10 @@ class ChatActivity : AppCompatActivity() {
                 .build()
 
         // クライアントの実装の生成
-        val client = retrofit.create(Client::class.java)
+        client = retrofit.create(Client::class.java)
 
         val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
-        val token = sharedPreferences.getString(TOKEN_KEY, null) ?: throw Exception("token is null")
+        token = sharedPreferences.getString(TOKEN_KEY, null) ?: throw Exception("token is null")
         val userName = sharedPreferences.getString(USER_NAME_KEY, null) ?: throw Exception("userName is null")
 
 
@@ -106,6 +107,7 @@ class ChatActivity : AppCompatActivity() {
                                 when {
                                     (response?.body() == null) -> {
                                         Toast.makeText(applicationContext, "送信に失敗しました", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(applicationContext, response!!.code().toString(), Toast.LENGTH_SHORT).show()
                                     }
                                     response.body() == false -> {
                                         Toast.makeText(applicationContext, "送信が拒否されました", Toast.LENGTH_SHORT).show()
