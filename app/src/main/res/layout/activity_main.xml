@@ -7,58 +7,53 @@
     tools:context="com.kyotob.client.MainActivity">
 
     <Button
-        android:id="@+id/openChatActivity4"
+        android:id="@+id/openChatListActivity"
         android:layout_width="102dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:layout_marginTop="36dp"
-        android:onClick="openChatListActivity"
         android:text="@string/open_chat_list_activity"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/openChatActivity3" />
+        app:layout_constraintTop_toBottomOf="@+id/openChatActivity" />
 
     <Button
-        android:id="@+id/openChatActivity2"
+        android:id="@+id/openSettingActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:layout_marginTop="36dp"
-        android:onClick="openSettingActivity"
         android:text="@string/open_setting_activity"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/openChatActivity3"
+        android:id="@+id/openChatActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:layout_marginTop="36dp"
-        android:onClick="openChatActivity"
         android:text="@string/open_chat_activity"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/openChatActivity2" />
+        app:layout_constraintTop_toBottomOf="@+id/openSettingActivity" />
 
     <Button
-        android:id="@+id/openChatActivity"
+        android:id="@+id/openRegisterActivity"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:layout_marginTop="36dp"
-        android:onClick="openRegisterActivity"
         android:text="@string/open_register_activity"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/openChatActivity5" />
+        app:layout_constraintTop_toBottomOf="@+id/openLoginActivity" />
 
     <Button
-        android:id="@+id/openChatActivity5"
+        android:id="@+id/openLoginActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:layout_marginTop="36dp"
-        android:onClick="openLoginActivity"
         android:text="@string/open_login_activity"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/openChatActivity4" />
+        app:layout_constraintTop_toBottomOf="@+id/openChatListActivity" />
 
 </android.support.constraint.ConstraintLayout>

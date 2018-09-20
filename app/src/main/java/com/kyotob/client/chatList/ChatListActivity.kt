@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.FloatingActionButton
-import android.support.v4.app.DialogFragment
 import android.view.View
 import com.kyotob.client.adapter.RoomListAdapter
 import com.kyotob.client.entities.Room
@@ -25,6 +24,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import android.widget.Toast
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.kyotob.client.*
+import com.kyotob.client.chatList.Dialog
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.database.RoomsMidokuModel
 // WebSocket用
@@ -65,8 +66,6 @@ class ChatListActivity : AppCompatActivity() {
             roomDatabaseHelper.updateData(itemInfo.roomId, 0) // データの挿入
             // ----------------------------------
             updateChatList(listAdapter) // 画面の更新
-            // Debug: トーストを表示
-            Toast.makeText(this, "Clicked: ${itemInfo.roomInfo.roomName}", Toast.LENGTH_SHORT).show()
             // ChatActivityを表示
             val chatActivityIntent = Intent(this, ChatActivity::class.java)
             // 遷移先に値を渡す
@@ -80,7 +79,7 @@ class ChatListActivity : AppCompatActivity() {
         // FloatingIconをクリックしたときの処理
         addUserButton.setOnClickListener {
             // SearchUserDialogのインスタンスをつくる
-            val dialog = SearchUserDialog()
+            val dialog = Dialog()
             // Dialogを表示
             dialog.show(supportFragmentManager, "dialog")
         }
@@ -90,17 +89,16 @@ class ChatListActivity : AppCompatActivity() {
 
         // WebSocket用の通信を非同期(AsyncTask)で実行
         DoAsync {
-            val sharedPreferences = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
-            val name = sharedPreferences.getString("name", null) ?: throw Exception("name is null")
+            val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
+            val name = sharedPreferences.getString(USER_NAME_KEY, null) ?: throw Exception("name is null")
 
             // 初期化のため WebSocket コンテナのオブジェクトを取得する
             val container = ContainerProvider.getWebSocketContainer()
             // サーバー・エンドポイントの URI
-            val uri = URI.create("ws://" + baseWSSIP + name) // 適宜変更
+            val uri = URI.create("wss://" + baseIP + "/" + name) // 要変更
             try {
                 // サーバー・エンドポイントとのセッションを確立する
                 container.connectToServer(WebSocketEndPoint { msg ->
-                    println("message" + msg)
                     // jsonパース
                     val mapper = jacksonObjectMapper()
                     val webSocketMessage = mapper.readValue<WebSocketMessage>(msg)
@@ -113,7 +111,7 @@ class ChatListActivity : AppCompatActivity() {
                         val midokuModel = RoomsMidokuModel(webSocketMessage.roomId, 0) // データ
                         roomDatabaseHelper.inserData(midokuModel) // データの挿入
                     } else {// 既存のRoomの場合
-                        roomDatabaseHelper.updateData(webSocketMessage.roomId, midokuNum+1) // データの挿入
+                        roomDatabaseHelper.updateData(webSocketMessage.roomId, midokuNum + 1) // データの挿入
                     }
                     // ----------------------------------
 
@@ -132,8 +130,8 @@ class ChatListActivity : AppCompatActivity() {
 
     // 通信結果のJsonをパースして、UIに反映させる
     fun updateChatList(chatListAdapter: RoomListAdapter) {
-        val sharedPreferences = getSharedPreferences(USERDATAKEY, Context.MODE_PRIVATE)
-        val token = sharedPreferences.getString(TOKENKEY, null) ?: throw Exception("token is null")
+        val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
+        val token = sharedPreferences.getString(TOKEN_KEY, null)
 
         /* JSON のスネークケースで表現されるフィールド名を、
 Java オブジェクトでキャメルケースに対応させるための設定 */
@@ -142,7 +140,7 @@ Java オブジェクトでキャメルケースに対応させるための設定
                 .create()
 
         val retrofit = Retrofit.Builder()
-                .baseUrl("http://" + baseIP)
+                .baseUrl(baseUrl)
                 // レスポンスからオブジェクトへのコンバータファクトリを設定する
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
@@ -212,14 +210,5 @@ class WebSocketEndPoint(private val handler: (msg: String) -> Unit) {
     @OnError
     fun onError(session: Session?, t: Throwable?) {
         println("client-[error] ${t?.message} $session")
-    }
-}
-
-class dialogDissmissHandler(private val handler: () -> Unit) : DialogInterface {
-    override fun cancel() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-    override fun dismiss() {
-        handler()
     }
 }

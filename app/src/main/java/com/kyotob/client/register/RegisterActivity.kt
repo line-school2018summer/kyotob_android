@@ -6,13 +6,12 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.kyotob.client.R
 import android.util.Log
 import android.view.View
 import android.widget.*
 import kotlinx.android.synthetic.main.activity_register.*
 import com.kyotob.client.login.LoginActivity
-import com.kyotob.client.repositories.user.UsersRepositry
+import com.kyotob.client.repositories.user.UsersRepository
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
@@ -23,6 +22,8 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
+import com.kyotob.client.*
+import com.kyotob.client.R
 import net.gotev.uploadservice.*
 import org.glassfish.tyrus.server.Server
 import java.io.File
@@ -43,7 +44,7 @@ class RegisterActivity : AppCompatActivity() {
     val job = Job()
 
 
-    val usersRepositry = UsersRepositry()
+    val usersRepositry = UsersRepository()
 
     fun showToast(message: String) {
         val toast = Toast.makeText(this, message, Toast.LENGTH_LONG)
@@ -57,7 +58,9 @@ class RegisterActivity : AppCompatActivity() {
         // NAMESPACE PARAMETER FOR UPLOADSERVICE
         UploadService.NAMESPACE = "com.kyotob.client"
 
-        val sharedPreferences = getSharedPreferences("userData", Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
+        val claIntent =  Intent(this, ChatListActivity::class.java)
+
         //ユーザー登録する
         findViewById<Button>(R.id.register_button_register).setOnClickListener(object: View.OnClickListener{
             override fun onClick(v: View){
@@ -70,10 +73,16 @@ class RegisterActivity : AppCompatActivity() {
                         if (response.isSuccessful) {
                             val token = response.body()!!.token
                             val editor = sharedPreferences.edit()
-                            editor.putString("name",name)
-                            editor.putString("screenName",screen_name)
-                            editor.putString("accessToken", token)
+                            editor.putString(USER_NAME_KEY,name)
+                            editor.putString(USER_SCREEN_NAME_KEY,screen_name)
+                            editor.putString(TOKEN_KEY, token)
                             editor.apply()
+
+                            // 遷移
+                            startActivity(claIntent)
+                        } else {
+                            // Debug
+                            println("error code: " + response.code())
                         }
                     }
                 } catch (t: Throwable){
