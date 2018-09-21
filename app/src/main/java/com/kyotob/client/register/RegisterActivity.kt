@@ -105,22 +105,6 @@ class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
-        // 権限の有無を確認する
-        if (ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // 以前、パーミッションを要求したことがある場合、
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                            Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                // パーミッションが断られた場合
-                Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
-            } else { // 初めて要求する場合、
-                ActivityCompat.requestPermissions(this,
-                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                        MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
-            }
-        } else {
-
         // NAMESPACE PARAMETER FOR UPLOADSERVICE
         UploadService.NAMESPACE = "com.kyotob.client"
 
@@ -190,19 +174,40 @@ class RegisterActivity : AppCompatActivity() {
         iconImage.setImageResource(R.drawable.boy)
         // ImageViewをクリック時の挙動
         iconImage.setOnClickListener {
-            val items = arrayOf("写真をとる", "写真をえらぶ", "デフォルトに戻す")
-            AlertDialog.Builder(this)
-                    .setTitle("ユーザーアイコンの設定")
-                    .setItems(items, DialogInterface.OnClickListener { _, num ->
-                        when(num) {
-                            0 -> { dispatchCameraIntent() }
-                            1 -> { despatchGallaryIntent() }
-                            2 -> {findViewById<ImageView>(R.id.user_icon).setImageResource(R.drawable.boy)
-                                  uri = null}
-                        }
-                    })
-                    .show()
-        }
+            // 権限の有無を確認する
+            if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // 以前、パーミッションを要求したことがある場合、
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                                Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    // パーミッションが断られた場合
+                    Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                } else { // 初めて要求する場合、
+                    ActivityCompat.requestPermissions(this,
+                            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
+                }
+            } else {
+                val items = arrayOf("写真をとる", "写真をえらぶ", "デフォルトに戻す")
+                AlertDialog.Builder(this)
+                        .setTitle("ユーザーアイコンの設定")
+                        .setItems(items, DialogInterface.OnClickListener { _, num ->
+                            when (num) {
+                                0 -> {
+                                    dispatchCameraIntent()
+                                }
+                                1 -> {
+                                    despatchGallaryIntent()
+                                }
+                                2 -> {
+                                    findViewById<ImageView>(R.id.user_icon).setImageResource(R.drawable.boy)
+                                    uri = null
+                                }
+                            }
+                        })
+                        .show()
+            }
         }
     }
     // パーミッション要求のコールバック
