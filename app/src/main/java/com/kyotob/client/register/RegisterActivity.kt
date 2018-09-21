@@ -155,8 +155,9 @@ class RegisterActivity : AppCompatActivity() {
 
         //ログイン画面に遷移する
         findViewById<TextView>(R.id.already_have_account_text_view).setOnClickListener{
-            val intent =  Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            //val intent =  Intent(this, LoginActivity::class.java)
+            //startActivity(intent)
+            finish()
         }
 
         // ImageViewのインスタンス
