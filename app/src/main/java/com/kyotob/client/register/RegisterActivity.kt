@@ -201,7 +201,9 @@ class RegisterActivity : AppCompatActivity() {
         // アルバムから画像を選んだときの挙動
         if(requestCode == SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
             try {
-                uri = data!!.data
+                val file = File(UriToFile().getPathFromUri(applicationContext, data!!.data))
+                uri = Uri.fromFile(file)
+                Log.d("URI", uri.toString())
                 findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
             } catch (e: IOException) {
                 e.printStackTrace()

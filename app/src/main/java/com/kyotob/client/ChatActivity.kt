@@ -8,6 +8,7 @@ import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
+import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.support.design.widget.TextInputEditText
 import android.support.v4.content.FileProvider
@@ -37,6 +38,11 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import kotlin.collections.ArrayList
+
+data class ImageUrl(val path: String)
 
 class ChatActivity : AppCompatActivity() {
     // 画像用
@@ -55,6 +61,9 @@ class ChatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
         title = "チャット"
+
+        UploadService.NAMESPACE = BuildConfig.APPLICATION_ID
+        UploadService.NAMESPACE = "com.kyotob.client"
 
         // RoomIdを取得する
         val intent = this.intent
@@ -171,6 +180,7 @@ class ChatActivity : AppCompatActivity() {
             try {
                 val file = File(currentPath)
                 uri = Uri.fromFile(file)
+                Log.d("URI", uri.toString())
                 // 画像を送信する
                 uploadImage()
             } catch (e: IOException) {
@@ -180,7 +190,9 @@ class ChatActivity : AppCompatActivity() {
         // アルバムから画像を選んだときの挙動
         if(requestCode == SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
             try {
-                uri = data!!.data
+                val file = File(UriToFile().getPathFromUri(applicationContext, data!!.data))
+                uri = Uri.fromFile(file)
+                Log.d("URI", uri.toString())
                 // 画像を送信する
                 uploadImage()
             } catch (e: IOException) {
@@ -202,48 +214,33 @@ class ChatActivity : AppCompatActivity() {
 
     // 写真をアップロードする関数
     fun uploadImage() {
-        Log.d("imagepath", uri!!.path.replace(".*:".toRegex(), "/sdcard/"))
+        Log.d("URI", uri!!.toString())
         try {
-
-            MultipartUploadRequest(this, UUID.randomUUID().toString(), "http://192.168.10.139:8080/image/upload")
+            MultipartUploadRequest(this, UUID.randomUUID().toString(), baseUrl + "image/upload")
                     .addFileToUpload(uri!!.path.replace(".*:".toRegex(), "/sdcard/"), "file")
                     .setNotificationConfig(UploadNotificationConfig())
                     .setMaxRetries(2)
                     .setDelegate(DelegeteForUpload { response ->
-                        Log.d("画像のURL", baseUrl + "/image/download/" + response)
-                        // Todo: 画像urlをメッセージに追加する
-    //                        val gson = GsonBuilder()
-    //                                //.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-    //                                .create()
-    //
-    //                        val retrofit = Retrofit.Builder()
-    //                                .baseUrl(baseUrl)
-    //                                // レスポンスからオブジェクトへのコンバータファクトリを設定する
-    //                                .addConverterFactory(GsonConverterFactory.create(gson))
-    //                                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-    //                                .build()
-    //
-    //                        // クライアントの実装の生成
-    //                        val client = retrofit.create(Client::class.java)
-    //                        client.sendMessage(roomId, PostMessageRequest(userName, textArea.text.toString()), token)
-    //                                .enqueue(object : Callback<Boolean> {
-    //                                    override fun onResponse(call: Call<Boolean>?, response: Response<Boolean>?) {
-    //                                        Log.i("code", response?.code().toString())
-    //                                        when {
-    //                                            (response?.body() == null) -> {
-    //                                                Toast.makeText(applicationContext, "送信に失敗しました", Toast.LENGTH_SHORT).show()
-    //                                            }
-    //                                            response.body() == false -> {
-    //                                                Toast.makeText(applicationContext, "送信が拒否されました", Toast.LENGTH_SHORT).show()
-    //                                            }
-    //                                            else -> {
-    //                                                Toast.makeText(applicationContext, "送信成功: " + response.body(), Toast.LENGTH_SHORT).show()
-    //                                            }
-    //                                        }
-    //                                    }
-    //
-    //                                    override fun onFailure(call: Call<Boolean>, t: Throwable) {}
-    //                                })
+                        Log.d("画像のURL", response)
+                        client.sendMessage(roomId, PostMessageRequest(response, "image"), token)
+                                .enqueue(object : Callback<Boolean> {
+                                    override fun onResponse(call: Call<Boolean>?, response: Response<Boolean>?) {
+                                        when {
+                                            (response?.body() == null) -> {
+                                                Toast.makeText(applicationContext, "送信に失敗しました", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(applicationContext, response!!.code().toString(), Toast.LENGTH_SHORT).show()
+                                            }
+                                            response.body() == false -> {
+                                                Toast.makeText(applicationContext, "送信が拒否されました", Toast.LENGTH_SHORT).show()
+                                            }
+                                            else -> {
+                                                Toast.makeText(applicationContext, "送信成功: " + response.body(), Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    }
+
+                                    override fun onFailure(call: Call<Boolean>, t: Throwable) {}
+                                })
                     })
                     .startUpload()
             Log.d("finishflag", "aaa")
@@ -301,7 +298,10 @@ class DelegeteForUpload(private val handler: (response: String) -> Unit) : Uploa
     }
 
     override fun onCompleted(context: Context, uploadInfo: UploadInfo, serverResponse: ServerResponse) {
-        handler(serverResponse.bodyAsString)
+// mapperオブジェクトを作成
+        val mapper = jacksonObjectMapper()
+        val url = mapper.readValue<ImageUrl>(serverResponse.bodyAsString).path
+        handler(url)
         // your code here
         // if you have mapped your server response to a POJO, you can easily get it:
         // YourClass obj = new Gson().fromJson(serverResponse.getBodyAsString(), YourClass.class);
