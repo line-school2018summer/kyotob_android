@@ -4,6 +4,7 @@ import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.kyotob.client.R
+import com.kyotob.client.USER_DATA_KEY
 import com.kyotob.client.util.replaceFragmentInActivity
 
 class SettingActivity : AppCompatActivity() {
@@ -19,7 +20,7 @@ class SettingActivity : AppCompatActivity() {
                     replaceFragmentInActivity(it, R.id.contentFrame)
                 }
 
-        val settingPresenter = SettingPresenter(settingFragment, getSharedPreferences("userData", Context.MODE_PRIVATE))
+        val settingPresenter = SettingPresenter(settingFragment, getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE))
     }
 
     override fun onSupportNavigateUp(): Boolean {

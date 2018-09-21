@@ -1,12 +1,23 @@
 package com.kyotob.client.repositories.user.remote
 
+import com.kyotob.client.entities.FriendItem
 import kotlinx.coroutines.experimental.Deferred
 import retrofit2.Call
 import retrofit2.http.*
 import com.kyotob.client.entities.LoginResponse
+import okhttp3.MultipartBody
 
 data class newNamePost(
         val new_screen_name: String
+)
+
+data class IconUploadResponce(
+        val path: String
+)
+
+data class PostGroupRoomRequest(
+        val room_name: String,
+        val user_name_list: List<HashMap<String, String>>
 )
 interface UserApi {
 
@@ -26,4 +37,21 @@ interface UserApi {
     fun loginUser(
             @Body body: HashMap<String, String>
     ): Call<LoginResponse>
+
+    @POST("room")
+    fun postGroupRoom(
+            @Header("access_token") token: String,
+            @Body body: PostGroupRoomRequest
+    ): Call<Unit>
+
+    @GET("user/{name}/friends")
+    fun getFriendList(
+            @Path("name") name: String,
+            @Header("access_token") token: String
+    ): Call<List<FriendItem>>
+
+    @Multipart
+    @POST("image/upload")
+    fun uploadIcon(@Part file: MultipartBody.Part): Call<IconUploadResponce>
 }
+
