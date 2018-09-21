@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
         editor.putString(USER_NAME_KEY, "test")
         editor.putString(USER_SCREEN_NAME_KEY, "Test User #1")
         editor.putString(TOKEN_KEY, "bar")
+        editor.putString(USER_IMAGE_URL_KEY, "abc.png")
         editor.apply()
 
         (findViewById<Button>(R.id.openChatActivity)).setOnClickListener {
