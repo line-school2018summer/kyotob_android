@@ -11,7 +11,7 @@ interface SettingContract {
 
         fun showFieldContent(id: String, name: String)
 
-        fun showIcon()
+        fun showIcon(imageUrl: String)
 
         fun showUpdateName()
     }

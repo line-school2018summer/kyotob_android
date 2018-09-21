@@ -18,7 +18,9 @@ import android.widget.TextView
 import android.widget.ImageButton
 import android.support.constraint.ConstraintLayout
 import android.widget.Button
+import com.bumptech.glide.Glide
 import com.kyotob.client.R
+import com.kyotob.client.baseUrl
 
 
 class SettingFragment: Fragment(), SettingContract.View {
@@ -68,8 +70,8 @@ class SettingFragment: Fragment(), SettingContract.View {
         return root
     }
 
-    override fun showIcon() {
-        // todo: アイコン表示
+    override fun showIcon(imageUrl: String) {
+        Glide.with(this).load(baseUrl+"image/download/" + imageUrl).into(icon)
     }
 
     override fun showFieldTitle() {
