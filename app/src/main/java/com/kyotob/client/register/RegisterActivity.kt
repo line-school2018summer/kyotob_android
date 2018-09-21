@@ -19,6 +19,7 @@ import com.kyotob.client.*
 import com.kyotob.client.R
 import com.kyotob.client.util.ImageDialog
 import com.kyotob.client.util.createIconUpload
+import com.kyotob.client.util.imageActivityResult
 import net.gotev.uploadservice.*
 import java.io.File
 import java.io.IOException
@@ -115,26 +116,8 @@ class RegisterActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        // 写真を撮ったときの挙動
-        if(requestCode == ImageDialog.TAKE_PICTURE && resultCode == Activity.RESULT_OK) {
-            try {
-                val imageSharedPreferences = getSharedPreferences(IMAGE_PREFERENCE_KEY, Context.MODE_PRIVATE)
-                val file = File(imageSharedPreferences.getString(IMAGE_PATH_KEY,null))
-                uri = Uri.fromFile(file)
-                findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-        // アルバムから画像を選んだときの挙動
-        if(requestCode == ImageDialog.SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
-            try {
-                uri = data!!.data
-                findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
+        uri = imageActivityResult(requestCode, resultCode, data, this)
+        findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
     }
 
     fun setDefaultIcon() {

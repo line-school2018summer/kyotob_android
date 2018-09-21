@@ -1,5 +1,6 @@
 package com.kyotob.client.util
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
@@ -16,10 +17,8 @@ import android.provider.MediaStore
 import android.support.v4.app.DialogFragment
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
-import android.widget.ImageView
 import com.kyotob.client.IMAGE_PATH_KEY
 import com.kyotob.client.IMAGE_PREFERENCE_KEY
-import com.kyotob.client.R
 import com.kyotob.client.register.RegisterActivity
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -136,4 +135,27 @@ fun getFileNameFromUri(uri: Uri, context: Context): String?{
     }
 
     return fileName
+}
+
+fun imageActivityResult(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity): Uri?  {
+    // 写真を撮ったときの挙動
+    if(requestCode == ImageDialog.TAKE_PICTURE && resultCode == Activity.RESULT_OK) {
+        try {
+            val imageSharedPreferences = activity.getSharedPreferences(IMAGE_PREFERENCE_KEY, Context.MODE_PRIVATE)
+            val file = File(imageSharedPreferences.getString(IMAGE_PATH_KEY,null))
+            return Uri.fromFile(file)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+    // アルバムから画像を選んだときの挙動
+    if(requestCode == ImageDialog.SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
+        try {
+            return  data!!.data!!
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    return null
 }
