@@ -5,7 +5,13 @@ import android.content.Intent
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.support.design.widget.FloatingActionButton
+import android.support.v7.widget.Toolbar
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import com.kyotob.client.adapter.RoomListAdapter
 import com.kyotob.client.entities.Room
 import android.widget.*
@@ -23,6 +29,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.kyotob.client.chatList.Dialog
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.database.RoomsMidokuModel
+import com.kyotob.client.setting.SettingActivity
 // WebSocket用
 import java.net.URI
 import java.sql.Timestamp
@@ -127,6 +134,22 @@ class ChatListActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         // 画面を更新する
         updateChatList()
+    }
+
+    // AppBarにボタンを追加
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        getMenuInflater().inflate(R.menu.setting_icon, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    // Settingボタン押下時の挙動
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        val id = item?.itemId
+        if (id == R.id.setting_item) {
+            val intent = Intent(this, SettingActivity::class.java)
+            startActivity(intent)
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 
