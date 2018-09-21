@@ -48,7 +48,8 @@ class LoginActivity : AppCompatActivity() {
 
                 if (response.isSuccessful) {
                     val token = response.body()!!.token
-                    register(token, name)
+                    val iconPath = response.body()!!.imageUrl
+                    register(token, name, iconPath)
                     startActivity(Intent(this@LoginActivity, ChatListActivity::class.java))
 
                 } else {
@@ -66,12 +67,13 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-     private fun register(token: String, name: String) {
+     private fun register(token: String, name: String, iconPath: String) {
          println("Register")
          val editor = sharedPreferences.edit()
          editor.putString(TOKEN_KEY, token) // tokenをセット
          editor.putString(USER_NAME_KEY, name) // userIdをセット
-         editor.commit()
+         editor.putString(USER_IMAGE_URL_KEY, iconPath)
+         editor.apply()
      }
 
 }
