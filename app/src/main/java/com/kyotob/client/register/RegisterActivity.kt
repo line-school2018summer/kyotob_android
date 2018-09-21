@@ -64,6 +64,9 @@ class RegisterActivity : AppCompatActivity() {
         //ユーザー登録する
         findViewById<Button>(R.id.register_button_register).setOnClickListener(object: View.OnClickListener{
             override fun onClick(v: View){
+                // 二度押し禁止
+                v.isEnabled = false
+
                 val name: String = findViewById<EditText>(R.id.id_edittext_register).text.toString()
                 val screen_name : String = findViewById<EditText>(R.id.username_edittext_register).text.toString()
                 val password: String = findViewById<EditText>(R.id.password_edittext_register).text.toString()
@@ -83,6 +86,8 @@ class RegisterActivity : AppCompatActivity() {
                         } else {
                             // Debug
                             println("error code: " + response.code())
+                            // ボタンクリックを復活させる
+                            v.isEnabled = true
                         }
                     }
                 } catch (t: Throwable){

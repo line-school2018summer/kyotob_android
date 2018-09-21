@@ -38,9 +38,12 @@ class LoginActivity : AppCompatActivity() {
 
         //ログインする
         findViewById<Button>(R.id.login_button_login).setOnClickListener {
+            // 二度押し禁止
+            it.isEnabled = false
+
             val name: String = findViewById<EditText>(R.id.id_edittext_login).text.toString()
             val password: String = findViewById<EditText>(R.id.password_edittext_login).text.toString()
-
+            
             launch(job + UI) {
                 val response = withContext(CommonPool) {
                     usersRepositry.login(name, password).awaitResponse()
@@ -54,6 +57,9 @@ class LoginActivity : AppCompatActivity() {
                 } else {
                     // Debug
                     println("error code: " + response.code())
+
+                    // ボタン復活
+                    it.isEnabled = true
                 }
             }
         }
