@@ -17,6 +17,7 @@ import android.provider.MediaStore
 import android.support.v4.app.DialogFragment
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
+import android.widget.Toast
 import com.kyotob.client.IMAGE_PATH_KEY
 import com.kyotob.client.IMAGE_PREFERENCE_KEY
 import com.kyotob.client.register.RegisterActivity
@@ -64,7 +65,11 @@ class ImageDialog: DialogFragment() {
         val intent = Intent()
         intent.type = "image/*"
         intent.action = Intent.ACTION_GET_CONTENT
-        activity!!.startActivityForResult(Intent.createChooser(intent, "Select image"), SELECT_PICTURE)
+        if (targetFragment != null) {
+            targetFragment!!.startActivityForResult(Intent.createChooser(intent, "Select image"), SELECT_PICTURE)
+        } else {
+            activity!!.startActivityForResult(Intent.createChooser(intent, "Select image"), SELECT_PICTURE)
+        }
     }
 
     // CameraActivity
@@ -81,7 +86,11 @@ class ImageDialog: DialogFragment() {
                 var photoUri = FileProvider.getUriForFile(activity!!,
                         "com.kyotob.client.fileprovider", photoFile)
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
-                activity!!.startActivityForResult(intent, TAKE_PICTURE)
+                if (targetFragment != null) {
+                    targetFragment!!.startActivityForResult(intent, TAKE_PICTURE)
+                } else {
+                    activity!!.startActivityForResult(intent, TAKE_PICTURE)
+                }
             }
         }
     }
@@ -137,11 +146,11 @@ fun getFileNameFromUri(uri: Uri, context: Context): String?{
     return fileName
 }
 
-fun imageActivityResult(requestCode: Int, resultCode: Int, data: Intent?, activity: Activity): Uri?  {
+fun imageActivityResult(requestCode: Int, resultCode: Int, data: Intent?, context: Context): Uri?  {
     // 写真を撮ったときの挙動
     if(requestCode == ImageDialog.TAKE_PICTURE && resultCode == Activity.RESULT_OK) {
         try {
-            val imageSharedPreferences = activity.getSharedPreferences(IMAGE_PREFERENCE_KEY, Context.MODE_PRIVATE)
+            val imageSharedPreferences = context.getSharedPreferences(IMAGE_PREFERENCE_KEY, Context.MODE_PRIVATE)
             val file = File(imageSharedPreferences.getString(IMAGE_PATH_KEY,null))
             return Uri.fromFile(file)
         } catch (e: IOException) {

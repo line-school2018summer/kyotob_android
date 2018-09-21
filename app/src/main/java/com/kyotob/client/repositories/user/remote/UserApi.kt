@@ -20,7 +20,7 @@ data class PostGroupRoomRequest(
 interface UserApi {
 
     @PUT("user/{name}")
-    fun putName(
+    fun putUserData(
             @Path("name") userName: String,
             @Header("access_token") token: String,
             @Body body: HashMap<String, String>
