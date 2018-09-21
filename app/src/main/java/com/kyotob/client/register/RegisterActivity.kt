@@ -17,6 +17,9 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import ru.gildor.coroutines.retrofit.awaitResponse
 import android.content.DialogInterface
+import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
@@ -25,11 +28,16 @@ import android.support.v7.app.AlertDialog
 import com.kyotob.client.*
 import com.kyotob.client.R
 import net.gotev.uploadservice.*
+import okhttp3.MediaType
 import org.glassfish.tyrus.server.Server
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.BufferedInputStream
+import java.io.ByteArrayOutputStream
 
 
 class RegisterActivity : AppCompatActivity() {
@@ -49,6 +57,45 @@ class RegisterActivity : AppCompatActivity() {
     fun showToast(message: String) {
         val toast = Toast.makeText(this, message, Toast.LENGTH_LONG)
         toast.show()
+    }
+
+    fun createIconUpload(uri: Uri): MultipartBody.Part {
+        val fileName:String = (getFileNameFromUri(uri) ?: "noname.jpg").decapitalize()
+        val stream = applicationContext.getContentResolver().openInputStream(uri)
+        val bmp: Bitmap = BitmapFactory.decodeStream( BufferedInputStream(stream));
+        val byteArrayStream = ByteArrayOutputStream()
+        bmp.compress(Bitmap.CompressFormat.JPEG, 30, byteArrayStream)
+        val byteArray = byteArrayStream.toByteArray()
+        bmp.recycle()
+        val requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), byteArray)
+        val body = MultipartBody.Part.createFormData("file", fileName, requestFile)
+        return body
+    }
+
+    fun getFileNameFromUri(uri: Uri): String?{
+
+        // get scheme
+        val scheme: String = uri.getScheme()!!;
+        var fileName: String? = null
+        // get file name
+        when (scheme) {
+            "content" -> {
+                val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME )
+                val cursor: Cursor? = applicationContext.contentResolver.query(uri, projection, null, null, null)
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                         fileName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME));
+                    }
+                    cursor.close();
+                }
+            }
+
+            "file" -> {
+                fileName = File(uri.path).name;
+            }
+        }
+
+        return fileName
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +119,21 @@ class RegisterActivity : AppCompatActivity() {
                 val password: String = findViewById<EditText>(R.id.password_edittext_register).text.toString()
                 try {
                     launch(CommonPool, parent = job) {
-                        val response = usersRepositry.register(name, screen_name, password).awaitResponse()
+
+                        var imageUri = "abc.png"
+
+                        //画像
+                        if (uri != null) {
+                            val part = createIconUpload(uri!!)
+                            val response = usersRepositry.uploadIcon(part).awaitResponse()
+                            if (response.isSuccessful) {
+                                imageUri = response.body()!!.path
+                                Log.d("image",imageUri)
+                            } else {
+                                showToast(response.code().toString())
+                            }
+                        }
+                        val response = usersRepositry.register(name, screen_name, password, imageUri).awaitResponse()
                         if (response.isSuccessful) {
                             val token = response.body()!!.token
                             val editor = sharedPreferences.edit()

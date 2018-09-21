@@ -5,15 +5,13 @@ import kotlinx.coroutines.experimental.Deferred
 import retrofit2.Call
 import retrofit2.http.*
 import com.kyotob.client.entities.LoginResponse
+import com.kyotob.client.repositories.user.IconUploadResponce
 import okhttp3.MultipartBody
 
 data class newNamePost(
         val new_screen_name: String
 )
 
-data class IconUploadResponce(
-        val path: String
-)
 
 data class PostGroupRoomRequest(
         val room_name: String,
