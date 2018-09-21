@@ -1,5 +1,6 @@
 package com.kyotob.client
 
+import android.app.Instrumentation
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -42,6 +43,7 @@ data class WebSocketMessage(
 )
 
 class ChatListActivity : AppCompatActivity() {
+    lateinit var listAdapter: RoomListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +51,7 @@ class ChatListActivity : AppCompatActivity() {
 
         // RoomsViewでカスタマイズされたListViewにデータを入れて、表示させる。その際に、Adapterが緩衝材になる
         // 1, ListViewAdapterのインスタンスをつくる
-        val listAdapter = RoomListAdapter(applicationContext)
+        listAdapter = RoomListAdapter(applicationContext)
         // 2, listViewのインスタンスをつくる
         var listView = findViewById<ListView>(R.id.chats_list)
         // 3, このクラスのインスタンスをlistViewのadapterに代入することで簡単にlistのitemをデザインできる
@@ -65,13 +67,12 @@ class ChatListActivity : AppCompatActivity() {
             val roomDatabaseHelper = RoomDatabaseHelper(this) // インスタンス
             roomDatabaseHelper.updateData(itemInfo.roomId, 0) // データの挿入
             // ----------------------------------
-            updateChatList(listAdapter) // 画面の更新
             // ChatActivityを表示
             val chatActivityIntent = Intent(this, ChatActivity::class.java)
             // 遷移先に値を渡す
             chatActivityIntent.putExtra("ROOM_ID", itemInfo.roomId)
             // 遷移
-            startActivity(chatActivityIntent)
+            startActivityForResult(chatActivityIntent, 200)
         }
 
         // FloatingIconのインスタンスを作る
@@ -125,6 +126,13 @@ class ChatListActivity : AppCompatActivity() {
 
         }.execute()
         // ----------------------------------------
+    }
+
+    // ChatActivityから戻ってきたときに実行される
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        // 画面を更新する
+        updateChatList(listAdapter)
     }
 
 

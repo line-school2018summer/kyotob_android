@@ -13,6 +13,7 @@ import android.support.design.widget.TextInputEditText
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.util.Log
+import android.view.KeyEvent
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ListView
@@ -21,6 +22,7 @@ import android.widget.Toast
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.kyotob.client.adapter.MessageListAdapter
+import com.kyotob.client.database.RoomDatabaseHelper
 //import com.kyotob.client.chatList.ChatListActivity
 import com.kyotob.client.entities.GetMessageResponse
 import com.kyotob.client.entities.PostMessageRequest
@@ -185,6 +187,17 @@ class ChatActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
+    }
+
+    // 戻るボタン押下時の挙動
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        // 遷移元のの未読数を0にする
+        // ---------- SQLITE ----------------
+        val roomDatabaseHelper = RoomDatabaseHelper(this) // インスタンス
+        roomDatabaseHelper.updateData(roomId, 0) // データの挿入
+        // ----------------------------------
+        finish()
+        return true
     }
 
     // 写真をアップロードする関数

@@ -7,3 +7,5 @@ const val USER_DATA_KEY = "userData"
 const val USER_NAME_KEY = "userName"
 const val USER_SCREEN_NAME_KEY = "screenName"
 const val TOKEN_KEY = "accessToken"
+
+const val EXTRA_MESSAGE = "com.kyotob.client.MESSAGE"
