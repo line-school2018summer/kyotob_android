@@ -21,6 +21,7 @@ import com.google.gson.*
 import com.kyotob.client.adapter.MessageListAdapter
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.entities.GetMessageResponse
+import com.kyotob.client.entities.GetTimerMessageResponse
 import com.kyotob.client.entities.PostMessageRequest
 import net.gotev.uploadservice.*
 import retrofit2.*
@@ -174,6 +175,18 @@ class ChatActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<Array<GetMessageResponse>>?, t: Throwable?) {}
+        })
+
+        // 時間差送信メッセージを取得する関数
+        client.getTimerMessages(roomId, token).enqueue(object : Callback<Array<GetTimerMessageResponse>> {
+            override fun onResponse(call: Call<Array<GetTimerMessageResponse>>?, response: Response<Array<GetTimerMessageResponse>>?) {
+                // 通信成功時の処理
+                // Todo:時間差メッセージの受信に成功したときの処理
+            }
+
+            override fun onFailure(call: Call<Array<GetTimerMessageResponse>>?, t: Throwable?) {
+                // 通信失敗時の処理
+            }
         })
     }
     // パーミッション要求のコールバック

@@ -1,16 +1,11 @@
 package com.kyotob.client
 
-import android.app.Instrumentation
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
-
 import android.os.Bundle
-import android.os.Handler
 import android.support.design.widget.FloatingActionButton
-import android.view.View
 import com.kyotob.client.adapter.RoomListAdapter
 import com.kyotob.client.entities.Room
 import android.widget.*
@@ -25,7 +20,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import android.widget.Toast
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.kyotob.client.*
 import com.kyotob.client.chatList.Dialog
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.database.RoomsMidokuModel
@@ -86,7 +80,7 @@ class ChatListActivity : AppCompatActivity() {
         }
 
         // 通信 -> パース -> 表示の更新
-        updateChatList(listAdapter)
+        updateChatList()
 
         // WebSocket用の通信を非同期(AsyncTask)で実行
         DoAsync {
@@ -96,7 +90,7 @@ class ChatListActivity : AppCompatActivity() {
             // 初期化のため WebSocket コンテナのオブジェクトを取得する
             val container = ContainerProvider.getWebSocketContainer()
             // サーバー・エンドポイントの URI
-            val uri = URI.create("wss://" + baseIP + "/" + name) // 要変更
+            val uri = URI.create("wss://$baseIP/$name") // 要変更
             try {
                 // サーバー・エンドポイントとのセッションを確立する
                 container.connectToServer(WebSocketEndPoint { msg ->
@@ -117,7 +111,7 @@ class ChatListActivity : AppCompatActivity() {
                     // ----------------------------------
 
                     // Messageを受信すると、chatListの表示を更新する
-                    updateChatList(listAdapter)
+                    updateChatList()
                 }, uri)
             } catch (e: Exception) {
                 // Fail to connect Internet access
@@ -132,12 +126,12 @@ class ChatListActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         // 画面を更新する
-        updateChatList(listAdapter)
+        updateChatList()
     }
 
 
     // 通信結果のJsonをパースして、UIに反映させる
-    fun updateChatList(chatListAdapter: RoomListAdapter) {
+    fun updateChatList() {
         val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
         val token = sharedPreferences.getString(TOKEN_KEY, null)
 
@@ -164,8 +158,8 @@ Java オブジェクトでキャメルケースに対応させるための設定
                 // 通信成功時
                 if (response.isSuccessful) {
                     // 一覧を更新する
-                    chatListAdapter.rooms = response.body()!!
-                    chatListAdapter.notifyDataSetChanged()
+                    listAdapter.rooms = response.body()!!
+                    listAdapter.notifyDataSetChanged()
                 } else { // Bad request
                     Toast.makeText(applicationContext, "Bad Request", Toast.LENGTH_LONG).show()
                 }
@@ -188,7 +182,6 @@ class DoAsync(private val handler: () -> Unit) : AsyncTask<Void, Void, Void>() {
         return null
     }
 }
-
 // WebSocket
 @javax.websocket.ClientEndpoint
 class WebSocketEndPoint(private val handler: (msg: String) -> Unit) {
