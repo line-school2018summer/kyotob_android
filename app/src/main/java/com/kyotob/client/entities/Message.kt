@@ -19,3 +19,6 @@ data class GetMessageResponse(
 
 data class PostMessageRequest(val content: String,
                               val contentType: String)
+
+// 画像のURLパース用
+data class ImageUrl(val path: String)

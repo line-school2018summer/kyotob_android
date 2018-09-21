@@ -12,7 +12,7 @@
         android:layout_height="200dp"
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
-        android:background="@drawable/boy"
+        android:background="@drawable/def"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"

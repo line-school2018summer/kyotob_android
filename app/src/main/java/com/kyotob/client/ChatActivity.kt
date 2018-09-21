@@ -1,55 +1,39 @@
 package com.kyotob.client
 
+import android.Manifest
 import android.app.Activity
-import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
+import android.content.*
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
-import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.support.design.widget.TextInputEditText
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.KeyEvent
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
-import com.google.gson.FieldNamingPolicy
-import com.google.gson.GsonBuilder
+import android.widget.*
+import com.google.gson.*
 import com.kyotob.client.adapter.MessageListAdapter
 import com.kyotob.client.database.RoomDatabaseHelper
-//import com.kyotob.client.chatList.ChatListActivity
 import com.kyotob.client.entities.GetMessageResponse
 import com.kyotob.client.entities.PostMessageRequest
 import net.gotev.uploadservice.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
+import retrofit2.*
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.File
-import java.io.IOException
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import kotlin.collections.ArrayList
-
-data class ImageUrl(val path: String)
 
 class ChatActivity : AppCompatActivity() {
     // 画像用
-    var currentPath: String? = null
-    val TAKE_PICTURE = 1
-    val SELECT_PICTURE = 2
-    var uri: Uri? = null
+    private var currentPath: String? = null
+    private var uri: Uri? = null
 
     private val timer = Timer()
     private lateinit var listAdapter: MessageListAdapter
@@ -62,6 +46,7 @@ class ChatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_chat)
         title = "チャット"
 
+        // 画像用
         UploadService.NAMESPACE = BuildConfig.APPLICATION_ID
         UploadService.NAMESPACE = "com.kyotob.client"
 
@@ -133,25 +118,45 @@ class ChatActivity : AppCompatActivity() {
                             override fun onFailure(call: Call<Boolean>, t: Throwable) {}
                         })
             } else {
-                val items = arrayOf("写真をとる", "写真をえらぶ", "時間差メッセージを送る")
-                AlertDialog.Builder(this)
-                        .setTitle("オプションメッセージを送信する")
-                        .setItems(items, DialogInterface.OnClickListener { _, num ->
-                            when(num) {
-                                0 -> { dispatchCameraIntent() }
-                                1 -> { despatchGallaryIntent() }
-                                2 -> {
-                                    uri = null
-                                    // ChatActivityを表示
-                                    val chatActivityIntent = Intent(this, TimerMessageActivity::class.java)
-                                    // 遷移先に値を渡す
-                                    chatActivityIntent.putExtra("ROOM_ID", roomId)
-                                    // 遷移
-                                    startActivity(chatActivityIntent)
+                // 権限の有無を確認する
+                if (ContextCompat.checkSelfPermission(this,
+                                Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    // 以前、パーミッションを要求したことがある場合、
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                        // パーミッションが断られた場合
+                        Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                    } else { // 初めて要求する場合、
+                        ActivityCompat.requestPermissions(this,
+                                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                                MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
+                    }
+                } else {
+                    val items = arrayOf("写真をとる", "写真をえらぶ", "時間差メッセージを送る")
+                    AlertDialog.Builder(this)
+                            .setTitle("オプションメッセージを送信する")
+                            .setItems(items, DialogInterface.OnClickListener { _, num ->
+                                when (num) {
+                                    0 -> {
+                                        dispatchCameraIntent()
+                                    }
+                                    1 -> {
+                                        despatchGallaryIntent()
+                                    }
+                                    2 -> {
+                                        uri = null
+                                        // ChatActivityを表示
+                                        val chatActivityIntent = Intent(this, TimerMessageActivity::class.java)
+                                        // 遷移先に値を渡す
+                                        chatActivityIntent.putExtra("ROOM_ID", roomId)
+                                        // 遷移
+                                        startActivity(chatActivityIntent)
+                                    }
                                 }
-                            }
-                        })
-                        .show()
+                            })
+                            .show()
+                }
             }
         }
 
@@ -170,6 +175,27 @@ class ChatActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<Array<GetMessageResponse>>?, t: Throwable?) {}
         })
+    }
+    // パーミッション要求のコールバック
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                                   permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            // 内部フォルダへの書き込み権限
+            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE -> {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // パーミッションが許可された場合
+                    Toast.makeText(applicationContext, "Thank you", Toast.LENGTH_LONG).show()
+                } else {
+                    // パーミッションが断られた場合
+                    Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                }
+                return
+            }
+            else -> {
+                Toast.makeText(applicationContext, "Other Permission Requested", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     // カメラ、アルバムが呼び出されるメソッド
@@ -213,7 +239,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     // 写真をアップロードする関数
-    fun uploadImage() {
+    private fun uploadImage() {
         Log.d("URI", uri!!.toString())
         try {
             MultipartUploadRequest(this, UUID.randomUUID().toString(), baseUrl + "image/upload")
@@ -250,7 +276,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     // アルバム用インテント
-    fun despatchGallaryIntent() {
+    private fun despatchGallaryIntent() {
         val intent = Intent()
         intent.type = "image/*"
         intent.action = Intent.ACTION_GET_CONTENT
@@ -258,7 +284,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     // カメラ用インテント
-    fun dispatchCameraIntent() {
+    private fun dispatchCameraIntent() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if(intent.resolveActivity(packageManager) != null) {
             var photoFile: File? = null
@@ -277,38 +303,12 @@ class ChatActivity : AppCompatActivity() {
     }
 
     // カメラで撮った画像の名前を設定するメソッド
-    fun createImage(): File {
+    private fun createImage(): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         val imageName = timeStamp + "_"
         var storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         var image = File.createTempFile(imageName, ".jpg", storageDir)
         currentPath = image.absolutePath
         return image
-    }
-}
-
-// 画像アップロード時の挙動を設定する
-class DelegeteForUpload(private val handler: (response: String) -> Unit) : UploadStatusDelegate {
-    override fun onProgress(context: Context, uploadInfo: UploadInfo) {
-        // your code here
-    }
-
-    override fun onError(context: Context, uploadInfo: UploadInfo, serverResponse: ServerResponse, exception: Exception) {
-        // your code here
-    }
-
-    override fun onCompleted(context: Context, uploadInfo: UploadInfo, serverResponse: ServerResponse) {
-// mapperオブジェクトを作成
-        val mapper = jacksonObjectMapper()
-        val url = mapper.readValue<ImageUrl>(serverResponse.bodyAsString).path
-        handler(url)
-        // your code here
-        // if you have mapped your server response to a POJO, you can easily get it:
-        // YourClass obj = new Gson().fromJson(serverResponse.getBodyAsString(), YourClass.class);
-
-    }
-
-    override fun  onCancelled(context: Context, uploadInfo: UploadInfo) {
-        // your code here
     }
 }

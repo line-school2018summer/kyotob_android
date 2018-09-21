@@ -1,5 +1,6 @@
 package com.kyotob.client.register
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -17,12 +18,15 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import ru.gildor.coroutines.retrofit.awaitResponse
 import android.content.DialogInterface
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import com.kyotob.client.*
@@ -101,6 +105,21 @@ class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
+        // 権限の有無を確認する
+        if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // 以前、パーミッションを要求したことがある場合、
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                            Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                // パーミッションが断られた場合
+                Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+            } else { // 初めて要求する場合、
+                ActivityCompat.requestPermissions(this,
+                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                        MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
+            }
+        } else {
 
         // NAMESPACE PARAMETER FOR UPLOADSERVICE
         UploadService.NAMESPACE = "com.kyotob.client"
@@ -183,7 +202,28 @@ class RegisterActivity : AppCompatActivity() {
                     })
                     .show()
         }
-
+        }
+    }
+    // パーミッション要求のコールバック
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+        // 内部フォルダへの書き込み権限
+            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE -> {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // パーミッションが許可された場合
+                    Toast.makeText(applicationContext, "Thank you", Toast.LENGTH_LONG).show()
+                } else {
+                    // パーミッションが断られた場合
+                    Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                }
+                return
+            }
+            else -> {
+                Toast.makeText(applicationContext, "Other Permission Requested", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
