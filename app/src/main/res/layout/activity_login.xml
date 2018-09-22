@@ -7,18 +7,30 @@
     android:background="@drawable/thunder">
 
 
+    <View
+        android:id="@+id/view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha=".5"
+        android:background="#000"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
+
     <EditText
         android:id="@+id/id_edittext_login"
         android:layout_width="0dp"
-        android:layout_height="44dp"
+        android:layout_height="50dp"
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="64dp"
         android:background="@drawable/rounded_corner"
         android:ems="10"
         android:hint="ID"
         android:inputType="textPersonName"
         android:paddingLeft="16dp"
+        android:textColor="#FFF"
+        android:textColorHint="#FFF"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -28,23 +40,28 @@
         android:id="@+id/password_edittext_login"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/rounded_corner"
         android:ems="10"
         android:hint="Password"
         android:inputType="textPassword"
         android:paddingLeft="16dp"
+        android:textColor="#FFF"
+        android:textColorHint="#FFF"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@+id/id_edittext_login"
         app:layout_constraintStart_toStartOf="@+id/id_edittext_login"
         app:layout_constraintTop_toBottomOf="@+id/id_edittext_login" />
 
     <Button
         android:id="@+id/login_button_login"
-        android:layout_width="0dp"
+        android:layout_width="200sp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/buttonshape"
         android:text="LOGIN"
+        android:textColor="#FFF"
+
         app:layout_constraintEnd_toEndOf="@+id/password_edittext_login"
         app:layout_constraintStart_toStartOf="@+id/password_edittext_login"
         app:layout_constraintTop_toBottomOf="@+id/password_edittext_login" />

@@ -8,7 +8,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import com.kyotob.client.R
-import com.kyotob.client.baseIP
+import com.kyotob.client.baseUrl
 import com.kyotob.client.bindView
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.database.RoomsMidokuModel
@@ -55,7 +55,7 @@ class RoomView(context: Context): FrameLayout(context) {
 
         // 画像をセットする
         profileImageView.setBackgroundColor(Color.WHITE)
-        Picasso.get().load("http://" + baseIP + "/image/download/" + room.imageUrl).into(profileImageView)
+        Picasso.get().load(baseUrl + "/image/download/" + room.imageUrl).into(profileImageView)
 
         // ---------- SQLITE ----------------
         val roomDatabaseHelper = RoomDatabaseHelper(context) // インスタンス
