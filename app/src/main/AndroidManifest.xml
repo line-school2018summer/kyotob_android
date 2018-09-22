@@ -13,6 +13,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- PERMISSION FOR FILE -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <!-- PERMISSION AUDIO -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
 
 
@@ -38,6 +40,7 @@
         <activity android:name=".setting.SettingActivity" />
         <activity android:name=".setting.NameActivity" />
         <activity android:name=".TimerMessageActivity" />
+        <activity android:name=".chatList.SoundSendActivity"/>
 
         <!-- PROVIDER FOR CAMERA -->
         <provider
