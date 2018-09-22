@@ -170,7 +170,7 @@ class ChatActivity : AppCompatActivity() {
 //        timer.scheduleAtFixedRate(object : TimerTask() {
 //            override fun run() = updateMessages()
 //        }, 5000, 5000)
-
+        updateMessages()
         // WebSocket用の通信を非同期(AsyncTask)で実行
         DoAsync {
             val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)

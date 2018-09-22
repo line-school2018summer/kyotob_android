@@ -33,8 +33,8 @@ class TimerMessageViewerDialog: DialogFragment() {
 
         // 画像の設定
         val timerImage = inflater.findViewById<ImageView>(R.id.timer_messsage_image)
-        Picasso.get().load(baseUrl + "/image/download/" + msg[index].imageUrl).into(timerImage)
-        println(baseUrl + "/image/download/" + msg[index].imageUrl)
+        Picasso.get().load(baseUrl + "image/download/" + msg[index].imageUrl).into(timerImage)
+        println(baseUrl + "image/download/" + msg[index].imageUrl)
 
         // バーの設定
         val toolbar = inflater.findViewById(R.id.my_toolbar) as? Toolbar
