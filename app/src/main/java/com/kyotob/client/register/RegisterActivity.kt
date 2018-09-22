@@ -87,6 +87,8 @@ class RegisterActivity : AppCompatActivity() {
 
                             // 遷移
                             startActivity(claIntent)
+                            // ボタンクリックを復活
+                            v.isEnabled = true
                         } else {
                             // Debug
                             println("error code: " + response.code())
