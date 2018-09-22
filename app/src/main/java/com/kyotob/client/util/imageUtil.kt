@@ -27,6 +27,7 @@ import com.kyotob.client.IMAGE_PATH_KEY
 import com.kyotob.client.IMAGE_PREFERENCE_KEY
 import com.kyotob.client.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
 import com.kyotob.client.UriToFile
+import com.kyotob.client.chatList.GroupFragment
 import com.kyotob.client.register.RegisterActivity
 import com.kyotob.client.setting.SettingFragment
 import okhttp3.MediaType
@@ -36,6 +37,7 @@ import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
+import java.security.acl.Group
 import java.util.*
 
 
@@ -89,7 +91,9 @@ class ImageDialog: DialogFragment() {
                                 (activity as RegisterActivity).setDefaultIcon()
                             } else if (targetFragment is SettingFragment) {
                                 (targetFragment as SettingFragment).setDefaultIcon()
-                            }
+                            } else if (targetFragment is GroupFragment) {
+                            (targetFragment as GroupFragment).setDefaultIcon()
+                        }
                         }
                     }
                 }).create()
