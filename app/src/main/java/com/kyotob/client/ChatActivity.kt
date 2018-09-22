@@ -19,6 +19,7 @@ import android.view.KeyEvent
 import android.widget.*
 import com.google.gson.*
 import com.kyotob.client.adapter.MessageListAdapter
+import com.kyotob.client.chatList.Dialog
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.entities.GetMessageResponse
 import com.kyotob.client.entities.GetTimerMessageResponse
@@ -170,6 +171,7 @@ class ChatActivity : AppCompatActivity() {
     fun updateMessages() {
         client.getMessages(roomId, token).enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
+                Log.d("responseBody", response?.body().toString())
                 listAdapter.messages = response?.body() ?: emptyArray()
                 listAdapter.notifyDataSetChanged()
             }
@@ -180,8 +182,17 @@ class ChatActivity : AppCompatActivity() {
         // 時間差送信メッセージを取得する関数
         client.getTimerMessages(roomId, token).enqueue(object : Callback<Array<GetTimerMessageResponse>> {
             override fun onResponse(call: Call<Array<GetTimerMessageResponse>>?, response: Response<Array<GetTimerMessageResponse>>?) {
-                // 通信成功時の処理
-                // Todo:時間差メッセージの受信に成功したときの処理
+                if(response?.body()!!.contentEquals(emptyArray())) {
+                    println("空")
+                } else {
+                    // メッセージを取得
+                    val tmpMessage: Array<GetTimerMessageResponse> = response.body()!!
+                    // SearchUserDialogのインスタンスをつくる
+                    val dialog = TimerMessageViewerDialog()
+                    dialog.msg = response.body()!!
+                    // Dialogを表示
+                    dialog.show(supportFragmentManager, "dialog")
+                }
             }
 
             override fun onFailure(call: Call<Array<GetTimerMessageResponse>>?, t: Throwable?) {

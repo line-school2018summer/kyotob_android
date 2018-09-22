@@ -25,11 +25,11 @@ data class ImageUrl(val path: String)
 
 // TimerMessageの取得時に返すResponseの項目
 data class GetTimerMessageResponse(
-        val createdAt: Timestamp,
-        val userName: String,
-        val userScreenName: String,
-        val content: String,
-        val imageUrl: String
+        @JsonProperty("created_at") val createdAt: Timestamp,
+        @JsonProperty("user_name") val userName: String,
+        @JsonProperty("user_screen_name") val userScreenName: String,
+        @JsonProperty("content") val content: String,
+        @JsonProperty("image_url") val imageUrl: String
 )
 
 // TimerMessage送信時のRequestの項目

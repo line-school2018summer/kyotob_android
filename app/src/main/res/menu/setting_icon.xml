@@ -7,7 +7,7 @@
         android:id="@+id/setting_item"
         android:icon="@drawable/ic_settings"
         app:showAsAction="ifRoom"
-        android:title="Compose">
+        android:title="Setting">
     </item>
 
 </menu>
