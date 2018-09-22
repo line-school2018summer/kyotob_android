@@ -98,6 +98,8 @@ class RegisterActivity : AppCompatActivity() {
 
                             // 遷移
                             startActivity(claIntent)
+                            // ボタン復活
+                            v.isEnabled = true
                         } else {
                             // Debug
                             println("error code: " + response.code())

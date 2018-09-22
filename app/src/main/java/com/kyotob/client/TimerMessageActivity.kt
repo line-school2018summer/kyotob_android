@@ -103,7 +103,7 @@ class TimerMessageActivity : AppCompatActivity() {
                                         Toast.makeText(applicationContext, "送信が拒否されました", Toast.LENGTH_SHORT).show()
                                     }
                                     else -> {
-                                        Toast.makeText(applicationContext, "メッセージを${time}後に送信します", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(applicationContext, "メッセージを${time}時間後に送信します", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }

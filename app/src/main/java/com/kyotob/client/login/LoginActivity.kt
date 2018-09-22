@@ -54,7 +54,8 @@ class LoginActivity : AppCompatActivity() {
                     val iconPath = response.body()!!.imageUrl
                     register(token, name, iconPath)
                     startActivity(Intent(this@LoginActivity, ChatListActivity::class.java))
-
+                    // ボタン復活
+                    it.isEnabled = true
                 } else {
                     // Debug
                     println("error code: " + response.code())
