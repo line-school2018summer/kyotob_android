@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/thunder2">
+    android:background="@drawable/thunder">
 
     <EditText
         android:id="@+id/id_edittext_register"
@@ -13,6 +13,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
+        android:textColor="#FFE4B5"
         android:background="@drawable/rounded_corner"
         android:ems="10"
         android:hint="ID"
@@ -27,6 +28,7 @@
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
+        android:textColor="#FFE4B5"
         android:background="@drawable/rounded_corner"
         android:ems="10"
         android:hint="UserName"
@@ -41,6 +43,7 @@
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
+        android:textColor="#FFE4B5"
         android:background="@drawable/rounded_corner"
         android:ems="10"
         android:hint="Password"
