@@ -100,6 +100,7 @@ class GroupFragment: Fragment() {
     fun updateIcon(uri: Uri) {
         try {
             launch (UI) {
+                showToast("q")
                 val part = createIconUpload(uri, activity!!)
                 val response = withContext(CommonPool) { UsersRepository().uploadIcon(part).awaitResponse() }
                 if (response.isSuccessful) {
