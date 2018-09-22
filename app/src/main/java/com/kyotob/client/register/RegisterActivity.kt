@@ -161,5 +161,6 @@ class RegisterActivity : AppCompatActivity() {
 
     fun setDefaultIcon() {
         findViewById<ImageView>(R.id.user_icon).setImageResource(R.drawable.boy)
+        uri = null
     }
 }

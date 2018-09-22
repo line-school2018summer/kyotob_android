@@ -28,6 +28,7 @@ import com.kyotob.client.IMAGE_PREFERENCE_KEY
 import com.kyotob.client.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
 import com.kyotob.client.UriToFile
 import com.kyotob.client.register.RegisterActivity
+import com.kyotob.client.setting.SettingFragment
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -86,6 +87,8 @@ class ImageDialog: DialogFragment() {
                         2 -> {
                             if (activity is RegisterActivity) {
                                 (activity as RegisterActivity).setDefaultIcon()
+                            } else if (targetFragment is SettingFragment) {
+                                (targetFragment as SettingFragment).setDefaultIcon()
                             }
                         }
                     }
@@ -155,7 +158,7 @@ fun createIconUpload(uri: Uri, context: Context): MultipartBody.Part {
 fun getFileNameFromUri(uri: Uri, context: Context): String?{
 
     // get scheme
-    val scheme: String = uri.getScheme()!!;
+    val scheme: String = uri.scheme!!
     var fileName: String? = null
     // get file name
     when (scheme) {
@@ -164,14 +167,14 @@ fun getFileNameFromUri(uri: Uri, context: Context): String?{
             val cursor: Cursor? = context.contentResolver.query(uri, projection, null, null, null)
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
-                    fileName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME));
+                    fileName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
                 }
-                cursor.close();
+                cursor.close()
             }
         }
 
         "file" -> {
-            fileName = File(uri.path).name;
+            fileName = File(uri.path).name
         }
     }
 
