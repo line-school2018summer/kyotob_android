@@ -39,6 +39,12 @@ import com.kyotob.client.R
 import java.io.UnsupportedEncodingException
 import java.util.*
 
+import org.jtransforms.fft.DoubleFFT_1D
+import android.media.MediaRecorder
+import android.widget.Button
+import android.widget.TextView
+import kotlinx.android.synthetic.main.dialog_pair.*
+
 class PairFragment: Fragment() {
 
     lateinit var dialogEditText: EditText
@@ -53,12 +59,12 @@ class PairFragment: Fragment() {
         val root = inflater.inflate(R.layout.dialog_pair, null)
         with(root) {
             // ユーザー検索欄
-            dialogEditText = findViewById(R.id.dialog_edit_text)
+            dialogEditText = findViewById<EditText>(R.id.dialog_edit_text)
             // ユーザー追加ボタン
-            addUserButton = findViewById(R.id.addUser)
+            addUserButton = findViewById<Button>(R.id.addUser)
             notFoundView = findViewById(R.id.dialog_not_found_text_view)
             foundView = findViewById(R.id.dialog_found_user)
-            foundText = findViewById(R.id.dialog_user_name_text_view)
+            foundText = findViewById<EditText>(R.id.dialog_user_name_text_view)
 
             //音波通信ボタン
             receiveBtn = findViewById(R.id.soundReceiveBtn)
@@ -151,26 +157,61 @@ class PairFragment: Fragment() {
 
         ///音波通信用の実装BELOW///
 
-        ///////
+        ///送受信に共通するパラメータ///
         val SAMPLE_RATE = 44100
         val SEC_PER_SAMPLEPOINT = 1.0f / SAMPLE_RATE
         val AMP = 4000
         val FREQ_BASE = 1000
         val FREQ_STEP = 20
-        val FREQ_KEY = FREQ_BASE - 20
+        val FREQ_HEAD = FREQ_BASE - 10
+        val FREQ_TAIL = FREQ_BASE - 20
         val ELMS_1SEC = SAMPLE_RATE
         val ELMS_100MSEC = SAMPLE_RATE / 10
         val ELMS_MAX = 256
 
-        val PLAY_START = 120
-        val PLAY_END = 130
-
-        val mPlayBuf = ShortArray(SAMPLE_RATE)
-        val mSignals = Array(ELMS_MAX) { ShortArray(SAMPLE_RATE / 10) }
+        val RECORD_START = 100
+        val RECORD_END = 110
+        val DATA_RECV = 120
+        val PLAY_START = 130
+        val PLAY_END = 140
 
         val bufferSizeInBytes = AudioRecord.getMinBufferSize(SAMPLE_RATE,
                 AudioFormat.CHANNEL_IN_MONO,
                 AudioFormat.ENCODING_PCM_16BIT)
+
+        //音波用ハンドラー
+        class iHandler(): Handler() {
+            override fun handleMessage(msg: Message) {
+                when(msg.what){
+                    PLAY_END -> {
+                        sendBtn.isChecked = false
+                    }
+                    RECORD_START ->{
+                        soundReceiveBtn.text = "STOP"
+                    }
+                    RECORD_END ->{
+                        soundReceiveBtn.text = "RECEIVE"
+                    }
+                    DATA_RECV -> {
+                        val ch = byteArrayOf(msg.arg1.toByte())
+                        try {
+                            // 受信データを表示
+                            var s = ch.toString(Charsets.UTF_8)
+                            s = dialogEditText.text.toString() + s
+                            dialogEditText.setText(s)
+                        } catch (e: UnsupportedEncodingException) {
+                        }
+
+                    }
+                }
+            }
+        }
+        val mHandler = iHandler()
+
+        ///送信側の実装///
+        val mPlayBufHEAD = ShortArray(SAMPLE_RATE)
+        val mPlayBufTAIL = ShortArray(SAMPLE_RATE)
+        val mSignals = Array(ELMS_MAX) { ShortArray(SAMPLE_RATE / 10) }
 
         //再生用
         var mAudioTrack = AudioTrack(AudioManager.STREAM_MUSIC,
@@ -197,24 +238,13 @@ class PairFragment: Fragment() {
             mAudioTrack.write(mSignals[`val`.toInt()], 0, ELMS_100MSEC)
         }
 
-        //音波用ハンドラー
-        class iHandler(): Handler() {
-            override fun handleMessage(msg: Message) {
-                when(msg.what){
-                    PLAY_END -> {
-                        sendBtn.isChecked = false
-                    }
-                }
-            }
-        }
-
-        val mHandler = iHandler()
-
-        //音波用Runnable
+        //送信用Runnable
         class sendRun: Runnable{
             override fun run() {
-                // 先頭・終端の目印用信号データ
-                createSineWave(mPlayBuf, FREQ_KEY, AMP, true)
+                // 先頭の目印用信号データ
+                createSineWave(mPlayBufHEAD, FREQ_HEAD, AMP, true)
+                // 終端の目印用信号データ
+                createSineWave(mPlayBufTAIL, FREQ_TAIL, AMP, true)
 
                 // 256種類の信号データを生成
                 for (i in 0 until ELMS_MAX) {
@@ -226,15 +256,146 @@ class PairFragment: Fragment() {
                 val strByte: ByteArray = myId.toByteArray(charset("UTF-8"))
 
                 mAudioTrack.play()
-                mAudioTrack.write(mPlayBuf, 0, ELMS_1SEC/2) // 開始
+                mAudioTrack.write(mPlayBufHEAD, 0, ELMS_1SEC/2) // 開始
                 for (i in strByte.indices) {
                     valueToWave(strByte[i])
                 }
-                mAudioTrack.write(mPlayBuf, 0, ELMS_1SEC/2) // 終端
+                mAudioTrack.write(mPlayBufTAIL, 0, ELMS_1SEC/2) // 終端
 
                 mAudioTrack.stop()
                 mAudioTrack.flush()
                 mHandler.sendEmptyMessage(PLAY_END)
+            }
+        }
+
+
+        ///受信側の実装///
+        //パラメーター
+        val THRESHOLD_SILENCE: Short = 0x00ff
+        val FREQ_MAX = FREQ_BASE + 255 * FREQ_STEP
+        val UNITSIZE = SAMPLE_RATE / 10 // 100msec分
+
+        var mInRecording = false
+        var mStop = false
+
+        val mBufferSizeInShort: Int = bufferSizeInBytes / 2
+        // 集音用バッファ
+        val mRecordBuf = ShortArray(mBufferSizeInShort)
+
+        // FFT 処理用
+        val mTestBuf = ShortArray(UNITSIZE)
+        val mFFTSize = UNITSIZE
+        val mFFT = DoubleFFT_1D(mFFTSize.toLong())
+        val mFFTBuffer = DoubleArray(mFFTSize)
+
+        var mAudioRecord = AudioRecord(MediaRecorder.AudioSource.MIC,
+                SAMPLE_RATE,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                bufferSizeInBytes)
+
+        fun doFFT(data: ShortArray): Int {
+            for (i in 0 until mFFTSize) {
+                mFFTBuffer[i] = data[i].toDouble()
+            }
+            // FFT 実行
+            mFFT.realForward(mFFTBuffer)
+
+            // 処理結果の複素数配列からピーク周波数成分の要素番号を得る
+            var maxAmp = 0.0
+            var index = 0
+            for (i in 0 until mFFTSize / 2) {
+                val a = mFFTBuffer[i * 2] // 実部
+                val b = mFFTBuffer[i * 2 + 1] // 虚部
+                // a+ib の絶対値 √ a^2 + b^2 = r が振幅値
+                val r = Math.sqrt(a * a + b * b)
+                if (r > maxAmp) {
+                    maxAmp = r
+                    index = i
+                }
+            }
+            return index * SAMPLE_RATE / mFFTSize
+        }
+
+        //受信用Runnable
+        class receiveRun: Runnable{
+            override fun run() {
+                var dataCount = 0
+                var bSilence = false
+                mHandler.sendEmptyMessage(RECORD_START)
+                // 集音開始
+                mAudioRecord.startRecording()
+                loop@while (mInRecording && !mStop) {
+                    // 音声データ読み込み
+                    mAudioRecord.read(mRecordBuf, 0, mBufferSizeInShort)
+                    bSilence = true
+                    for (i in 0 until mBufferSizeInShort) {
+                        val s = mRecordBuf[i]
+                        if (s > THRESHOLD_SILENCE) {
+                            bSilence = false
+                        }
+                    }
+                    if (bSilence) { // 静寂
+                        dataCount = 0
+                        continue
+                    }
+                    var copyLength = 0
+                    // データを mTestBuf へ順次アペンド
+                    if (dataCount < mTestBuf.size) {
+                        // mTestBuf の残領域に応じてコピーするサイズを決定
+                        val remain = mTestBuf.size - dataCount
+                        if (remain > mBufferSizeInShort) {
+                            copyLength = mBufferSizeInShort
+                        } else {
+                            copyLength = remain
+                        }
+                        System.arraycopy(mRecordBuf, 0, mTestBuf, dataCount, copyLength)
+                        dataCount += copyLength
+                    }
+                    if (dataCount >= mTestBuf.size) {
+                        // 100ms 分溜まったら FFT にかける
+                        var freq = doFFT(mTestBuf)
+
+                        /*Log.d("RCV","$freq")
+
+                        //終端を検知したら終了
+                        if(FREQ_TAIL - 5 < freq && freq < FREQ_TAIL + 5){
+                            Log.d("RCV","end0")
+                            break@loop
+                        }*/
+
+                        // 待ってた範囲の周波数かチェック
+                        if (freq >= FREQ_BASE && freq <= FREQ_MAX) {
+                            val `val` = (freq - FREQ_BASE) / FREQ_STEP
+                            if (`val` >= 0 && `val` <= 255) {
+                                val msg = Message()
+                                msg.what = DATA_RECV
+                                msg.arg1 = `val`
+                                mHandler.sendMessage(msg)
+                            } else {
+                                freq = -1
+                            }
+                        } else {
+                            freq = -1
+                        }
+
+                        dataCount = 0
+                        if (freq == -1) {
+                            continue
+                        }
+                        // mRecordBuf の途中までを mTestBuf へコピーして FFT した場合は
+                        // mRecordBuf の残データを mTestBuf 先頭へコピーした上で継続
+                        if (copyLength < mBufferSizeInShort) {
+                            val startPos = copyLength
+                            copyLength = mBufferSizeInShort - copyLength
+                            System.arraycopy(mRecordBuf, startPos, mTestBuf, 0, copyLength)
+                            dataCount += copyLength
+                        }
+                    }
+                }
+                // 集音終了
+                mAudioRecord.stop()
+                mHandler.sendEmptyMessage(RECORD_END)
             }
         }
 
@@ -251,8 +412,13 @@ class PairFragment: Fragment() {
 
         //音波でIDを取得
         receiveBtn.setOnClickListener{
-            //TODO 音波受け取ってdialogEditTextにセット
-
+            // 集音開始 or 終了
+            if (!mInRecording) {
+                mInRecording = true
+                Thread(receiveRun()).start()
+            } else {
+                mInRecording = false
+            }
             // 通信
             client.searchUser(dialogEditText.text.toString(), token).enqueue(object : Callback<SearchUserResponse> {
                 // Request成功時に呼ばれる
@@ -282,7 +448,7 @@ class PairFragment: Fragment() {
                     }
                 }
             })
-
+            
         }
         return root
     }
