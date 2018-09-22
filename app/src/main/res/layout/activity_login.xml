@@ -58,7 +58,7 @@
         android:layout_width="200sp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:background="@drawable/buttonshape"
+        android:background="@drawable/login_button_state"
         android:text="LOGIN"
         android:textColor="#FFF"
         android:textStyle="bold"
