@@ -24,9 +24,10 @@ class NamePresenter(
     override suspend fun updateName(newName: String) {
         val token = sharedPreferences.getString(TOKEN_KEY,"default")
         val name = sharedPreferences.getString(USER_NAME_KEY, "default")
+        val iconPath = sharedPreferences.getString(USER_IMAGE_URL_KEY, "abc.png")
         try {
             withContext(CommonPool) {
-                usersRepository.updateUserName(name!!,token!!, newName).awaitResponse()
+                usersRepository.updateUserName(name!!, token!!, newName, iconPath!!).awaitResponse()
             }
             val editor = sharedPreferences.edit()
             editor.putString(USER_SCREEN_NAME_KEY, newName)

@@ -21,7 +21,7 @@ import okhttp3.MultipartBody
 class UsersRepository(
         private val usersRemoteDataSource: UsersRemoteDataSource = UsersRemoteDataSource()
 ) {
-    fun updateUserName(name: String, accessToken: String, newName: String) = usersRemoteDataSource.updateUser(name, accessToken, newName)
+    fun updateUserName(name: String, accessToken: String, newName: String, newIconPath: String) = usersRemoteDataSource.updateUser(name, accessToken, newName, newIconPath)
 
     fun register(name: String, screenName: String, password: String, iconPath: String = "default.jpeg") = usersRemoteDataSource.register(name, screenName, password, iconPath)
 

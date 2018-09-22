@@ -37,8 +37,8 @@ class UsersRemoteDataSource {
             .build()
     private val api = retrofit.create(UserApi::class.java)
 
-    fun updateUser(name: String, accessToken: String, newName: String): Call<Unit> {
-        return api.putName(name, accessToken, hashMapOf("new_screen_name" to newName))
+    fun updateUser(name: String, accessToken: String, newName: String, newIconPath: String): Call<Unit> {
+        return api.putUserData(name, accessToken, hashMapOf("new_screen_name" to newName, "new_icon_path" to newIconPath))
     }
 
     fun register(name: String, screenName: String, password: String, iconPath: String) = api.postUser(createRegisterRequest(name,screenName,password, iconPath))

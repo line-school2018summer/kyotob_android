@@ -13,12 +13,13 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.TextView
-import android.widget.ImageButton
 import android.support.constraint.ConstraintLayout
-import android.widget.Button
+import android.widget.*
+import com.bumptech.glide.Glide
 import com.kyotob.client.R
+import com.kyotob.client.baseUrl
+import com.kyotob.client.util.ImageDialog
+import com.kyotob.client.util.imageActivityResult
 
 
 class SettingFragment: Fragment(), SettingContract.View {
@@ -54,7 +55,7 @@ class SettingFragment: Fragment(), SettingContract.View {
         }
 
         icon.setOnClickListener {
-            presenter.updateIcon()
+            presenter.onIconClick()
         }
 
         nameLayout.setOnClickListener {
@@ -68,8 +69,8 @@ class SettingFragment: Fragment(), SettingContract.View {
         return root
     }
 
-    override fun showIcon() {
-        // todo: アイコン表示
+    override fun showIcon(imagePath: String) {
+        Glide.with(this).load(baseUrl+"image/download/" + imagePath).into(icon)
     }
 
     override fun showFieldTitle() {
@@ -86,4 +87,21 @@ class SettingFragment: Fragment(), SettingContract.View {
         startActivity(Intent(context, NameActivity::class.java))
     }
 
+    override fun showUpdateIcon() {
+        val fragmentManager = fragmentManager
+        val imageDialog = ImageDialog()
+        imageDialog.setTargetFragment(this, 10)
+        imageDialog.show(fragmentManager, "image選択")
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        val uri = imageActivityResult(requestCode, resultCode, data, activity!!.applicationContext)
+        presenter.updateIcon(uri!!)
+    }
+
+    override fun showToast(message: String) {
+        val toast = Toast.makeText(activity, message, Toast.LENGTH_LONG)
+        toast.show()
+    }
 }
