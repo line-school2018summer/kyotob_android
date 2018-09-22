@@ -49,7 +49,12 @@ class RoomView(context: Context): FrameLayout(context) {
         // 表示名を変更
         userNameTextView.text = room.roomName
         // 最新のメッセージを変更
-        latestMessageTextView.text = room.recentMessage
+        if(room.recentMessage.matches(Regex(".*.png|.*.jpg|.*.jpeg"))) {
+            latestMessageTextView.text = "画像が送信されました"
+        } else {
+            latestMessageTextView.text = room.recentMessage
+        }
+
         // 時間を変更
         timeTextView.text = room.createdAt.toString().substring(11, 16)
 
