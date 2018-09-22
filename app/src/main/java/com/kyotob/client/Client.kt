@@ -30,4 +30,17 @@ interface Client {
     fun sendMessage(@Path("room_id") roomId: Int,
                     @Body body: PostMessageRequest,
                     @Header("access_token") token: String): Call<Boolean>
+
+    // 時間差メッセージの受信
+    @GET("/room/{room_id}/messages/timer")
+    fun getTimerMessages(@Path("room_id") roomId: Int,
+                    @Header("access_token") token: String): Call<Array<GetTimerMessageResponse>>
+
+    // 時間差メッセージの送信
+    @Headers("Content-Type: application/json")
+    @POST("/room/{room_id}/messages/timer")
+    fun sendTimerMessage(@Path("room_id") roomId: Int,
+                    @Body body: SendTimerMessageRequest,
+                    @Header("access_token") token: String): Call<Boolean>
+
 }

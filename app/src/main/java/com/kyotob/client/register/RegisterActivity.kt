@@ -1,5 +1,6 @@
 package com.kyotob.client.register
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -15,6 +16,17 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import ru.gildor.coroutines.retrofit.awaitResponse
 import android.net.Uri
+import android.content.DialogInterface
+import android.content.pm.PackageManager
+import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.Environment
+import android.provider.MediaStore
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
+import android.support.v4.content.FileProvider
+import android.support.v7.app.AlertDialog
 import com.kyotob.client.*
 import com.kyotob.client.R
 import com.kyotob.client.util.ImageDialog
@@ -44,7 +56,6 @@ class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
-
         // NAMESPACE PARAMETER FOR UPLOADSERVICE
         UploadService.NAMESPACE = "com.kyotob.client"
 
@@ -54,6 +65,9 @@ class RegisterActivity : AppCompatActivity() {
         //ユーザー登録する
         findViewById<Button>(R.id.register_button_register).setOnClickListener(object: View.OnClickListener{
             override fun onClick(v: View){
+                // 二度押し禁止
+                v.isEnabled = false
+
                 val name: String = findViewById<EditText>(R.id.id_edittext_register).text.toString()
                 val screen_name : String = findViewById<EditText>(R.id.username_edittext_register).text.toString()
                 val password: String = findViewById<EditText>(R.id.password_edittext_register).text.toString()
@@ -87,6 +101,8 @@ class RegisterActivity : AppCompatActivity() {
                         } else {
                             // Debug
                             println("error code: " + response.code())
+                            // ボタンクリックを復活させる
+                            v.isEnabled = true
                         }
                     }
                 } catch (t: Throwable){
@@ -98,8 +114,9 @@ class RegisterActivity : AppCompatActivity() {
 
         //ログイン画面に遷移する
         findViewById<TextView>(R.id.already_have_account_text_view).setOnClickListener{
-            val intent =  Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            //val intent =  Intent(this, LoginActivity::class.java)
+            //startActivity(intent)
+            finish()
         }
 
         // ImageViewのインスタンス
@@ -111,6 +128,28 @@ class RegisterActivity : AppCompatActivity() {
             val fragmentManager = supportFragmentManager
             val imageDialog = ImageDialog()
             imageDialog.show(fragmentManager, "image選択")
+        }
+    }
+
+    // パーミッション要求のコールバック
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+        // 内部フォルダへの書き込み権限
+            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE -> {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // パーミッションが許可された場合
+                    Toast.makeText(applicationContext, "Thank you", Toast.LENGTH_LONG).show()
+                } else {
+                    // パーミッションが断られた場合
+                    Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                }
+                return
+            }
+            else -> {
+                Toast.makeText(applicationContext, "Other Permission Requested", Toast.LENGTH_LONG).show()
+            }
         }
     }
 

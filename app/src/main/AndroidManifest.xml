@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.WHITE_EXTERNAL_STORAGE" />
     <!-- PERMISSION FOR IMAGE UPLOAD -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- PERMISSION FOR FILE -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
 
 
@@ -22,16 +24,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity" />
+        <activity android:name=".ChatActivity" />
+        <activity android:name=".ChatListActivity" />
+        <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChatActivity" />
-        <activity android:name=".ChatListActivity" />
-        <activity android:name=".login.LoginActivity" />
         <activity android:name=".register.RegisterActivity" />
         <activity android:name=".setting.SettingActivity" />
         <activity android:name=".setting.NameActivity" />

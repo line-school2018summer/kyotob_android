@@ -1,11 +1,13 @@
 package com.kyotob.client.util
 
+import android.Manifest
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -14,12 +16,17 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.support.v4.app.ActivityCompat
 import android.support.v4.app.DialogFragment
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
+import android.util.Log
 import android.widget.Toast
 import com.kyotob.client.IMAGE_PATH_KEY
 import com.kyotob.client.IMAGE_PREFERENCE_KEY
+import com.kyotob.client.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
+import com.kyotob.client.UriToFile
 import com.kyotob.client.register.RegisterActivity
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -44,20 +51,45 @@ class ImageDialog: DialogFragment() {
 
         sharedPreferences = activity!!.getSharedPreferences(IMAGE_PREFERENCE_KEY, Context.MODE_PRIVATE)
 
+        if (ContextCompat.checkSelfPermission(activity!!,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // 以前、パーミッションを要求したことがある場合、
+            if (ActivityCompat.shouldShowRequestPermissionRationale(activity!!,
+                            Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                // パーミッションが断られた場合
+                Toast.makeText(activity!!.applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                dismiss()
+            } else { // 初めて要求する場合、
+                ActivityCompat.requestPermissions(activity!!,
+                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                        MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity!!,
+                                Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    // パーミッションが断られた場合
+                    Toast.makeText(activity!!.applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                    dismiss()
+                }
+            }
+        }
         val items = arrayOf("写真をとる", "写真をえらぶ", "デフォルトに戻す")
         return AlertDialog.Builder(activity!!)
                 .setTitle("ユーザーアイコンの設定")
                 .setItems(items, DialogInterface.OnClickListener { _, num ->
-                    when(num) {
-                        0 -> { dispatchCameraIntent() }
-                        1 -> { despatchGallaryIntent() }
+                    when (num) {
+                        0 -> {
+                            dispatchCameraIntent()
+                        }
+                        1 -> {
+                            despatchGallaryIntent()
+                        }
                         2 -> {
                             if (activity is RegisterActivity) {
                                 (activity as RegisterActivity).setDefaultIcon()
                             }
                         }
-            }
-        }).create()
+                    }
+                }).create()
     }
 
     // GallaryActivity
@@ -160,7 +192,10 @@ fun imageActivityResult(requestCode: Int, resultCode: Int, data: Intent?, contex
     // アルバムから画像を選んだときの挙動
     if(requestCode == ImageDialog.SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
         try {
-            return  data!!.data!!
+            val file = File(UriToFile().getPathFromUri(context, data!!.data))
+            val uri = Uri.fromFile(file)
+            Log.d("URI", uri.toString())
+            return uri
         } catch (e: IOException) {
             e.printStackTrace()
         }

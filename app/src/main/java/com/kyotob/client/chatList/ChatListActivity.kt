@@ -1,14 +1,16 @@
 package com.kyotob.client
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
-
 import android.os.Bundle
-import android.os.Handler
+import android.provider.Settings
 import android.support.design.widget.FloatingActionButton
+import android.support.v7.widget.Toolbar
+import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import com.kyotob.client.adapter.RoomListAdapter
 import com.kyotob.client.entities.Room
@@ -24,10 +26,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 import android.widget.Toast
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.kyotob.client.*
 import com.kyotob.client.chatList.Dialog
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.database.RoomsMidokuModel
+import com.kyotob.client.setting.SettingActivity
 // WebSocket用
 import java.net.URI
 import java.sql.Timestamp
@@ -42,6 +44,7 @@ data class WebSocketMessage(
 )
 
 class ChatListActivity : AppCompatActivity() {
+    lateinit var listAdapter: RoomListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +52,7 @@ class ChatListActivity : AppCompatActivity() {
 
         // RoomsViewでカスタマイズされたListViewにデータを入れて、表示させる。その際に、Adapterが緩衝材になる
         // 1, ListViewAdapterのインスタンスをつくる
-        val listAdapter = RoomListAdapter(applicationContext)
+        listAdapter = RoomListAdapter(applicationContext)
         // 2, listViewのインスタンスをつくる
         var listView = findViewById<ListView>(R.id.chats_list)
         // 3, このクラスのインスタンスをlistViewのadapterに代入することで簡単にlistのitemをデザインできる
@@ -65,13 +68,12 @@ class ChatListActivity : AppCompatActivity() {
             val roomDatabaseHelper = RoomDatabaseHelper(this) // インスタンス
             roomDatabaseHelper.updateData(itemInfo.roomId, 0) // データの挿入
             // ----------------------------------
-            updateChatList(listAdapter) // 画面の更新
             // ChatActivityを表示
             val chatActivityIntent = Intent(this, ChatActivity::class.java)
             // 遷移先に値を渡す
             chatActivityIntent.putExtra("ROOM_ID", itemInfo.roomId)
             // 遷移
-            startActivity(chatActivityIntent)
+            startActivityForResult(chatActivityIntent, 200)
         }
 
         // FloatingIconのインスタンスを作る
@@ -85,7 +87,7 @@ class ChatListActivity : AppCompatActivity() {
         }
 
         // 通信 -> パース -> 表示の更新
-        updateChatList(listAdapter)
+        updateChatList()
 
         // WebSocket用の通信を非同期(AsyncTask)で実行
         DoAsync {
@@ -95,7 +97,7 @@ class ChatListActivity : AppCompatActivity() {
             // 初期化のため WebSocket コンテナのオブジェクトを取得する
             val container = ContainerProvider.getWebSocketContainer()
             // サーバー・エンドポイントの URI
-            val uri = URI.create("wss://" + baseIP + "/" + name) // 要変更
+            val uri = URI.create("wss://$baseIP/$name") // 要変更
             try {
                 // サーバー・エンドポイントとのセッションを確立する
                 container.connectToServer(WebSocketEndPoint { msg ->
@@ -116,7 +118,7 @@ class ChatListActivity : AppCompatActivity() {
                     // ----------------------------------
 
                     // Messageを受信すると、chatListの表示を更新する
-                    updateChatList(listAdapter)
+                    updateChatList()
                 }, uri)
             } catch (e: Exception) {
                 // Fail to connect Internet access
@@ -127,9 +129,32 @@ class ChatListActivity : AppCompatActivity() {
         // ----------------------------------------
     }
 
+    // ChatActivityから戻ってきたときに実行される
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        // 画面を更新する
+        updateChatList()
+    }
+
+    // AppBarにボタンを追加
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        getMenuInflater().inflate(R.menu.setting_icon, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    // Settingボタン押下時の挙動
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        val id = item?.itemId
+        if (id == R.id.setting_item) {
+            val intent = Intent(this, SettingActivity::class.java)
+            startActivity(intent)
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 
     // 通信結果のJsonをパースして、UIに反映させる
-    fun updateChatList(chatListAdapter: RoomListAdapter) {
+    fun updateChatList() {
         val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
         val token = sharedPreferences.getString(TOKEN_KEY, null)
 
@@ -156,8 +181,8 @@ Java オブジェクトでキャメルケースに対応させるための設定
                 // 通信成功時
                 if (response.isSuccessful) {
                     // 一覧を更新する
-                    chatListAdapter.rooms = response.body()!!
-                    chatListAdapter.notifyDataSetChanged()
+                    listAdapter.rooms = response.body()!!
+                    listAdapter.notifyDataSetChanged()
                 } else { // Bad request
                     Toast.makeText(applicationContext, "Bad Request", Toast.LENGTH_LONG).show()
                 }
@@ -170,45 +195,5 @@ Java オブジェクトでキャメルケースに対応させるための設定
             }
         })
 
-    }
-}
-
-// 非同期処理
-class DoAsync(private val handler: () -> Unit) : AsyncTask<Void, Void, Void>() {
-    override fun doInBackground(vararg params: Void?): Void? {
-        handler()
-        return null
-    }
-}
-
-// WebSocket
-@javax.websocket.ClientEndpoint
-class WebSocketEndPoint(private val handler: (msg: String) -> Unit) {
-
-    // Socket通信を開始するときに呼び出される
-    @OnOpen
-    fun onOpen(session: Session, config: EndpointConfig) {
-        println("client-[open] " + session)
-    }
-
-    // Message受信時に呼び出される
-    @OnMessage
-    fun onMessage(message: String, session: Session) {
-        println("client-[message][$message] $session")
-        if(message != "WebSocket通信を開始します。") { // 最初のメッセージは無視する
-            handler(message)
-        }
-    }
-
-    // Socket通信を終了するときに呼び出される
-    @OnClose
-    fun onClose(session: Session) {
-        println("client-[close] $session")
-    }
-
-    // ERRORのログを取る
-    @OnError
-    fun onError(session: Session?, t: Throwable?) {
-        println("client-[error] ${t?.message} $session")
     }
 }
