@@ -199,8 +199,9 @@ fun imageActivityResult(requestCode: Int, resultCode: Int, data: Intent?, contex
     // アルバムから画像を選んだときの挙動
     if(requestCode == ImageDialog.SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
         try {
-            val file = File(UriToFile().getPathFromUri(context, data!!.data))
-            val uri = Uri.fromFile(file)
+//            val file = File(UriToFile().getPathFromUri(context, data!!.data))
+//            val uri = Uri.fromFile(file)
+            val uri = data!!.data!!
             Log.d("URI", uri.toString())
             return uri
         } catch (e: IOException) {
