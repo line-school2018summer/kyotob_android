@@ -17,10 +17,13 @@ import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.*
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.*
 import com.kyotob.client.adapter.MessageListAdapter
 import com.kyotob.client.chatList.Dialog
 import com.kyotob.client.database.RoomDatabaseHelper
+import com.kyotob.client.database.RoomsMidokuModel
 import com.kyotob.client.entities.GetMessageResponse
 import com.kyotob.client.entities.GetTimerMessageResponse
 import com.kyotob.client.entities.PostMessageRequest
@@ -29,8 +32,10 @@ import retrofit2.*
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.*
+import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.websocket.ContainerProvider
 
 class ChatActivity : AppCompatActivity() {
     // 画像用
@@ -162,9 +167,31 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-        timer.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() = updateMessages()
-        }, 5000, 5000)
+//        timer.scheduleAtFixedRate(object : TimerTask() {
+//            override fun run() = updateMessages()
+//        }, 5000, 5000)
+
+        // WebSocket用の通信を非同期(AsyncTask)で実行
+        DoAsync {
+            val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
+            val name = sharedPreferences.getString(USER_NAME_KEY, null) ?: throw Exception("name is null")
+
+            // 初期化のため WebSocket コンテナのオブジェクトを取得する
+            val container = ContainerProvider.getWebSocketContainer()
+            // サーバー・エンドポイントの URI
+            val uri = URI.create("wss://$baseIP/$name") // 要変更
+            try {
+                // サーバー・エンドポイントとのセッションを確立する
+                container.connectToServer(WebSocketEndPoint {
+                    // Messageを受信すると、chatListの表示を更新する
+                    updateMessages()
+                }, uri)
+            } catch (e: Exception) {
+                // Fail to connect Internet access
+                println("Fail to Connect Websocket Access")
+            }
+        }.execute()
+        // ----------------------------------------
     }
 
     // メッセージを更新する関数
