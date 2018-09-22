@@ -1,15 +1,19 @@
 package com.kyotob.client
 
+import android.Manifest
 import android.app.Instrumentation
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.FloatingActionButton
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.view.View
 import com.kyotob.client.adapter.RoomListAdapter
 import com.kyotob.client.entities.Room
@@ -48,6 +52,12 @@ class ChatListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_list)
+
+        // Request for the permission to access device's microphone
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.RECORD_AUDIO), 1)
+        }
 
         // RoomsViewでカスタマイズされたListViewにデータを入れて、表示させる。その際に、Adapterが緩衝材になる
         // 1, ListViewAdapterのインスタンスをつくる
