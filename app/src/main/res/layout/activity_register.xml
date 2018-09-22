@@ -6,6 +6,13 @@
     android:layout_height="match_parent"
     android:background="@drawable/thunder">
 
+    <View
+        android:id="@+id/view2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha=".5"
+        android:background="@android:color/background_dark" />
+
     <EditText
         android:id="@+id/id_edittext_register"
         android:layout_width="0dp"
@@ -13,12 +20,14 @@
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
-        android:textColor="#FFE4B5"
         android:background="@drawable/rounded_corner"
         android:ems="10"
         android:hint="ID"
         android:inputType="textPersonName"
         android:paddingLeft="16dp"
+        android:textColor="#FFF"
+        android:textColorHint="#FFF"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/user_icon" />
@@ -28,12 +37,14 @@
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
-        android:textColor="#FFE4B5"
         android:background="@drawable/rounded_corner"
         android:ems="10"
         android:hint="UserName"
         android:inputType="textPersonName"
         android:paddingLeft="16dp"
+        android:textColor="#FFF"
+        android:textColorHint="#FFF"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@+id/id_edittext_register"
         app:layout_constraintStart_toStartOf="@+id/id_edittext_register"
         app:layout_constraintTop_toBottomOf="@+id/id_edittext_register" />
@@ -43,23 +54,28 @@
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
-        android:textColor="#FFE4B5"
         android:background="@drawable/rounded_corner"
         android:ems="10"
         android:hint="Password"
         android:inputType="textPassword"
         android:paddingLeft="16dp"
+        android:textColor="#FFF"
+        android:textColorHint="#FFF"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="@+id/username_edittext_register"
         app:layout_constraintStart_toStartOf="@+id/username_edittext_register"
         app:layout_constraintTop_toBottomOf="@+id/username_edittext_register" />
 
     <Button
         android:id="@+id/register_button_register"
-        android:layout_width="0dp"
+        android:layout_width="200sp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="REGISTER"
+        android:layout_marginTop="32dp"
         android:background="@drawable/buttonshape"
+        android:text="REGISTER"
+        android:textColor="#FFF"
+        android:textSize="14sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/password_edittext_register"
         app:layout_constraintStart_toStartOf="@+id/password_edittext_register"
         app:layout_constraintTop_toBottomOf="@+id/password_edittext_register" />

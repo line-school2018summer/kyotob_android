@@ -61,6 +61,7 @@
         android:background="@drawable/buttonshape"
         android:text="LOGIN"
         android:textColor="#FFF"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/password_edittext_login"
         app:layout_constraintStart_toStartOf="@+id/password_edittext_login"
         app:layout_constraintTop_toBottomOf="@+id/password_edittext_login" />
