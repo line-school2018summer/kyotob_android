@@ -1,5 +1,6 @@
 package com.kyotob.client.chatList
 
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.design.widget.TabLayout
@@ -28,6 +29,8 @@ class Dialog : DialogFragment() {
         mpager = view.findViewById(R.id.viewpager)
         mpager.adapter = TabAdapter(childFragmentManager)
         tabLayout = view.findViewById(R.id.tabs)
+        tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#3bc8ef"))
+        tabLayout.setTabTextColors(Color.parseColor("#ffffff"), Color.parseColor("#3bc8ef"))
         tabLayout.setupWithViewPager(mpager)
 
         // builderにビューをセットする

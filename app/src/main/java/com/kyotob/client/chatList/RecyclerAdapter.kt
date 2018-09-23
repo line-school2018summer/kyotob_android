@@ -1,6 +1,7 @@
 package com.kyotob.client.chatList
 
 import android.content.Context
+import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.kyotob.client.R
 import com.kyotob.client.entities.FriendItem
+import android.content.res.ColorStateList
+
+
 
 class RecyclerAdapter(val context: Context, val itemList: List<FriendItemForView>): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
@@ -24,6 +28,9 @@ class RecyclerAdapter(val context: Context, val itemList: List<FriendItemForView
         if (itemList.size <= p1) return
         //todo: imageView
         p0.screenNameView.text = itemList[p1].screenName
+        // 文字色を白色に
+        p0.screenNameView.setTextColor(Color.WHITE)
+        // チェックボックスのスタイル設定
         p0.checkBox.setChecked(itemList.get(p1).isChecked);
         p0.checkBox.setOnCheckedChangeListener { buttonView, isChecked -> itemList.get(p1).isChecked = isChecked }
     }

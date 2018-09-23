@@ -20,27 +20,38 @@
             android:ems="10"
             android:hint="ユーザーIDを入力"
             android:inputType="textPersonName"
+            android:textColor="#FFF"
+            android:textColorHint="#bbbec1"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:theme="@style/EditTextStyle"/>
 
         <TextView
             android:id="@+id/dialog_not_found_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:text="見つかりません"
-            android:visibility="visible"
-            app:layout_constraintStart_toStartOf="parent"
+            android:textColor="#FFF"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@+id/dialog_edit_text"
+            app:layout_constraintStart_toStartOf="@+id/dialog_edit_text"
             app:layout_constraintTop_toBottomOf="@+id/dialog_edit_text" />
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/dialog_found_user"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="350dp"
+            android:layout_height="140dp"
+            android:layout_marginEnd="30dp"
             android:layout_weight="1"
+            android:background="@drawable/shape_room_view"
             android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@+id/dialog_not_found_text_view"
+            app:layout_constraintStart_toStartOf="@+id/dialog_not_found_text_view"
             app:layout_constraintTop_toBottomOf="@+id/dialog_not_found_text_view">
 
             <ImageView
@@ -50,7 +61,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:background="#4de8a0"
+                android:background="#fff"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -64,7 +75,7 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:text="あいうえ太郎"
-                android:textColor="@android:color/black"
+                android:textColor="#fff"
                 android:textSize="24sp"
                 app:layout_constraintStart_toEndOf="@+id/dialog_user_image_view"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -78,9 +89,9 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="84dp"
-                android:background="@android:color/holo_orange_dark"
+                android:background="@drawable/make_new_friend_button"
                 android:text="友だち追加"
-                android:textColor="@android:color/background_light"
+                android:textColor="@android:color/holo_orange_dark"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -91,9 +102,11 @@
         <ToggleButton
             android:id="@+id/soundSendBtn"
             android:layout_width="wrap_content"
-            android:layout_height="40sp"
+            android:layout_height="35sp"
             android:layout_marginStart="8dp"
+            android:background="@drawable/make_new_group_button"
             android:text="ToggleButton"
+            android:textColor="#3bc8ef"
             android:textOff="SEND"
             android:textOn="SENDING..."
             app:layout_constraintStart_toEndOf="@+id/soundWaveImg"
@@ -102,9 +115,11 @@
         <Button
             android:id="@+id/soundReceiveBtn"
             android:layout_width="wrap_content"
-            android:layout_height="40sp"
+            android:layout_height="35sp"
             android:layout_marginStart="8dp"
+            android:background="@drawable/make_new_group_button"
             android:text="Receive"
+            android:textColor="#3bc8ef"
             app:layout_constraintStart_toEndOf="@+id/soundWaveImg"
             app:layout_constraintTop_toBottomOf="@+id/dialog_found_user" />
 
@@ -118,7 +133,7 @@
             app:layout_constraintHorizontal_bias="0.26"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/dialog_found_user"
-            app:srcCompat="@drawable/soundwave" />
+            app:srcCompat="@drawable/ic_sync" />
 
     </android.support.constraint.ConstraintLayout>
 

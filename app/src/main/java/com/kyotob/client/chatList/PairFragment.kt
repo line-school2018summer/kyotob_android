@@ -43,6 +43,7 @@ import org.jtransforms.fft.DoubleFFT_1D
 import android.media.MediaRecorder
 import android.widget.Button
 import android.widget.TextView
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.dialog_pair.*
 
 class PairFragment: Fragment() {
@@ -54,6 +55,7 @@ class PairFragment: Fragment() {
     lateinit var foundText: TextView
     lateinit var receiveBtn: Button
     lateinit var sendBtn: ToggleButton
+    lateinit var iconImage: ImageView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.dialog_pair, null)
@@ -69,6 +71,7 @@ class PairFragment: Fragment() {
             //音波通信ボタン
             receiveBtn = findViewById(R.id.soundReceiveBtn)
             sendBtn = findViewById(R.id.soundSendBtn)
+            iconImage = findViewById(R.id.dialog_user_image_view)
 
         }
 
@@ -104,6 +107,10 @@ class PairFragment: Fragment() {
                             // TEST
                             // ユーザー表示名の変更
                             foundText.text = response.body()!!.screenName
+
+
+                            // ユーザーアイコンを設定
+                            Picasso.get().load(baseUrl + "/image/download/" + response.body()!!.imageUrl).into(iconImage)
 
                             foundView.visibility = View.VISIBLE
                             notFoundView.visibility = View.INVISIBLE
