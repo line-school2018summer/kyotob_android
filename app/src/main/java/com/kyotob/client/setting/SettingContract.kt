@@ -29,5 +29,7 @@ interface SettingContract {
         fun updateName()
 
         fun onIconClick()
+
+        fun setDefaultIcon()
     }
 }

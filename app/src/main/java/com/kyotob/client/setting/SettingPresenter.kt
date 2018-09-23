@@ -72,4 +72,23 @@ class SettingPresenter(
             settingView.showToast(e.message!!)
         }
     }
+
+    override fun setDefaultIcon() {
+        try {
+            launch (UI) {
+                val imagePath = "abc.png"
+                val name = sharedPreferences.getString(USER_NAME_KEY, "default")!!
+                val token = sharedPreferences.getString(TOKEN_KEY, "default")!!
+                val screenName = sharedPreferences.getString(USER_SCREEN_NAME_KEY, "default")!!
+                withContext(CommonPool) { UsersRepository().updateUserName(name, token, screenName, imagePath).awaitResponse() }
+                val editor = sharedPreferences.edit()
+                editor.putString(USER_IMAGE_URL_KEY, imagePath)
+                editor.apply()
+                settingView.showToast("変更されました")
+                settingView.showIcon(imagePath)
+            }
+        } catch (e: Throwable) {
+            settingView.showToast(e.message!!)
+        }
+    }
 }

@@ -13,8 +13,8 @@ import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import ru.gildor.coroutines.retrofit.awaitResponse
-import android.content.pm.PackageManager
 import android.net.Uri
+import android.content.pm.PackageManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import com.kyotob.client.*
@@ -84,11 +84,10 @@ class RegisterActivity : AppCompatActivity() {
                             editor.putString(USER_SCREEN_NAME_KEY,screen_name)
                             editor.putString(TOKEN_KEY, token)
                             editor.apply()
-
-                            // 遷移
-                            startActivity(claIntent)
                             // ボタンクリックを復活
                             v.isEnabled = true
+                            // 遷移
+                            startActivity(claIntent)
                         } else {
                             // Debug
                             println("error code: " + response.code())
@@ -135,6 +134,7 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
     }
+
     // パーミッション要求のコールバック
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
@@ -165,5 +165,6 @@ class RegisterActivity : AppCompatActivity() {
 
     fun setDefaultIcon() {
         findViewById<ImageView>(R.id.user_icon).setImageResource(R.drawable.boy)
+        uri = null
     }
 }

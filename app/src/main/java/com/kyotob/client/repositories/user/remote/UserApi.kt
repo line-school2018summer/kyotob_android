@@ -15,7 +15,8 @@ data class newNamePost(
 
 data class PostGroupRoomRequest(
         val room_name: String,
-        val user_name_list: List<HashMap<String, String>>
+        val user_name_list: List<HashMap<String, String>>,
+        val icon_path: String
 )
 interface UserApi {
 

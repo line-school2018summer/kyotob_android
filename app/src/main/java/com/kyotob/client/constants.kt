@@ -8,12 +8,13 @@ const val USER_NAME_KEY = "userName"
 const val USER_SCREEN_NAME_KEY = "screenName"
 const val USER_IMAGE_URL_KEY = "imageUrl"
 const val TOKEN_KEY = "accessToken"
+
+const val IMAGE_PREFERENCE_KEY = "image"
+const val IMAGE_PATH_KEY = "imageUrl"
+
 // Activity間のデータ受け渡し用キー
 const val EXTRA_MESSAGE = "com.kyotob.client.MESSAGE"
 // 画像アップロード用定数
 const val TAKE_PICTURE = 1
 const val SELECT_PICTURE = 2
 const val MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1
-
-const val IMAGE_PREFERENCE_KEY = "image"
-const val IMAGE_PATH_KEY = "imageUrl"
