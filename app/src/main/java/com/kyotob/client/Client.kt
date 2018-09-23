@@ -5,8 +5,8 @@ import retrofit2.Call
 import retrofit2.http.*
 
 interface Client {
-    @GET("/user")
-    fun getUser(@Query("id") query: String): UserResponse?
+    @GET("/user/{user_name}")
+    fun getUser(@Query("user_name") username: String, @Header("access_token") token: String): UserResponse?
 
     // User検索用
     @GET("/user/search/{user_name}")
