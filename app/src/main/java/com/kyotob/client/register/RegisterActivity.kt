@@ -95,11 +95,10 @@ class RegisterActivity : AppCompatActivity() {
                             editor.putString(USER_SCREEN_NAME_KEY,screen_name)
                             editor.putString(TOKEN_KEY, token)
                             editor.apply()
-
-                            // 遷移
-                            startActivity(claIntent)
                             // ボタン復活
                             v.isEnabled = true
+                            // 遷移
+                            startActivity(claIntent)
                         } else {
                             // Debug
                             println("error code: " + response.code())
