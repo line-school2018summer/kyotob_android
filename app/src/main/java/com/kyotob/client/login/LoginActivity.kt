@@ -16,6 +16,7 @@ import com.kyotob.client.repositories.user.UsersRepository
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
 import ru.gildor.coroutines.retrofit.awaitResponse
+import rx.internal.schedulers.NewThreadWorker
 
 class LoginActivity : AppCompatActivity() {
 
@@ -44,24 +45,28 @@ class LoginActivity : AppCompatActivity() {
 
             val name: String = findViewById<EditText>(R.id.id_edittext_login).text.toString()
             val password: String = findViewById<EditText>(R.id.password_edittext_login).text.toString()
-            
+
             launch(job + UI) {
-                val response = withContext(CommonPool) {
-                    usersRepositry.login(name, password).awaitResponse()
-                }
+                try {
+                    val response = withContext(CommonPool) {
+                        usersRepositry.login(name, password).awaitResponse()
+                    }
 
-                if (response.isSuccessful) {
-                    val token = response.body()!!.token
-                    val iconPath = response.body()!!.imageUrl
-                    register(token, name, iconPath)
-                    startActivity(Intent(this@LoginActivity, ChatListActivity::class.java))
-                    // ボタンクリックを復活
-                    it.isEnabled = true
-                } else {
-                    // Debug
-                    println("error code: " + response.code())
+                    if (response.isSuccessful) {
+                        val token = response.body()!!.token
+                        val iconPath = response.body()!!.imageUrl
+                        register(token, name, iconPath)
+                        startActivity(Intent(this@LoginActivity, ChatListActivity::class.java))
+                        // ボタンクリックを復活
+                    } else {
+                        // Debug
+                        println("error code: " + response.code())
 
-                    // ボタン復活
+                        // ボタン復活
+                    }
+                } catch (t: Throwable) {
+                    showToast(t.message!!)
+                } finally {
                     it.isEnabled = true
                 }
             }
