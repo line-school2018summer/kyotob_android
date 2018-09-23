@@ -29,7 +29,7 @@ class UsersRepository(
 
     fun getFriendList(name: String, token: String) = usersRemoteDataSource.getFriendList(name, token)
 
-    fun postGroupRoomRequest(token: String, roomName: String, memberList: List<String>) = usersRemoteDataSource.postGroupRoom(token, roomName, memberList)
+    fun postGroupRoomRequest(token: String, roomName: String, memberList: List<String>, iconPath: String) = usersRemoteDataSource.postGroupRoom(token, roomName, memberList, iconPath)
 
     fun uploadIcon(file: MultipartBody.Part) = usersRemoteDataSource.uploadIcon(file)
 }

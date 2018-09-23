@@ -63,8 +63,8 @@ class UsersRemoteDataSource {
 
     fun getFriendList(name: String, token: String) = api.getFriendList(name, token)
 
-    fun postGroupRoom(token: String, roomName: String, memberList: List<String>): Call<Unit> {
-        val postGroupRoomRequest = PostGroupRoomRequest(roomName, memberList.map { hashMapOf("user_name" to it)})
+    fun postGroupRoom(token: String, roomName: String, memberList: List<String>, iconPath: String): Call<Unit> {
+        val postGroupRoomRequest = PostGroupRoomRequest(roomName, memberList.map { hashMapOf("user_name" to it)}, iconPath)
         return api.postGroupRoom(token, postGroupRoomRequest)
     }
 

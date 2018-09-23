@@ -104,4 +104,9 @@ class SettingFragment: Fragment(), SettingContract.View {
         val toast = Toast.makeText(activity, message, Toast.LENGTH_LONG)
         toast.show()
     }
+
+    fun setDefaultIcon() {
+        icon.setImageResource(R.drawable.boy)
+        presenter.setDefaultIcon()
+    }
 }
