@@ -11,7 +11,6 @@ import android.widget.TextView
 import android.widget.Toast
 import com.google.gson.GsonBuilder
 import com.kyotob.client.adapter.MessageListAdapter
-import com.kyotob.client.chatList.ChatListActivity
 import com.kyotob.client.entities.GetMessageResponse
 import com.kyotob.client.entities.PostMessageRequest
 import retrofit2.Call
