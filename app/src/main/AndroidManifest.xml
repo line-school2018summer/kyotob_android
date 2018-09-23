@@ -40,7 +40,6 @@
         <activity android:name=".setting.SettingActivity" />
         <activity android:name=".setting.NameActivity" />
         <activity android:name=".TimerMessageActivity" />
-        <activity android:name=".chatList.SoundSendActivity"/>
 
         <!-- PROVIDER FOR CAMERA -->
         <provider
