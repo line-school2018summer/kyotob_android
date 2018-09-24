@@ -94,43 +94,44 @@ class PairFragment: Fragment() {
         val token = sharedPreferences.getString(TOKEN_KEY, null) ?: throw Exception("token is null")
         val userName = sharedPreferences.getString(USER_NAME_KEY, null) ?: throw Exception("userName is null")
 
+        fun communicate() { // 通信
+            Log.d("RCV", "受信!")
+            client.searchUser(dialogEditText.text.toString(), token).enqueue(object : Callback<SearchUserResponse> {
+                // Request成功時に呼ばれる
+                override fun onResponse(call: Call<SearchUserResponse>, response: Response<SearchUserResponse>) {
+
+                    // 通信成功時
+                    if (response.isSuccessful) {
+                        // TEST
+                        // ユーザー表示名の変更
+                        foundText.text = response.body()!!.screenName
+
+                        foundView.visibility = View.VISIBLE
+                        notFoundView.visibility = View.INVISIBLE
+                    }
+                    // Bad request
+                    else {
+                        foundView.visibility = View.INVISIBLE
+                        notFoundView.visibility = View.VISIBLE
+                    }
+                }
+
+                // Request失敗時に呼ばれる
+                override fun onFailure(call: Call<SearchUserResponse>?, t: Throwable?) {
+                    // Fail to connect Internet access
+                    if (activity != null) {
+                        Toast.makeText(activity?.applicationContext, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
+                    }
+                }
+            })
+        }
+
         // エンターキー押下時の挙動
         dialogEditText.setOnKeyListener { _, keyCode, event ->
             (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN).apply {
 
                 // 通信
-                client.searchUser(dialogEditText.text.toString(), token).enqueue(object : Callback<SearchUserResponse> {
-                    // Request成功時に呼ばれる
-                    override fun onResponse(call: Call<SearchUserResponse>, response: Response<SearchUserResponse>) {
-
-                        // 通信成功時
-                        if(response.isSuccessful) {
-                            // TEST
-                            // ユーザー表示名の変更
-                            foundText.text = response.body()!!.screenName
-
-
-                            // ユーザーアイコンを設定
-                            Picasso.get().load(baseUrl + "/image/download/" + response.body()!!.imageUrl).into(iconImage)
-
-                            foundView.visibility = View.VISIBLE
-                            notFoundView.visibility = View.INVISIBLE
-                        }
-                        // Bad request
-                        else {
-                            foundView.visibility = View.INVISIBLE
-                            notFoundView.visibility = View.VISIBLE
-                        }
-                    }
-
-                    // Request失敗時に呼ばれる
-                    override fun onFailure(call: Call<SearchUserResponse>?, t: Throwable?) {
-                        // Fail to connect Internet access
-                        if (activity != null) {
-                                    Toast.makeText(activity?.applicationContext, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
-                                }
-                    }
-                })
+                communicate()
             }
         }
 
@@ -260,8 +261,7 @@ class PairFragment: Fragment() {
                 for (i in 0 until ELMS_MAX) {
                     createSineWave(mSignals[i], (FREQ_BASE + FREQ_STEP * i).toShort().toInt(), AMP, true)
                 }
-                
-                Log.d("SND","myId: $myId")
+
                 val strByte: ByteArray = myId.toByteArray(charset("UTF-8"))
 
                 mAudioTrack.play()
@@ -365,13 +365,13 @@ class PairFragment: Fragment() {
                         // 100ms 分溜まったら FFT にかける
                         var freq = doFFT(mTestBuf)
 
-                        /*Log.d("RCV","$freq")
+                        Log.d("RCV","$freq")
 
                         //終端を検知したら終了
                         if(FREQ_TAIL - 5 < freq && freq < FREQ_TAIL + 5){
                             Log.d("RCV","end0")
                             break@loop
-                        }*/
+                        }
 
                         // 待ってた範囲の周波数かチェック
                         if (freq >= FREQ_BASE && freq <= FREQ_MAX) {
@@ -405,6 +405,9 @@ class PairFragment: Fragment() {
                 // 集音終了
                 mAudioRecord.stop()
                 mHandler.sendEmptyMessage(RECORD_END)
+
+                //通信
+                communicate()
             }
         }
 
@@ -430,36 +433,6 @@ class PairFragment: Fragment() {
             } else {
                 mInRecording = false
             }
-            // 通信
-            client.searchUser(dialogEditText.text.toString(), token).enqueue(object : Callback<SearchUserResponse> {
-                // Request成功時に呼ばれる
-                override fun onResponse(call: Call<SearchUserResponse>, response: Response<SearchUserResponse>) {
-
-                    // 通信成功時
-                    if(response.isSuccessful) {
-                        // TEST
-                        // ユーザー表示名の変更
-                        foundText.text = response.body()!!.screenName
-
-                        foundView.visibility = View.VISIBLE
-                        notFoundView.visibility = View.INVISIBLE
-                    }
-                    // Bad request
-                    else {
-                        foundView.visibility = View.INVISIBLE
-                        notFoundView.visibility = View.VISIBLE
-                    }
-                }
-
-                // Request失敗時に呼ばれる
-                override fun onFailure(call: Call<SearchUserResponse>?, t: Throwable?) {
-                    // Fail to connect Internet access
-                    if (activity != null) {
-                        Toast.makeText(activity?.applicationContext, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
-                    }
-                }
-            })
-            
         }
         return root
     }
