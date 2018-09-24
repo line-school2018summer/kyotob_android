@@ -3,9 +3,9 @@ package com.kyotob.client.login
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Color
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -13,10 +13,12 @@ import android.widget.Toast
 import com.kyotob.client.*
 import com.kyotob.client.register.RegisterActivity
 import com.kyotob.client.repositories.user.UsersRepository
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.withContext
 import ru.gildor.coroutines.retrofit.awaitResponse
-import rx.internal.schedulers.NewThreadWorker
 
 class LoginActivity : AppCompatActivity() {
 
@@ -46,28 +48,37 @@ class LoginActivity : AppCompatActivity() {
             val name: String = findViewById<EditText>(R.id.id_edittext_login).text.toString()
             val password: String = findViewById<EditText>(R.id.password_edittext_login).text.toString()
 
-            launch(job + UI) {
-                try {
-                    val response = withContext(CommonPool) {
-                        usersRepositry.login(name, password).awaitResponse()
-                    }
+            if(name.length==0 || password.length==0){ //IDかPasswordが空欄の場合は通信は行わず、トーストだけ返す。
+                showToast("Enter your Password and ID")
+                it.isEnabled = true
+            } else {
+                launch(job + UI) {
+                    try {
+                        val response = withContext(CommonPool) {
+                            usersRepositry.login(name, password).awaitResponse()
+                        }
 
-                    if (response.isSuccessful) {
-                        val token = response.body()!!.token
-                        val iconPath = response.body()!!.imageUrl
-                        register(token, name, iconPath)
-                        startActivity(Intent(this@LoginActivity, ChatListActivity::class.java))
-                        // ボタンクリックを復活
-                    } else {
-                        // Debug
-                        println("error code: " + response.code())
+                        if (response.isSuccessful) {
+                            Log.d("LGN", "successful")
+                            val token = response.body()!!.token
+                            val iconPath = response.body()!!.imageUrl
+                            register(token, name, iconPath)
+                            startActivity(Intent(this@LoginActivity, ChatListActivity::class.java))
+                            // ボタンクリックを復活
+                        } else {
+                            // Debug
+                            println("error code: " + response.code())
 
-                        // ボタン復活
+                            //ログインに失敗した時のToast
+                            showToast("ID or Password is wrong")
+
+                            // ボタン復活
+                        }
+                    } catch (t: Throwable) {
+                        showToast(t.message!!)
+                    } finally {
+                        it.isEnabled = true
                     }
-                } catch (t: Throwable) {
-                    showToast(t.message!!)
-                } finally {
-                    it.isEnabled = true
                 }
             }
         }

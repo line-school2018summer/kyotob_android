@@ -60,45 +60,51 @@ class RegisterActivity : AppCompatActivity() {
                 val name: String = findViewById<EditText>(R.id.id_edittext_register).text.toString()
                 val screen_name : String = findViewById<EditText>(R.id.username_edittext_register).text.toString()
                 val password: String = findViewById<EditText>(R.id.password_edittext_register).text.toString()
-                try {
-                    launch(CommonPool, parent = job) {
 
-                        var imageUri = "abc.png"
+                if(name.length==0 || screen_name.length==0 || password.length==0){
+                    showToast("Enter ID, UserName and Password")
+                    v.isEnabled = true
+                }
+                else {
+                    try {
+                        launch(CommonPool, parent = job) {
 
-                        //画像
-                        if (uri != null) {
-                            val part = createIconUpload(uri!!, this@RegisterActivity)
-                            val response = usersRepositry.uploadIcon(part).awaitResponse()
+                            var imageUri = "abc.png"
+
+                            //画像
+                            if (uri != null) {
+                                val part = createIconUpload(uri!!, this@RegisterActivity)
+                                val response = usersRepositry.uploadIcon(part).awaitResponse()
+                                if (response.isSuccessful) {
+                                    imageUri = response.body()!!.path
+                                    Log.d("image", imageUri)
+                                } else {
+                                    showToast(response.code().toString())
+                                }
+                            }
+                            val response = usersRepositry.register(name, screen_name, password, imageUri).awaitResponse()
                             if (response.isSuccessful) {
-                                imageUri = response.body()!!.path
-                                Log.d("image",imageUri)
+                                val token = response.body()!!.token
+                                val editor = sharedPreferences.edit()
+                                editor.putString(USER_NAME_KEY, name)
+                                editor.putString(USER_SCREEN_NAME_KEY, screen_name)
+                                editor.putString(TOKEN_KEY, token)
+                                editor.apply()
+                                // ボタンクリックを復活
+                                v.isEnabled = true
+                                // 遷移
+                                startActivity(claIntent)
                             } else {
-                                showToast(response.code().toString())
+                                // Debug
+                                println("error code: " + response.code())
+                                // ボタンクリックを復活させる
+                                v.isEnabled = true
                             }
                         }
-                        val response = usersRepositry.register(name, screen_name, password, imageUri).awaitResponse()
-                        if (response.isSuccessful) {
-                            val token = response.body()!!.token
-                            val editor = sharedPreferences.edit()
-                            editor.putString(USER_NAME_KEY,name)
-                            editor.putString(USER_SCREEN_NAME_KEY,screen_name)
-                            editor.putString(TOKEN_KEY, token)
-                            editor.apply()
-                            // ボタンクリックを復活
-                            v.isEnabled = true
-                            // 遷移
-                            startActivity(claIntent)
-                        } else {
-                            // Debug
-                            println("error code: " + response.code())
-                            // ボタンクリックを復活させる
-                            v.isEnabled = true
-                        }
+                    } catch (t: Throwable) {
+                        t.message?.let(::showToast)
                     }
-                } catch (t: Throwable){
-                    t.message?.let(::showToast)
                 }
-
             }
         })
 
