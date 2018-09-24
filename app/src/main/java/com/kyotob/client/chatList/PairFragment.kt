@@ -172,8 +172,9 @@ class PairFragment: Fragment() {
         val AMP = 4000
         val FREQ_BASE = 1000
         val FREQ_STEP = 20
-        val FREQ_HEAD = FREQ_BASE - 10
-        val FREQ_TAIL = FREQ_BASE - 20
+        val FREQ_MAX = FREQ_BASE + 255 * FREQ_STEP
+        val FREQ_HEAD = FREQ_BASE - 20
+        val FREQ_TAIL = FREQ_MAX + 20
         val ELMS_1SEC = SAMPLE_RATE
         val ELMS_100MSEC = SAMPLE_RATE / 10
         val ELMS_MAX = 256
@@ -281,7 +282,6 @@ class PairFragment: Fragment() {
         ///受信側の実装///
         //パラメーター
         val THRESHOLD_SILENCE: Short = 0x00ff
-        val FREQ_MAX = FREQ_BASE + 255 * FREQ_STEP
         val UNITSIZE = SAMPLE_RATE / 10 // 100msec分
 
         var mInRecording = false
