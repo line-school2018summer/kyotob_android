@@ -11,6 +11,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.kyotob.client.*
+import com.kyotob.client.chatList.ChatListActivity
 import com.kyotob.client.register.RegisterActivity
 import com.kyotob.client.repositories.user.UsersRepository
 import kotlinx.coroutines.experimental.*
