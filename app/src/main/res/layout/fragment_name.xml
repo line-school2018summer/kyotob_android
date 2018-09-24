@@ -9,12 +9,16 @@
 
     <Button
         android:id="@+id/save_button"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:background="@drawable/ic_save_black_24dp"
+        android:background="@drawable/make_new_group_button"
+        android:text="変更を保存"
+        android:textColor="#3bc8ef"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/name_view" />
 
     <EditText
