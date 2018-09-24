@@ -16,17 +16,24 @@
 package com.kyotob.client.repositories.user
 
 import com.kyotob.client.repositories.user.remote.UsersRemoteDataSource
+import okhttp3.MultipartBody
 
 class UsersRepository(
         private val usersRemoteDataSource: UsersRemoteDataSource = UsersRemoteDataSource()
 ) {
-    fun updateUserName(name: String, accessToken: String, newName: String) = usersRemoteDataSource.updateUser(name, accessToken, newName)
+    fun updateUserName(name: String, accessToken: String, newName: String, newIconPath: String) = usersRemoteDataSource.updateUser(name, accessToken, newName, newIconPath)
 
-    fun register(name: String, screenName: String, password: String) = usersRemoteDataSource.register(name, screenName, password)
+    fun register(name: String, screenName: String, password: String, iconPath: String = "default.jpeg") = usersRemoteDataSource.register(name, screenName, password, iconPath)
 
     fun login(name: String, password: String) = usersRemoteDataSource.login(name, password)
 
     fun getFriendList(name: String, token: String) = usersRemoteDataSource.getFriendList(name, token)
 
-    fun postGroupRoomRequest(token: String, roomName: String, memberList: List<String>) = usersRemoteDataSource.postGroupRoom(token, roomName, memberList)
+    fun postGroupRoomRequest(token: String, roomName: String, memberList: List<String>, iconPath: String) = usersRemoteDataSource.postGroupRoom(token, roomName, memberList, iconPath)
+
+    fun uploadIcon(file: MultipartBody.Part) = usersRemoteDataSource.uploadIcon(file)
 }
+
+data class IconUploadResponce(
+        val path: String
+)

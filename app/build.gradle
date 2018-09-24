@@ -61,6 +61,12 @@ dependencies {
 
     // Picasso 画像用
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    // 画像アップロード用
+    def uploadServiceVersion = "3.4.2"
+    implementation "net.gotev:uploadservice:$uploadServiceVersion"
+
+    implementation 'com.github.bumptech.glide:glide:4.0.0'
 }
 
 

@@ -5,7 +5,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
-import com.kyotob.client.chatList.ChatListActivity
+//import com.kyotob.client.chatList.ChatListActivity
 import com.kyotob.client.login.LoginActivity
 import com.kyotob.client.register.RegisterActivity
 import com.kyotob.client.setting.SettingActivity
@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
         editor.putString(USER_NAME_KEY, "test")
         editor.putString(USER_SCREEN_NAME_KEY, "Test User #1")
         editor.putString(TOKEN_KEY, "bar")
+        editor.putString(USER_IMAGE_URL_KEY, "abc.png")
         editor.apply()
 
         (findViewById<Button>(R.id.openChatActivity)).setOnClickListener {

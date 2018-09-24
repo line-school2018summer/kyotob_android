@@ -8,11 +8,16 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import com.kyotob.client.R
+import com.kyotob.client.baseUrl
 import com.kyotob.client.bindView
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.database.RoomsMidokuModel
 import com.kyotob.client.entities.Room
 import com.squareup.picasso.Picasso
+import com.kyotob.client.R.id.imageView
+import com.kyotob.client.CircleTransform
+
+
 
 // 個々のRoomViewの雛形を作るつくるクラス
 // RoomViewAdapterで利用する
@@ -45,16 +50,21 @@ class RoomView(context: Context): FrameLayout(context) {
     }
 
     fun setRoom(room: Room) {
-        // 文字をセット
+        // 表示名を変更
         userNameTextView.text = room.roomName
+        // 最新のメッセージを変更
+        if(room.recentMessage.matches(Regex(".*.png|.*.jpg|.*.jpeg"))) {
+            latestMessageTextView.text = "画像が送信されました"
+        } else {
+            latestMessageTextView.text = room.recentMessage
+        }
 
-        latestMessageTextView.text = room.recentMessage
-//        timeTextView.text = room.createdAt.toString().substring(11, 16)
+        // 時間を変更
+        timeTextView.text = room.createdAt.toString().substring(11, 16)
 
         // 画像をセットする
         profileImageView.setBackgroundColor(Color.WHITE)
-
-        Picasso.get().load("http://192.168.1.35:8080/image/download/def.png").into(profileImageView)
+        Picasso.get().load(baseUrl + "/image/download/" + room.imageUrl).transform(CircleTransform()).into(profileImageView)
 
         // ---------- SQLITE ----------------
         val roomDatabaseHelper = RoomDatabaseHelper(context) // インスタンス

@@ -11,8 +11,10 @@ import java.sql.Timestamp
 data class Room(
         @JsonProperty("room_id")
         val roomId: Int,
-        @JsonProperty("name")
+        @JsonProperty("room_name")
         val roomName: String,
+        @JsonProperty("image_url")
+        val imageUrl: String,
         @JsonProperty("recent_message")
         val recentMessage: String,
         @JsonProperty("created_at")

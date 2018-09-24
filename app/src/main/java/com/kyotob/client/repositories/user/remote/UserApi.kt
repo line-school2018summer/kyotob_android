@@ -5,19 +5,23 @@ import kotlinx.coroutines.experimental.Deferred
 import retrofit2.Call
 import retrofit2.http.*
 import com.kyotob.client.entities.LoginResponse
+import com.kyotob.client.repositories.user.IconUploadResponce
+import okhttp3.MultipartBody
 
 data class newNamePost(
         val new_screen_name: String
 )
 
+
 data class PostGroupRoomRequest(
         val room_name: String,
-        val user_name_list: List<HashMap<String, String>>
+        val user_name_list: List<HashMap<String, String>>,
+        val icon_path: String
 )
 interface UserApi {
 
     @PUT("user/{name}")
-    fun putName(
+    fun putUserData(
             @Path("name") userName: String,
             @Header("access_token") token: String,
             @Body body: HashMap<String, String>
@@ -44,5 +48,9 @@ interface UserApi {
             @Path("name") name: String,
             @Header("access_token") token: String
     ): Call<List<FriendItem>>
+
+    @Multipart
+    @POST("image/upload")
+    fun uploadIcon(@Part file: MultipartBody.Part): Call<IconUploadResponce>
 }
 

@@ -8,4 +8,20 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!-- EditTextのスタイル設定 -->
+    <style name="EditTextStyle" parent="android:Widget.EditText">
+        <item name="colorControlNormal">@color/colorEditTextCursorNomal</item>
+        <item name="colorControlActivated">@color/colorEditTextCursorHighlite</item>
+        <item name="android:textCursorDrawable">@color/colorEditTextCursorHighlite</item>
+        <item name="android:textColorHint">@color/colorEditTextHint</item>
+        <item name="android:textColor">@color/White</item>
+    </style>
+
+    <style name="MyCheckBox" parent="Theme.AppCompat.Light">
+        <!-- 枠線 -->
+        <item name="colorControlNormal">@color/White</item>
+        <!-- チェック時の色 -->
+        <item name="colorControlActivated">@color/colorEditTextCursorHighlite</item>
+    </style>
+
 </resources>

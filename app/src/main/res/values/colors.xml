@@ -3,4 +3,8 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorEditTextCursorNomal">#237c93</color>
+    <color name="colorEditTextCursorHighlite">#3bc8ef</color>
+    <color name="colorEditTextHint">#bbbec1</color>
+    <color name="White">#ffffff</color>
 </resources>

@@ -1,40 +1,34 @@
 package com.kyotob.client.register
 
-import android.app.Activity
+import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.kyotob.client.R
 import android.util.Log
 import android.view.View
 import android.widget.*
-import kotlinx.android.synthetic.main.activity_register.*
-import com.kyotob.client.login.LoginActivity
 import com.kyotob.client.repositories.user.UsersRepository
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import ru.gildor.coroutines.retrofit.awaitResponse
-import android.content.DialogInterface
 import android.net.Uri
-import android.os.Environment
-import android.provider.MediaStore
-import android.support.v4.content.FileProvider
-import android.support.v7.app.AlertDialog
-import java.io.File
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
+import android.content.pm.PackageManager
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
+import com.kyotob.client.*
+import com.kyotob.client.R
+import com.kyotob.client.util.ImageDialog
+import com.kyotob.client.util.createIconUpload
+import com.kyotob.client.util.imageActivityResult
+import net.gotev.uploadservice.*
 
 
 class RegisterActivity : AppCompatActivity() {
 
-    // 画像用
-    var currentPath: String? = null
-    val TAKE_PICTURE = 1
-    val SELECT_PICTURE = 2
+    var uri:Uri? = null
+
 
     val job = Job()
 
@@ -46,30 +40,59 @@ class RegisterActivity : AppCompatActivity() {
         toast.show()
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        val sharedPreferences = getSharedPreferences("userData", Context.MODE_PRIVATE)
+        // NAMESPACE PARAMETER FOR UPLOADSERVICE
+        UploadService.NAMESPACE = "com.kyotob.client"
+
+        val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
+        val claIntent =  Intent(this, ChatListActivity::class.java)
+
         //ユーザー登録する
         findViewById<Button>(R.id.register_button_register).setOnClickListener(object: View.OnClickListener{
             override fun onClick(v: View){
-
-
+                // 二度押し禁止
+                v.isEnabled = false
 
                 val name: String = findViewById<EditText>(R.id.id_edittext_register).text.toString()
                 val screen_name : String = findViewById<EditText>(R.id.username_edittext_register).text.toString()
                 val password: String = findViewById<EditText>(R.id.password_edittext_register).text.toString()
                 try {
                     launch(CommonPool, parent = job) {
-                        val response = usersRepositry.register(name, screen_name, password).awaitResponse()
+
+                        var imageUri = "abc.png"
+
+                        //画像
+                        if (uri != null) {
+                            val part = createIconUpload(uri!!, this@RegisterActivity)
+                            val response = usersRepositry.uploadIcon(part).awaitResponse()
+                            if (response.isSuccessful) {
+                                imageUri = response.body()!!.path
+                                Log.d("image",imageUri)
+                            } else {
+                                showToast(response.code().toString())
+                            }
+                        }
+                        val response = usersRepositry.register(name, screen_name, password, imageUri).awaitResponse()
                         if (response.isSuccessful) {
                             val token = response.body()!!.token
                             val editor = sharedPreferences.edit()
-                            editor.putString("name",name)
-                            editor.putString("screenName",screen_name)
-                            editor.putString("accessToken", token)
+                            editor.putString(USER_NAME_KEY,name)
+                            editor.putString(USER_SCREEN_NAME_KEY,screen_name)
+                            editor.putString(TOKEN_KEY, token)
                             editor.apply()
+                            // ボタンクリックを復活
+                            v.isEnabled = true
+                            // 遷移
+                            startActivity(claIntent)
+                        } else {
+                            // Debug
+                            println("error code: " + response.code())
+                            // ボタンクリックを復活させる
+                            v.isEnabled = true
                         }
                     }
                 } catch (t: Throwable){
@@ -81,8 +104,7 @@ class RegisterActivity : AppCompatActivity() {
 
         //ログイン画面に遷移する
         findViewById<TextView>(R.id.already_have_account_text_view).setOnClickListener{
-            val intent =  Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            finish()
         }
 
         // ImageViewのインスタンス
@@ -91,77 +113,58 @@ class RegisterActivity : AppCompatActivity() {
         iconImage.setImageResource(R.drawable.boy)
         // ImageViewをクリック時の挙動
         iconImage.setOnClickListener {
-            val items = arrayOf("写真をとる", "写真をえらぶ", "デフォルトに戻す")
-            AlertDialog.Builder(this)
-                    .setTitle("ユーザーアイコンの設定")
-                    .setItems(items, DialogInterface.OnClickListener { _, num ->
-                        when(num) {
-                            0 -> { dispatchCameraIntent() }
-                            1 -> { despatchGallaryIntent() }
-                            2 -> {findViewById<ImageView>(R.id.user_icon).setImageResource(R.drawable.boy)}
-                        }
-                    })
-                    .show()
+            // 権限の有無を確認する
+            if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // 以前、パーミッションを要求したことがある場合、
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                                Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    // パーミッションが断られた場合
+                    Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                } else { // 初めて要求する場合、
+                    ActivityCompat.requestPermissions(this,
+                            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
+                }
+            } else {
+                val fragmentManager = supportFragmentManager
+                val imageDialog = ImageDialog()
+                imageDialog.show(fragmentManager, "image選択")
+            }
         }
+    }
 
+    // パーミッション要求のコールバック
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+        // 内部フォルダへの書き込み権限
+            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE -> {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // パーミッションが許可された場合
+                    Toast.makeText(applicationContext, "Thank you", Toast.LENGTH_LONG).show()
+                } else {
+                    // パーミッションが断られた場合
+                    Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                }
+                return
+            }
+            else -> {
+                Toast.makeText(applicationContext, "Other Permission Requested", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        // 写真を撮ったときの挙動
-        if(requestCode == TAKE_PICTURE && resultCode == Activity.RESULT_OK) {
-            try {
-                val file = File(currentPath)
-                val uri = Uri.fromFile(file)
-                findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-        // アルバムから画像を選んだときの挙動
-        if(requestCode == SELECT_PICTURE && resultCode == Activity.RESULT_OK) {
-            try {
-                val uri = data!!.data
-                findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
+        uri = imageActivityResult(requestCode, resultCode, data, this)
+        findViewById<ImageView>(R.id.user_icon).setImageURI(uri)
     }
 
-    // GallaryActivity
-    fun despatchGallaryIntent() {
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(Intent.createChooser(intent, "Select image"), SELECT_PICTURE)
-    }
-
-    // CameraActivity
-    fun dispatchCameraIntent() {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if(intent.resolveActivity(packageManager) != null) {
-            var photoFile: File? = null
-            try {
-                photoFile = createImage()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            if(photoFile != null) {
-                var photoUri = FileProvider.getUriForFile(this,
-                        "com.kyotob.client.fileprovider", photoFile)
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
-                startActivityForResult(intent, TAKE_PICTURE)
-            }
-        }
-    }
-
-    fun createImage(): File {
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val imageName = timeStamp + "_"
-        var storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        var image = File.createTempFile(imageName, ".jpg", storageDir)
-        currentPath = image.absolutePath
-        return image
+    fun setDefaultIcon() {
+        findViewById<ImageView>(R.id.user_icon).setImageResource(R.drawable.boy)
+        uri = null
     }
 }
