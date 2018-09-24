@@ -2,6 +2,7 @@ package com.kyotob.client
 
 import android.Manifest
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.support.v7.app.AppCompatActivity
@@ -11,6 +12,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
+import android.view.KeyEvent
 import com.kyotob.client.adapter.RoomListAdapter
 import com.kyotob.client.entities.Room
 import android.widget.*
@@ -139,6 +142,16 @@ class ChatListActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         // 画面を更新する
         updateChatList()
+    }
+
+    // 戻るボタン押下時の挙動
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        AlertDialog.Builder(this)
+                .setTitle("ログアウトしますか？")
+                .setPositiveButton("ok"){ _, _ ->
+                    finish()
+                }.show()
+        return true
     }
 
     // AppBarにボタンを追加

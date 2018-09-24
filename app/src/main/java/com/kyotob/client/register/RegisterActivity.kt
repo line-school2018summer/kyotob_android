@@ -9,7 +9,7 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import com.kyotob.client.repositories.user.UsersRepository
-import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import ru.gildor.coroutines.retrofit.awaitResponse
@@ -67,7 +67,7 @@ class RegisterActivity : AppCompatActivity() {
                 }
                 else {
                     try {
-                        launch(CommonPool, parent = job) {
+                        launch(UI) {
 
                             var imageUri = "abc.png"
 
