@@ -3,7 +3,6 @@ package com.kyotob.client.login
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -17,7 +16,6 @@ import com.kyotob.client.repositories.user.UsersRepository
 import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
 import ru.gildor.coroutines.retrofit.awaitResponse
-import rx.internal.schedulers.NewThreadWorker
 
 class LoginActivity : AppCompatActivity() {
 
