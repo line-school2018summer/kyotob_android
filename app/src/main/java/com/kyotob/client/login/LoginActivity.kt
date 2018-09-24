@@ -24,7 +24,6 @@ class LoginActivity : AppCompatActivity() {
 
     private val usersRepositry = UsersRepository()
 
-
     private val job = Job()
 
     private lateinit var sharedPreferences: SharedPreferences

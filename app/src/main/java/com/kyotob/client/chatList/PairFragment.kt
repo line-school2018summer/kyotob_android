@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.content.Context
+import android.content.SharedPreferences
 import android.support.constraint.ConstraintLayout
 import android.support.v4.app.Fragment
 import android.view.KeyEvent
@@ -219,6 +220,8 @@ class PairFragment: Fragment() {
         val mPlayBufHEAD = ShortArray(SAMPLE_RATE)
         val mPlayBufTAIL = ShortArray(SAMPLE_RATE)
         val mSignals = Array(ELMS_MAX) { ShortArray(SAMPLE_RATE / 10) }
+        val preferences = this.getActivity()!!.getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
+        val myId = preferences.getString(USER_NAME_KEY, null) ?: throw Exception("name is null")
 
         //再生用
         var mAudioTrack = AudioTrack(AudioManager.STREAM_MUSIC,
@@ -257,9 +260,8 @@ class PairFragment: Fragment() {
                 for (i in 0 until ELMS_MAX) {
                     createSineWave(mSignals[i], (FREQ_BASE + FREQ_STEP * i).toShort().toInt(), AMP, true)
                 }
-
-                //TODO Preferenceから自分のID取得
-                val myId = dialogEditText.text.toString()
+                
+                Log.d("SND","myId: $myId")
                 val strByte: ByteArray = myId.toByteArray(charset("UTF-8"))
 
                 mAudioTrack.play()
@@ -421,6 +423,8 @@ class PairFragment: Fragment() {
         receiveBtn.setOnClickListener{
             // 集音開始 or 終了
             if (!mInRecording) {
+                //テキストボックスをリセット
+                dialogEditText.setText("")
                 mInRecording = true
                 Thread(receiveRun()).start()
             } else {
