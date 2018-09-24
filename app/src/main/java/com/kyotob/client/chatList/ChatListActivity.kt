@@ -1,10 +1,11 @@
-package com.kyotob.client
+package com.kyotob.client.chatList
 
 import android.Manifest
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
@@ -28,9 +29,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import android.widget.Toast
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.kyotob.client.chatList.Dialog
+import com.kyotob.client.*
 import com.kyotob.client.database.RoomDatabaseHelper
-import com.kyotob.client.database.RoomsMidokuModel
+import com.kyotob.client.database.RoomsUnreadModel
 import com.kyotob.client.setting.SettingActivity
 // WebSocket用
 import java.net.URI
@@ -62,7 +63,7 @@ class ChatListActivity : AppCompatActivity() {
         // 1, ListViewAdapterのインスタンスをつくる
         listAdapter = RoomListAdapter(applicationContext)
         // 2, listViewのインスタンスをつくる
-        var listView = findViewById<ListView>(R.id.chats_list)
+        val listView = findViewById<ListView>(R.id.chats_list)
         // 3, このクラスのインスタンスをlistViewのadapterに代入することで簡単にlistのitemをデザインできる
         listView.adapter = listAdapter
 
@@ -116,12 +117,12 @@ class ChatListActivity : AppCompatActivity() {
                     // ---------- SQLITE ----------------
                     val roomDatabaseHelper = RoomDatabaseHelper(this) // インスタンス
                     // データを検索
-                    val midokuNum = roomDatabaseHelper.searchData(webSocketMessage.roomId)
-                    if (midokuNum == -1) { // 新規Roomの場合
-                        val midokuModel = RoomsMidokuModel(webSocketMessage.roomId, 0) // データ
-                        roomDatabaseHelper.inserData(midokuModel) // データの挿入
+                    val unreadCount = roomDatabaseHelper.searchData(webSocketMessage.roomId)
+                    if (unreadCount == -1) { // 新規Roomの場合
+                        val unreadModel = RoomsUnreadModel(webSocketMessage.roomId, 0) // データ
+                        roomDatabaseHelper.insertData(unreadModel) // データの挿入
                     } else {// 既存のRoomの場合
-                        roomDatabaseHelper.updateData(webSocketMessage.roomId, midokuNum + 1) // データの挿入
+                        roomDatabaseHelper.updateData(webSocketMessage.roomId, unreadCount + 1) // データの挿入
                     }
                     // ----------------------------------
 
@@ -172,12 +173,12 @@ class ChatListActivity : AppCompatActivity() {
 
 
     // 通信結果のJsonをパースして、UIに反映させる
-    fun updateChatList() {
+    private fun updateChatList() {
         val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
         val token = sharedPreferences.getString(TOKEN_KEY, null)
 
         /* JSON のスネークケースで表現されるフィールド名を、
-Java オブジェクトでキャメルケースに対応させるための設定 */
+           Java オブジェクトでキャメルケースに対応させるための設定 */
         val gson = GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create()
@@ -213,5 +214,45 @@ Java オブジェクトでキャメルケースに対応させるための設定
             }
         })
 
+    }
+}
+
+// 非同期処理
+class DoAsync(private val handler: () -> Unit) : AsyncTask<Void, Void, Void>() {
+    override fun doInBackground(vararg params: Void?): Void? {
+        handler()
+        return null
+    }
+}
+
+// WebSocket
+@javax.websocket.ClientEndpoint
+class WebSocketEndPoint(private val handler: (msg: String) -> Unit) {
+
+    // Socket通信を開始するときに呼び出される
+    @OnOpen
+    fun onOpen(session: Session, config: EndpointConfig) {
+        println("client-[open] $session")
+    }
+
+    // Message受信時に呼び出される
+    @OnMessage
+    fun onMessage(message: String, session: Session) {
+        println("client-[message][$message] $session")
+        if(message != "WebSocket通信を開始します。") { // 最初のメッセージは無視する
+            handler(message)
+        }
+    }
+
+    // Socket通信を終了するときに呼び出される
+    @OnClose
+    fun onClose(session: Session) {
+        println("client-[close] $session")
+    }
+
+    // ERRORのログを取る
+    @OnError
+    fun onError(session: Session?, t: Throwable?) {
+        println("client-[error] ${t?.message} $session")
     }
 }

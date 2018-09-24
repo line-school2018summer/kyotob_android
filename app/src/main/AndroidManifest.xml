@@ -28,7 +28,6 @@
         android:usesCleartextTraffic="true">
         <activity android:name=".MainActivity" />
         <activity android:name=".ChatActivity" />
-        <activity android:name=".ChatListActivity" />
         <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,6 +39,7 @@
         <activity android:name=".setting.SettingActivity" />
         <activity android:name=".setting.NameActivity" />
         <activity android:name=".TimerMessageActivity" />
+        <activity android:name=".chatList.ChatListActivity" />
 
         <!-- PROVIDER FOR CAMERA -->
         <provider

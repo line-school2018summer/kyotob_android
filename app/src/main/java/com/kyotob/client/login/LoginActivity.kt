@@ -3,14 +3,15 @@ package com.kyotob.client.login
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.kyotob.client.*
+import com.kyotob.client.chatList.ChatListActivity
 import com.kyotob.client.register.RegisterActivity
 import com.kyotob.client.repositories.user.UsersRepository
 import kotlinx.coroutines.experimental.CommonPool
@@ -22,7 +23,7 @@ import ru.gildor.coroutines.retrofit.awaitResponse
 
 class LoginActivity : AppCompatActivity() {
 
-    private val usersRepositry = UsersRepository()
+    private val usersRepository = UsersRepository()
 
 
     private val job = Job()
@@ -48,14 +49,14 @@ class LoginActivity : AppCompatActivity() {
             val name: String = findViewById<EditText>(R.id.id_edittext_login).text.toString()
             val password: String = findViewById<EditText>(R.id.password_edittext_login).text.toString()
 
-            if(name.length==0 || password.length==0){ //IDかPasswordが空欄の場合は通信は行わず、トーストだけ返す。
+            if(name.isEmpty() || password.isEmpty()){ //IDかPasswordが空欄の場合は通信は行わず、トーストだけ返す。
                 showToast("Enter your Password and ID")
                 it.isEnabled = true
             } else {
                 launch(job + UI) {
                     try {
                         val response = withContext(CommonPool) {
-                            usersRepositry.login(name, password).awaitResponse()
+                            usersRepository.login(name, password).awaitResponse()
                         }
 
                         if (response.isSuccessful) {

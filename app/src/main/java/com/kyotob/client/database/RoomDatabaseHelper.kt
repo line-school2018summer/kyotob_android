@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
 
-data class RoomsMidokuModel(val roomId: Int, val midokuNum: Int)
+data class RoomsUnreadModel(val roomId: Int, val midokuNum: Int)
 
 class RoomDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
@@ -28,7 +28,7 @@ class RoomDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
 
     // データ追加用のSQL
     @Throws(SQLiteException::class)
-    fun inserData(task: RoomsMidokuModel): Boolean {
+    fun insertData(task: RoomsUnreadModel): Boolean {
         // DBの実体
         val db = writableDatabase
 
@@ -57,9 +57,9 @@ class RoomDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         // 終了
         db.close()
 
-        when (rowId) {
-            1 -> return true
-            else -> return false
+        return when (rowId) {
+            1 -> true
+            else -> false
         }
     }
 
@@ -72,10 +72,10 @@ class RoomDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         // 検索
         val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME WHERE $COLUMN1 = $roomId", arrayOf()) // SQL文を実行
         val num: Int
-        if(cursor.moveToFirst()) { // 先頭のフィールドに移動
-            num = cursor.getInt(1) // 値を取得
+        num = if (cursor.moveToFirst()) { // 先頭のフィールドに移動
+            cursor.getInt(1) // 値を取得
         } else {
-            num = -1
+            -1
         }
 
         // 終了
