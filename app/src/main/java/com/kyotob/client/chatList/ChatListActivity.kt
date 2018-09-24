@@ -23,7 +23,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.kyotob.client.*
 import com.kyotob.client.database.RoomDatabaseHelper
-import com.kyotob.client.database.RoomsMidokuModel
+import com.kyotob.client.database.RoomsUnreadModel
 // WebSocket用
 import java.net.URI
 import java.sql.Timestamp
@@ -107,12 +107,12 @@ class ChatListActivity : AppCompatActivity() {
                     // ---------- SQLITE ----------------
                     val roomDatabaseHelper = RoomDatabaseHelper(this) // インスタンス
                     // データを検索
-                    val midokuNum = roomDatabaseHelper.searchData(webSocketMessage.roomId)
-                    if (midokuNum == -1) { // 新規Roomの場合
-                        val midokuModel = RoomsMidokuModel(webSocketMessage.roomId, 0) // データ
-                        roomDatabaseHelper.inserData(midokuModel) // データの挿入
+                    val unreadCount = roomDatabaseHelper.searchData(webSocketMessage.roomId)
+                    if (unreadCount == -1) { // 新規Roomの場合
+                        val unreadModel = RoomsUnreadModel(webSocketMessage.roomId, 0) // データ
+                        roomDatabaseHelper.insertData(unreadModel) // データの挿入
                     } else {// 既存のRoomの場合
-                        roomDatabaseHelper.updateData(webSocketMessage.roomId, midokuNum + 1) // データの挿入
+                        roomDatabaseHelper.updateData(webSocketMessage.roomId, unreadCount + 1) // データの挿入
                     }
                     // ----------------------------------
 

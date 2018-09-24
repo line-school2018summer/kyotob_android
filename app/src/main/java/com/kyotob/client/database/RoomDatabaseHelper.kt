@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
 
-data class RoomsMidokuModel(val roomId: Int, val midokuNum: Int)
+data class RoomsUnreadModel(val roomId: Int, val midokuNum: Int)
 
 class RoomDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
