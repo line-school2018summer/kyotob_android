@@ -209,16 +209,20 @@ class ChatActivity : AppCompatActivity() {
         // 時間差送信メッセージを取得する関数
         client.getTimerMessages(roomId, token).enqueue(object : Callback<Array<GetTimerMessageResponse>> {
             override fun onResponse(call: Call<Array<GetTimerMessageResponse>>?, response: Response<Array<GetTimerMessageResponse>>?) {
-                if(response?.body()!!.contentEquals(emptyArray())) {
-                    println("空")
+                if(response!!.isSuccessful) {
+                    if (response?.body()!!.contentEquals(emptyArray())) {
+                        println("空")
+                    } else {
+                        // メッセージを取得
+                        val tmpMessage: Array<GetTimerMessageResponse> = response.body()!!
+                        // SearchUserDialogのインスタンスをつくる
+                        val dialog = TimerMessageViewerDialog()
+                        dialog.msg = response.body()!!
+                        // Dialogを表示
+                        dialog.show(supportFragmentManager, "dialog")
+                    }
                 } else {
-                    // メッセージを取得
-                    val tmpMessage: Array<GetTimerMessageResponse> = response.body()!!
-                    // SearchUserDialogのインスタンスをつくる
-                    val dialog = TimerMessageViewerDialog()
-                    dialog.msg = response.body()!!
-                    // Dialogを表示
-                    dialog.show(supportFragmentManager, "dialog")
+                    Toast.makeText(this@ChatActivity, response.code().toString(), Toast.LENGTH_LONG).show()
                 }
             }
 
