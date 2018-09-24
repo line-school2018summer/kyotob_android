@@ -19,33 +19,30 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import com.kyotob.client.*
 import com.kyotob.client.R
+import com.kyotob.client.chatList.ChatListActivity
 import com.kyotob.client.util.ImageDialog
 import com.kyotob.client.util.createIconUpload
 import com.kyotob.client.util.imageActivityResult
 import net.gotev.uploadservice.*
 
-
 class RegisterActivity : AppCompatActivity() {
 
     var uri:Uri? = null
 
-
     val job = Job()
 
-
-    val usersRepositry = UsersRepository()
+    val usersRepository = UsersRepository()
 
     fun showToast(message: String) {
         val toast = Toast.makeText(this, message, Toast.LENGTH_LONG)
         toast.show()
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        // NAMESPACE PARAMETER FOR UPLOADSERVICE
+        // NAMESPACE PARAMETER FOR UPLOAD SERVICE
         UploadService.NAMESPACE = "com.kyotob.client"
 
         val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
@@ -58,7 +55,7 @@ class RegisterActivity : AppCompatActivity() {
                 v.isEnabled = false
 
                 val name: String = findViewById<EditText>(R.id.id_edittext_register).text.toString()
-                val screen_name : String = findViewById<EditText>(R.id.username_edittext_register).text.toString()
+                val screenName : String = findViewById<EditText>(R.id.username_edittext_register).text.toString()
                 val password: String = findViewById<EditText>(R.id.password_edittext_register).text.toString()
                 try {
                     launch(CommonPool, parent = job) {
@@ -68,7 +65,7 @@ class RegisterActivity : AppCompatActivity() {
                         //画像
                         if (uri != null) {
                             val part = createIconUpload(uri!!, this@RegisterActivity)
-                            val response = usersRepositry.uploadIcon(part).awaitResponse()
+                            val response = usersRepository.uploadIcon(part).awaitResponse()
                             if (response.isSuccessful) {
                                 imageUri = response.body()!!.path
                                 Log.d("image",imageUri)
@@ -76,12 +73,12 @@ class RegisterActivity : AppCompatActivity() {
                                 showToast(response.code().toString())
                             }
                         }
-                        val response = usersRepositry.register(name, screen_name, password, imageUri).awaitResponse()
+                        val response = usersRepository.register(name, screenName, password, imageUri).awaitResponse()
                         if (response.isSuccessful) {
                             val token = response.body()!!.token
                             val editor = sharedPreferences.edit()
                             editor.putString(USER_NAME_KEY,name)
-                            editor.putString(USER_SCREEN_NAME_KEY,screen_name)
+                            editor.putString(USER_SCREEN_NAME_KEY, screenName)
                             editor.putString(TOKEN_KEY, token)
                             editor.apply()
                             // ボタンクリックを復活
@@ -142,7 +139,7 @@ class RegisterActivity : AppCompatActivity() {
         // 内部フォルダへの書き込み権限
             MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE -> {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // パーミッションが許可された場合
                     Toast.makeText(applicationContext, "Thank you", Toast.LENGTH_LONG).show()
                 } else {
