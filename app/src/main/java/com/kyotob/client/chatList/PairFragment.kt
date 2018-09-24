@@ -1,9 +1,11 @@
 package com.kyotob.client.chatList
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.content.Context
+import android.content.SharedPreferences
 import android.support.constraint.ConstraintLayout
 import android.support.v4.app.Fragment
 import android.view.KeyEvent
@@ -55,7 +57,7 @@ class PairFragment: Fragment() {
     lateinit var foundText: TextView
     lateinit var receiveBtn: Button
     lateinit var sendBtn: ToggleButton
-    lateinit var iconImage: ImageView
+    lateinit var soundWaveImg: ImageView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.dialog_pair, null)
@@ -71,7 +73,7 @@ class PairFragment: Fragment() {
             //音波通信ボタン
             receiveBtn = findViewById(R.id.soundReceiveBtn)
             sendBtn = findViewById(R.id.soundSendBtn)
-            iconImage = findViewById(R.id.dialog_user_image_view)
+            soundWaveImg = findViewById(R.id.soundWaveImg)
 
         }
 
@@ -93,43 +95,44 @@ class PairFragment: Fragment() {
         val token = sharedPreferences.getString(TOKEN_KEY, null) ?: throw Exception("token is null")
         val userName = sharedPreferences.getString(USER_NAME_KEY, null) ?: throw Exception("userName is null")
 
+        fun communicate() { // 通信
+            Log.d("RCV", "受信!")
+            client.searchUser(dialogEditText.text.toString(), token).enqueue(object : Callback<SearchUserResponse> {
+                // Request成功時に呼ばれる
+                override fun onResponse(call: Call<SearchUserResponse>, response: Response<SearchUserResponse>) {
+
+                    // 通信成功時
+                    if (response.isSuccessful) {
+                        // TEST
+                        // ユーザー表示名の変更
+                        foundText.text = response.body()!!.screenName
+
+                        foundView.visibility = View.VISIBLE
+                        notFoundView.visibility = View.INVISIBLE
+                    }
+                    // Bad request
+                    else {
+                        foundView.visibility = View.INVISIBLE
+                        notFoundView.visibility = View.VISIBLE
+                    }
+                }
+
+                // Request失敗時に呼ばれる
+                override fun onFailure(call: Call<SearchUserResponse>?, t: Throwable?) {
+                    // Fail to connect Internet access
+                    if (activity != null) {
+                        Toast.makeText(activity?.applicationContext, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
+                    }
+                }
+            })
+        }
+
         // エンターキー押下時の挙動
         dialogEditText.setOnKeyListener { _, keyCode, event ->
             (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN).apply {
 
                 // 通信
-                client.searchUser(dialogEditText.text.toString(), token).enqueue(object : Callback<SearchUserResponse> {
-                    // Request成功時に呼ばれる
-                    override fun onResponse(call: Call<SearchUserResponse>, response: Response<SearchUserResponse>) {
-
-                        // 通信成功時
-                        if(response.isSuccessful) {
-                            // TEST
-                            // ユーザー表示名の変更
-                            foundText.text = response.body()!!.screenName
-
-
-                            // ユーザーアイコンを設定
-                            Picasso.get().load(baseUrl + "/image/download/" + response.body()!!.imageUrl).into(iconImage)
-
-                            foundView.visibility = View.VISIBLE
-                            notFoundView.visibility = View.INVISIBLE
-                        }
-                        // Bad request
-                        else {
-                            foundView.visibility = View.INVISIBLE
-                            notFoundView.visibility = View.VISIBLE
-                        }
-                    }
-
-                    // Request失敗時に呼ばれる
-                    override fun onFailure(call: Call<SearchUserResponse>?, t: Throwable?) {
-                        // Fail to connect Internet access
-                        if (activity != null) {
-                                    Toast.makeText(activity?.applicationContext, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
-                                }
-                    }
-                })
+                communicate()
             }
         }
 
@@ -170,8 +173,9 @@ class PairFragment: Fragment() {
         val AMP = 4000
         val FREQ_BASE = 1000
         val FREQ_STEP = 20
-        val FREQ_HEAD = FREQ_BASE - 10
-        val FREQ_TAIL = FREQ_BASE - 20
+        val FREQ_MAX = FREQ_BASE + 255 * FREQ_STEP
+        val FREQ_HEAD = FREQ_BASE - 20
+        val FREQ_TAIL = FREQ_MAX + 20
         val ELMS_1SEC = SAMPLE_RATE
         val ELMS_100MSEC = SAMPLE_RATE / 10
         val ELMS_MAX = 256
@@ -219,6 +223,8 @@ class PairFragment: Fragment() {
         val mPlayBufHEAD = ShortArray(SAMPLE_RATE)
         val mPlayBufTAIL = ShortArray(SAMPLE_RATE)
         val mSignals = Array(ELMS_MAX) { ShortArray(SAMPLE_RATE / 10) }
+        val preferences = this.getActivity()!!.getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
+        val myId = preferences.getString(USER_NAME_KEY, null) ?: throw Exception("name is null")
 
         //再生用
         var mAudioTrack = AudioTrack(AudioManager.STREAM_MUSIC,
@@ -258,8 +264,6 @@ class PairFragment: Fragment() {
                     createSineWave(mSignals[i], (FREQ_BASE + FREQ_STEP * i).toShort().toInt(), AMP, true)
                 }
 
-                //TODO Preferenceから自分のID取得
-                val myId = dialogEditText.text.toString()
                 val strByte: ByteArray = myId.toByteArray(charset("UTF-8"))
 
                 mAudioTrack.play()
@@ -279,7 +283,6 @@ class PairFragment: Fragment() {
         ///受信側の実装///
         //パラメーター
         val THRESHOLD_SILENCE: Short = 0x00ff
-        val FREQ_MAX = FREQ_BASE + 255 * FREQ_STEP
         val UNITSIZE = SAMPLE_RATE / 10 // 100msec分
 
         var mInRecording = false
@@ -363,13 +366,13 @@ class PairFragment: Fragment() {
                         // 100ms 分溜まったら FFT にかける
                         var freq = doFFT(mTestBuf)
 
-                        /*Log.d("RCV","$freq")
+                        Log.d("RCV","$freq")
 
                         //終端を検知したら終了
                         if(FREQ_TAIL - 5 < freq && freq < FREQ_TAIL + 5){
                             Log.d("RCV","end0")
                             break@loop
-                        }*/
+                        }
 
                         // 待ってた範囲の周波数かチェック
                         if (freq >= FREQ_BASE && freq <= FREQ_MAX) {
@@ -403,6 +406,9 @@ class PairFragment: Fragment() {
                 // 集音終了
                 mAudioRecord.stop()
                 mHandler.sendEmptyMessage(RECORD_END)
+
+                //通信
+                communicate()
             }
         }
 
@@ -421,41 +427,33 @@ class PairFragment: Fragment() {
         receiveBtn.setOnClickListener{
             // 集音開始 or 終了
             if (!mInRecording) {
+                //テキストボックスをリセット
+                dialogEditText.setText("")
                 mInRecording = true
                 Thread(receiveRun()).start()
             } else {
                 mInRecording = false
             }
-            // 通信
-            client.searchUser(dialogEditText.text.toString(), token).enqueue(object : Callback<SearchUserResponse> {
-                // Request成功時に呼ばれる
-                override fun onResponse(call: Call<SearchUserResponse>, response: Response<SearchUserResponse>) {
+        }
 
-                    // 通信成功時
-                    if(response.isSuccessful) {
-                        // TEST
-                        // ユーザー表示名の変更
-                        foundText.text = response.body()!!.screenName
+        //音波マークをタップした時に音波通信の使い方を表示
+        soundWaveImg.setOnClickListener{
+            Log.d("RCV","onClick")
+            val builder = AlertDialog.Builder(this.getActivity())
+            builder.setTitle("音波IDの送信方法 (電→信)")
+            builder.setMessage("⓪二人の携帯を近づけます\n" +
+                    "㊀信さんがRECEIVEボタンをタップ\n" +
+                    "㊁電くんがSENDボタンをタップ\n" +
+                    "㊂音波が流れます\n" +
+                    "㊃信さんの画面に電くんのIDが出現\n" +
+                    "㊄友だち追加をタップ\n" +
+                    "㊅うまくいかなければもう一度♪")
+            builder.setNeutralButton("合点!"){dialog, which ->
+            }
 
-                        foundView.visibility = View.VISIBLE
-                        notFoundView.visibility = View.INVISIBLE
-                    }
-                    // Bad request
-                    else {
-                        foundView.visibility = View.INVISIBLE
-                        notFoundView.visibility = View.VISIBLE
-                    }
-                }
+            val dialog: AlertDialog = builder.create()
+            dialog.show()
 
-                // Request失敗時に呼ばれる
-                override fun onFailure(call: Call<SearchUserResponse>?, t: Throwable?) {
-                    // Fail to connect Internet access
-                    if (activity != null) {
-                        Toast.makeText(activity?.applicationContext, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
-                    }
-                }
-            })
-            
         }
         return root
     }
