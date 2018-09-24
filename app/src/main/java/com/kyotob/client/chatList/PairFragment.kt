@@ -58,6 +58,7 @@ class PairFragment: Fragment() {
     lateinit var receiveBtn: Button
     lateinit var sendBtn: ToggleButton
     lateinit var soundWaveImg: ImageView
+    lateinit var iconImage: ImageView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.dialog_pair, null)
@@ -74,6 +75,7 @@ class PairFragment: Fragment() {
             receiveBtn = findViewById(R.id.soundReceiveBtn)
             sendBtn = findViewById(R.id.soundSendBtn)
             soundWaveImg = findViewById(R.id.soundWaveImg)
+            iconImage = findViewById(R.id.dialog_user_image_view)
 
         }
 
@@ -106,6 +108,8 @@ class PairFragment: Fragment() {
                         // TEST
                         // ユーザー表示名の変更
                         foundText.text = response.body()!!.screenName
+                        // ユーザーアイコンを設定
+                        Picasso.get().load(baseUrl + "/image/download/" + response.body()!!.imageUrl).into(iconImage)
 
                         foundView.visibility = View.VISIBLE
                         notFoundView.visibility = View.INVISIBLE
