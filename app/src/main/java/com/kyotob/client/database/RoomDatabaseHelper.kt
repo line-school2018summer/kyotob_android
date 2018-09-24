@@ -57,9 +57,9 @@ class RoomDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         // 終了
         db.close()
 
-        when (rowId) {
-            1 -> return true
-            else -> return false
+        return when (rowId) {
+            1 -> true
+            else -> false
         }
     }
 
@@ -72,10 +72,10 @@ class RoomDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         // 検索
         val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME WHERE $COLUMN1 = $roomId", arrayOf()) // SQL文を実行
         val num: Int
-        if(cursor.moveToFirst()) { // 先頭のフィールドに移動
-            num = cursor.getInt(1) // 値を取得
+        num = if (cursor.moveToFirst()) { // 先頭のフィールドに移動
+            cursor.getInt(1) // 値を取得
         } else {
-            num = -1
+            -1
         }
 
         // 終了
