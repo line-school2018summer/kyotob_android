@@ -3,12 +3,6 @@ package com.kyotob.client.entities
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.sql.Timestamp
 
-data class Message(val id: Int,
-                   val senderId: Int,
-                   val roomId: Int,
-                   val content: String,
-                   val created: Timestamp)
-
 data class GetMessageResponse(
         @JsonProperty("created_at") val createdAt: Timestamp,
         @JsonProperty("user_name") val userName: String,

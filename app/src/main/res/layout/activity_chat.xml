@@ -17,11 +17,13 @@
     <View
         android:id="@+id/message_bar"
         android:layout_width="wrap_content"
-        android:layout_height="60dp"
+        android:layout_height="0dp"
         android:background="#DDDDDD"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/text_input_layout" />
 
     <android.support.design.widget.TextInputLayout
+        android:id="@+id/text_input_layout"
         android:layout_width="283dp"
         android:layout_height="49dp"
         android:layout_marginBottom="10dp"

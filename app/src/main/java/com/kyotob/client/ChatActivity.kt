@@ -17,13 +17,9 @@ import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.*
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.*
 import com.kyotob.client.adapter.MessageListAdapter
-import com.kyotob.client.chatList.Dialog
 import com.kyotob.client.database.RoomDatabaseHelper
-import com.kyotob.client.database.RoomsMidokuModel
 import com.kyotob.client.entities.GetMessageResponse
 import com.kyotob.client.entities.GetTimerMessageResponse
 import com.kyotob.client.entities.PostMessageRequest
@@ -88,7 +84,6 @@ class ChatActivity : AppCompatActivity() {
         token = sharedPreferences.getString(TOKEN_KEY, null) ?: throw Exception("token is null")
         val userName = sharedPreferences.getString(USER_NAME_KEY, null) ?: throw Exception("userName is null")
 
-
         client.getMessages(roomId, token).enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
                 listAdapter.messages = response?.body() ?: emptyArray()
@@ -101,7 +96,7 @@ class ChatActivity : AppCompatActivity() {
         val submitButton = findViewById<Button>(R.id.submit)
         val textArea = findViewById<TextInputEditText>(R.id.message)
 
-        // when submit button pushed
+        // 送信ボタン押下
         submitButton.setOnClickListener {
             if(textArea.text.toString().isNotBlank()) {
                 client.sendMessage(roomId, PostMessageRequest(textArea.text.toString(), "string"), token)
@@ -194,7 +189,7 @@ class ChatActivity : AppCompatActivity() {
         // ----------------------------------------
     }
 
-    // メッセージを更新する関数
+    // メッセージを更新
     fun updateMessages() {
         client.getMessages(roomId, token).enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
