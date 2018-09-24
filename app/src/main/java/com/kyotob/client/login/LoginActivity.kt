@@ -19,7 +19,7 @@ import ru.gildor.coroutines.retrofit.awaitResponse
 
 class LoginActivity : AppCompatActivity() {
 
-    private val usersRepositry = UsersRepository()
+    private val usersRepository = UsersRepository()
 
 
     private val job = Job()
@@ -48,7 +48,7 @@ class LoginActivity : AppCompatActivity() {
             launch(job + UI) {
                 try {
                     val response = withContext(CommonPool) {
-                        usersRepositry.login(name, password).awaitResponse()
+                        usersRepository.login(name, password).awaitResponse()
                     }
 
                     if (response.isSuccessful) {
