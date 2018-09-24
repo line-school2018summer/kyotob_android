@@ -1,6 +1,7 @@
 package com.kyotob.client.chatList
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.content.Context
@@ -56,7 +57,7 @@ class PairFragment: Fragment() {
     lateinit var foundText: TextView
     lateinit var receiveBtn: Button
     lateinit var sendBtn: ToggleButton
-    lateinit var iconImage: ImageView
+    lateinit var soundWaveImg: ImageView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.dialog_pair, null)
@@ -72,7 +73,7 @@ class PairFragment: Fragment() {
             //音波通信ボタン
             receiveBtn = findViewById(R.id.soundReceiveBtn)
             sendBtn = findViewById(R.id.soundSendBtn)
-            iconImage = findViewById(R.id.dialog_user_image_view)
+            soundWaveImg = findViewById(R.id.soundWaveImg)
 
         }
 
@@ -433,6 +434,26 @@ class PairFragment: Fragment() {
             } else {
                 mInRecording = false
             }
+        }
+
+        //音波マークをタップした時に音波通信の使い方を表示
+        soundWaveImg.setOnClickListener{
+            Log.d("RCV","onClick")
+            val builder = AlertDialog.Builder(this.getActivity())
+            builder.setTitle("音波IDの送信方法 (電→信)")
+            builder.setMessage("⓪二人の携帯を近づけます\n" +
+                    "㊀信さんがRECEIVEボタンをタップ\n" +
+                    "㊁電くんがSENDボタンをタップ\n" +
+                    "㊂音波が流れます\n" +
+                    "㊃信さんの画面に電くんのIDが出現\n" +
+                    "㊄友だち追加をタップ\n" +
+                    "㊅うまくいかなければもう一度♪")
+            builder.setNeutralButton("合点!"){dialog, which ->
+            }
+
+            val dialog: AlertDialog = builder.create()
+            dialog.show()
+
         }
         return root
     }
