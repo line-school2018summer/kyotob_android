@@ -61,7 +61,7 @@ class PairFragment: Fragment() {
         val root = inflater.inflate(R.layout.dialog_pair, null)
         with(root) {
             // ユーザー検索欄
-            dialogEditText = findViewById<EditText>(R.id.dialog_edit_text)
+            dialogEditText = findViewById(R.id.dialog_edit_text)
             // ユーザー追加ボタン
             addUserButton = findViewById<Button>(R.id.addUser)
             notFoundView = findViewById(R.id.dialog_not_found_text_view)
