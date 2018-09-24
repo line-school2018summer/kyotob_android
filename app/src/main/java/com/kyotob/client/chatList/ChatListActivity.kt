@@ -136,7 +136,7 @@ class ChatListActivity : AppCompatActivity() {
         val token = sharedPreferences.getString(TOKEN_KEY, null) ?: throw Exception("token is null")
 
         /* JSON のスネークケースで表現されるフィールド名を、
-Java オブジェクトでキャメルケースに対応させるための設定 */
+           Java オブジェクトでキャメルケースに対応させるための設定 */
         val gson = GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create()
@@ -190,7 +190,7 @@ class WebSocketEndPoint(private val handler: (msg: String) -> Unit) {
     // Socket通信を開始するときに呼び出される
     @OnOpen
     fun onOpen(session: Session, config: EndpointConfig) {
-        println("client-[open] " + session)
+        println("client-[open] $session")
     }
 
     // Message受信時に呼び出される
