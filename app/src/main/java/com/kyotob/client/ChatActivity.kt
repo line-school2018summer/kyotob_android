@@ -356,8 +356,8 @@ class ChatActivity : AppCompatActivity() {
     private fun createImage(): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         val imageName = timeStamp + "_"
-        var storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        var image = File.createTempFile(imageName, ".jpg", storageDir)
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val image = File.createTempFile(imageName, ".jpg", storageDir)
         currentPath = image.absolutePath
         return image
     }
