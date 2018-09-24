@@ -11,7 +11,7 @@ import com.kyotob.client.R
 import com.kyotob.client.baseUrl
 import com.kyotob.client.bindView
 import com.kyotob.client.database.RoomDatabaseHelper
-import com.kyotob.client.database.RoomsMidokuModel
+import com.kyotob.client.database.RoomsUnreadModel
 import com.kyotob.client.entities.Room
 import com.squareup.picasso.Picasso
 import com.kyotob.client.R.id.imageView
@@ -71,8 +71,8 @@ class RoomView(context: Context): FrameLayout(context) {
         // データを検索
         val midokuNum = roomDatabaseHelper.searchData(room.roomId)
         if (midokuNum == -1 || midokuNum == 0) { // 新規Roomの場合
-            val midokuModel = RoomsMidokuModel(room.roomId, 0) // データ
-            roomDatabaseHelper.inserData(midokuModel) // データの挿入
+            val midokuModel = RoomsUnreadModel(room.roomId, 0) // データ
+            roomDatabaseHelper.insertData(midokuModel) // データの挿入
             newMessageCounter.visibility = View.INVISIBLE // 表示
         } else {// 既存のRoomの場合
             newMessageCounter.text = midokuNum.toString() // 表示の更新
