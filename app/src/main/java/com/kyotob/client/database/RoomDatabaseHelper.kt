@@ -28,7 +28,7 @@ class RoomDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
 
     // データ追加用のSQL
     @Throws(SQLiteException::class)
-    fun inserData(task: RoomsMidokuModel): Boolean {
+    fun insertData(task: RoomsUnreadModel): Boolean {
         // DBの実体
         val db = writableDatabase
 
