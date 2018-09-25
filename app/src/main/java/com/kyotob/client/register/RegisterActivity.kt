@@ -60,12 +60,12 @@ class RegisterActivity : AppCompatActivity() {
 
                 if(name.isEmpty() || screenName.isEmpty() || password.isEmpty()){
                     showToast("Enter ID, UserName and Password")
+                    // ボタンを復活
                     v.isEnabled = true
                 }
                 else {
-                    try {
-                        launch(UI) {
-
+                    launch(job + UI) {
+                        try {
                             var imageUri = "abc.png"
 
                             //画像
@@ -97,9 +97,11 @@ class RegisterActivity : AppCompatActivity() {
                                 // ボタンクリックを復活させる
                                 v.isEnabled = true
                             }
+                        } catch(t: Throwable) {// Connectionに問題が生じた場合
+                        } finally {
+                            v.isEnabled = true
                         }
-                    } catch (t: Throwable) {
-                        t.message?.let(::showToast)
+
                     }
                 }
 
