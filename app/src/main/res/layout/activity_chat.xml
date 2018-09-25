@@ -19,7 +19,7 @@
         android:id="@+id/message_bar"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:background="#DDDDDD"
+        android:background="#2f2735"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="@+id/text_input_layout" />
 
