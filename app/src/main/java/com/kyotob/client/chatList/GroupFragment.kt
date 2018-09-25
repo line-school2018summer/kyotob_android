@@ -61,6 +61,7 @@ class GroupFragment: Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context!!)
         iconButton.setImageResource(R.drawable.boy)
 
+        // Todo: ネットーワークに繋がっていないとき、おちる
         //friendList
         launch(UI, parent = job) {
             try {

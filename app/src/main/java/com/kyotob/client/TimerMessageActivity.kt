@@ -12,6 +12,7 @@ import android.widget.*
 import com.google.gson.*
 import com.kyotob.client.entities.PostMessageRequest
 import com.kyotob.client.entities.SendTimerMessageRequest
+import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.fragment_setting_item.view.*
 import net.gotev.uploadservice.*
 import retrofit2.*
@@ -96,14 +97,14 @@ class TimerMessageActivity : AppCompatActivity() {
                             override fun onResponse(call: Call<Boolean>?, response: Response<Boolean>?) {
                                 when {
                                     (response?.body() == null) -> {
-                                        Toast.makeText(applicationContext, "送信に失敗しました", Toast.LENGTH_SHORT).show()
-                                        Toast.makeText(applicationContext, response!!.code().toString(), Toast.LENGTH_SHORT).show()
+                                        Toasty.error(applicationContext, "送信に失敗しました", Toast.LENGTH_SHORT, true).show()
                                     }
                                     response.body() == false -> {
-                                        Toast.makeText(applicationContext, "送信が拒否されました", Toast.LENGTH_SHORT).show()
+                                        Toasty.warning(applicationContext, "送信が拒否されました", Toast.LENGTH_SHORT, true).show()
                                     }
                                     else -> {
-                                        Toast.makeText(applicationContext, "メッセージを${time}時間後に送信します", Toast.LENGTH_SHORT).show()
+                                        // Todo: アニメーション
+                                        Toasty.success(applicationContext, "メッセージを${time}時間後に送信します", Toast.LENGTH_SHORT, true).show()
                                     }
                                 }
                             }

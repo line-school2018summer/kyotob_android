@@ -14,6 +14,7 @@ import com.kyotob.client.*
 import com.kyotob.client.chatList.ChatListActivity
 import com.kyotob.client.register.RegisterActivity
 import com.kyotob.client.repositories.user.UsersRepository
+import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
@@ -49,7 +50,8 @@ class LoginActivity : AppCompatActivity() {
             val password: String = findViewById<EditText>(R.id.password_edittext_login).text.toString()
 
             if(name.isEmpty() || password.isEmpty()){ //IDかPasswordが空欄の場合は通信は行わず、トーストだけ返す。
-                showToast("Enter your Password and ID")
+                //ログインに空の項目が合ったときに表示
+                Toasty.warning(applicationContext, "すべての項目を入力してください", Toast.LENGTH_SHORT, true).show()
                 it.isEnabled = true
             } else {
                 launch(job + UI) {
@@ -59,23 +61,27 @@ class LoginActivity : AppCompatActivity() {
                         }
 
                         if (response.isSuccessful) {
-                            Log.d("LGN", "successful")
+                            // ログイン成功
+//                            Toasty.success(applicationContext, "Success!", Toast.LENGTH_SHORT, true).show() // 自明
                             val token = response.body()!!.token
                             val iconPath = response.body()!!.imageUrl
                             register(token, name, iconPath)
                             startActivity(Intent(this@LoginActivity, ChatListActivity::class.java))
                             // ボタンクリックを復活
+                            it.isEnabled = true
                         } else {
                             // Debug
                             println("error code: " + response.code())
 
                             //ログインに失敗した時のToast
-                            showToast("ID or Password is wrong")
+                            Toasty.error(applicationContext, "IDまたはPasswordが違います", Toast.LENGTH_SHORT, true).show()
 
                             // ボタン復活
+                            it.isEnabled = true
                         }
-                    } catch (t: Throwable) {
-                        showToast(t.message!!)
+                    } catch (t: Throwable) {// Connectionに問題が生じた場合
+                        // Toastを表示
+                        Toasty.error(applicationContext, "インターネットに繋がっていません", Toast.LENGTH_SHORT, true).show()
                     } finally {
                         it.isEnabled = true
                     }

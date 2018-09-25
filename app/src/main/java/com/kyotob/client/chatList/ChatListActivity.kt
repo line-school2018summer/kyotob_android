@@ -33,6 +33,7 @@ import com.kyotob.client.*
 import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.database.RoomsUnreadModel
 import com.kyotob.client.setting.SettingActivity
+import es.dmoral.toasty.Toasty
 // WebSocket用
 import java.net.URI
 import java.sql.Timestamp
@@ -203,14 +204,14 @@ class ChatListActivity : AppCompatActivity() {
                     listAdapter.rooms = response.body()!!
                     listAdapter.notifyDataSetChanged()
                 } else { // Bad request
-                    Toast.makeText(applicationContext, "Bad Request", Toast.LENGTH_LONG).show()
+                    Toasty.warning(applicationContext, "不正なリクエスト", Toast.LENGTH_LONG, true).show()
                 }
             }
 
             // Request失敗時に呼ばれる
             override fun onFailure(call: Call<List<Room>>?, t: Throwable?) {
                 // Fail to connect Internet access
-                Toast.makeText(applicationContext, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
+                Toasty.error(applicationContext, "インターネットに繋がっていません", Toast.LENGTH_LONG, true).show()
             }
         })
 

@@ -23,6 +23,7 @@ import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.entities.GetMessageResponse
 import com.kyotob.client.entities.GetTimerMessageResponse
 import com.kyotob.client.entities.PostMessageRequest
+import es.dmoral.toasty.Toasty
 import net.gotev.uploadservice.*
 import retrofit2.*
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
@@ -57,7 +58,7 @@ class ChatActivity : AppCompatActivity() {
         val intent = this.intent
         roomId = intent.getIntExtra("ROOM_ID", -1)
         if (roomId == -1) {
-            Toast.makeText(applicationContext, "ルームIDの取得に失敗しました", Toast.LENGTH_SHORT).show()
+            Toasty.error(applicationContext, "ルームIDの取得に失敗しました", Toast.LENGTH_LONG).show()
             finish()
         }
 
@@ -104,15 +105,18 @@ class ChatActivity : AppCompatActivity() {
                             override fun onResponse(call: Call<Boolean>?, response: Response<Boolean>?) {
                                 when {
                                     (response?.body() == null) -> {
-                                        Toast.makeText(applicationContext, "送信に失敗しました", Toast.LENGTH_SHORT).show()
-                                        Toast.makeText(applicationContext, response!!.code().toString(), Toast.LENGTH_SHORT).show()
+                                        // 送信に失敗した時のToast
+                                        Toasty.error(applicationContext, "送信に失敗しました", Toast.LENGTH_SHORT, true).show()
+                                        Log.d("Send Error Code: ", response!!.code().toString())
                                     }
                                     response.body() == false -> {
-                                        Toast.makeText(applicationContext, "送信が拒否されました", Toast.LENGTH_SHORT).show()
+                                        // 送信に拒否された時のToast
+                                        Toasty.error(applicationContext, "送信が拒否されました", Toast.LENGTH_SHORT, true).show()
+                                        Log.d("Send Error Code: ", response!!.code().toString())
                                     }
                                     else -> {
                                         textArea.setText("", TextView.BufferType.EDITABLE)
-                                        Toast.makeText(applicationContext, "送信成功: " + response.body(), Toast.LENGTH_SHORT).show()
+                                        Toasty.success(applicationContext, "送信成功", Toast.LENGTH_SHORT, true).show()
                                     }
                                 }
                             }
@@ -128,7 +132,7 @@ class ChatActivity : AppCompatActivity() {
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                                     Manifest.permission.READ_EXTERNAL_STORAGE)) {
                         // パーミッションが断られた場合
-                        Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                        Toasty.error(applicationContext, "STORAGE権限を追加してください", Toast.LENGTH_LONG, true).show()
                     } else { // 初めて要求する場合、
                         ActivityCompat.requestPermissions(this,
                                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
@@ -206,7 +210,6 @@ class ChatActivity : AppCompatActivity() {
             override fun onResponse(call: Call<Array<GetTimerMessageResponse>>?, response: Response<Array<GetTimerMessageResponse>>?) {
                 if(response!!.isSuccessful) {
                     if (response?.body()!!.contentEquals(emptyArray())) {
-                        println("空")
                     } else {
                         // メッセージを取得
                         val tmpMessage: Array<GetTimerMessageResponse> = response.body()!!
@@ -217,12 +220,13 @@ class ChatActivity : AppCompatActivity() {
                         dialog.show(supportFragmentManager, "dialog")
                     }
                 } else {
-                    Toast.makeText(this@ChatActivity, response.code().toString(), Toast.LENGTH_LONG).show()
+                    Toasty.error(applicationContext, "不正なリクエスト", Toast.LENGTH_LONG, true).show()
                 }
             }
 
             override fun onFailure(call: Call<Array<GetTimerMessageResponse>>?, t: Throwable?) {
                 // 通信失敗時の処理
+                Toasty.error(applicationContext, "ネットワークに繋がっていません", Toast.LENGTH_LONG, true).show()
             }
         })
     }
@@ -235,15 +239,15 @@ class ChatActivity : AppCompatActivity() {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // パーミッションが許可された場合
-                    Toast.makeText(applicationContext, "Thank you", Toast.LENGTH_LONG).show()
+                    Toasty.success(applicationContext, "Thank you", Toast.LENGTH_LONG).show()
                 } else {
                     // パーミッションが断られた場合
-                    Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                    Toasty.error(applicationContext, "STORAGE権限を追加してください", Toast.LENGTH_LONG, true).show()
                 }
                 return
             }
             else -> {
-                Toast.makeText(applicationContext, "Other Permission Requested", Toast.LENGTH_LONG).show()
+                Toasty.info(applicationContext, "他のPermissionがリクエストされました", Toast.LENGTH_LONG, true).show()
             }
         }
     }
@@ -303,14 +307,13 @@ class ChatActivity : AppCompatActivity() {
                                     override fun onResponse(call: Call<Boolean>?, response: Response<Boolean>?) {
                                         when {
                                             (response?.body() == null) -> {
-                                                Toast.makeText(applicationContext, "送信に失敗しました", Toast.LENGTH_SHORT).show()
-                                                Toast.makeText(applicationContext, response!!.code().toString(), Toast.LENGTH_SHORT).show()
+                                                Toasty.error(applicationContext, "送信に失敗しました", Toast.LENGTH_LONG, true).show()
                                             }
                                             response.body() == false -> {
-                                                Toast.makeText(applicationContext, "送信が拒否されました", Toast.LENGTH_SHORT).show()
+                                                Toasty.error(applicationContext, "送信が拒否されました", Toast.LENGTH_SHORT, true).show()
                                             }
                                             else -> {
-                                                Toast.makeText(applicationContext, "送信成功: " + response.body(), Toast.LENGTH_SHORT).show()
+                                                Toasty.success(applicationContext, "送信成功", Toast.LENGTH_SHORT, true).show()
                                             }
                                         }
                                     }
@@ -319,7 +322,6 @@ class ChatActivity : AppCompatActivity() {
                                 })
                     })
                     .startUpload()
-            Log.d("finishflag", "aaa")
         } catch (e: Exception) {
             Log.e("AndroidUploadService", e.toString())
         }

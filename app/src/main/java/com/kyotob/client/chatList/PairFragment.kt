@@ -99,6 +99,7 @@ class PairFragment: Fragment() {
 
         fun communicate() { // 通信
             Log.d("RCV", "受信!")
+            // 検索用のAPIを叩く
             client.searchUser(dialogEditText.text.toString(), token).enqueue(object : Callback<SearchUserResponse> {
                 // Request成功時に呼ばれる
                 override fun onResponse(call: Call<SearchUserResponse>, response: Response<SearchUserResponse>) {
@@ -125,7 +126,7 @@ class PairFragment: Fragment() {
                 override fun onFailure(call: Call<SearchUserResponse>?, t: Throwable?) {
                     // Fail to connect Internet access
                     if (activity != null) {
-                        Toast.makeText(activity?.applicationContext, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
+                        Toast.makeText(activity?.applicationContext, "インターネットに繋がっていません", Toast.LENGTH_LONG).show()
                     }
                 }
             })
@@ -151,7 +152,7 @@ class PairFragment: Fragment() {
                     }
                     // Bad request
                     else {
-                        //Toast.makeText(activity?.applicationContext, "Bad request", Toast.LENGTH_LONG).show()
+                        Toast.makeText(activity?.applicationContext, "不正なリクエスト", Toast.LENGTH_LONG).show()
                     }
                     val intent = Intent(activity?.application, ChatListActivity::class.java)
                     startActivity(intent)
@@ -161,7 +162,7 @@ class PairFragment: Fragment() {
                 // Request失敗時に呼ばれる
                 override fun onFailure(call: Call<AddUserResponse>?, t: Throwable?) {
                     // Fail to connect Internet access
-                    if(this@PairFragment.isVisible) Toast.makeText(context, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
+                    if(this@PairFragment.isVisible) Toast.makeText(context, "インターネットに繋がっていません", Toast.LENGTH_LONG).show()
                 }
             })
             // ダイアログを閉じる

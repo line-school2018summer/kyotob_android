@@ -23,6 +23,7 @@ import com.kyotob.client.chatList.ChatListActivity
 import com.kyotob.client.util.ImageDialog
 import com.kyotob.client.util.createIconUpload
 import com.kyotob.client.util.imageActivityResult
+import es.dmoral.toasty.Toasty
 import net.gotev.uploadservice.*
 
 class RegisterActivity : AppCompatActivity() {
@@ -59,7 +60,8 @@ class RegisterActivity : AppCompatActivity() {
                 val password: String = findViewById<EditText>(R.id.password_edittext_register).text.toString()
 
                 if(name.isEmpty() || screenName.isEmpty() || password.isEmpty()){
-                    showToast("Enter ID, UserName and Password")
+                    //ログインに空の項目が合ったときに表示
+                    Toasty.warning(applicationContext, "すべての項目を入力してください", Toast.LENGTH_SHORT, true).show()
                     // ボタンを復活
                     v.isEnabled = true
                 }
@@ -76,11 +78,14 @@ class RegisterActivity : AppCompatActivity() {
                                     imageUri = response.body()!!.path
                                     Log.d("image", imageUri)
                                 } else {
-                                    showToast(response.code().toString())
+                                    // 画像送信に失敗した時のToast
+                                    Toasty.error(applicationContext, "画像のアップロードに失敗しました", Toast.LENGTH_SHORT, true).show()
                                 }
                             }
                             val response = usersRepository.register(name, screenName, password, imageUri).awaitResponse()
                             if (response.isSuccessful) {
+                                // ログイン成功
+//                                Toasty.success(applicationContext, "Success!", Toast.LENGTH_SHORT, true).show() // 自明
                                 val token = response.body()!!.token
                                 val editor = sharedPreferences.edit()
                                 editor.putString(USER_NAME_KEY, name)
@@ -94,10 +99,16 @@ class RegisterActivity : AppCompatActivity() {
                             } else {
                                 // Debug
                                 println("error code: " + response.code())
+
+                                //ログインに失敗した時のToast
+                                Toasty.error(applicationContext, "IDが既に利用されています", Toast.LENGTH_SHORT, true).show()
+
                                 // ボタンクリックを復活させる
                                 v.isEnabled = true
                             }
                         } catch(t: Throwable) {// Connectionに問題が生じた場合
+                            // Toastを表示
+                            Toasty.error(applicationContext, "インターネットに繋がっていません", Toast.LENGTH_SHORT, true).show()
                         } finally {
                             v.isEnabled = true
                         }
@@ -127,7 +138,7 @@ class RegisterActivity : AppCompatActivity() {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                                 Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     // パーミッションが断られた場合
-                    Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                    Toasty.error(applicationContext, "Storage Permissionを許可してください", Toast.LENGTH_SHORT, true).show()
                 } else { // 初めて要求する場合、
                     ActivityCompat.requestPermissions(this,
                             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
@@ -150,15 +161,15 @@ class RegisterActivity : AppCompatActivity() {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // パーミッションが許可された場合
-                    Toast.makeText(applicationContext, "Thank you", Toast.LENGTH_LONG).show()
+                    Toasty.success(applicationContext, "ありがとう。再度タップしてください。", Toast.LENGTH_SHORT, true).show()
                 } else {
                     // パーミッションが断られた場合
-                    Toast.makeText(applicationContext, "Please accept STORAGE permission", Toast.LENGTH_LONG).show()
+                    Toasty.error(applicationContext, "Storage Permissionを許可してください", Toast.LENGTH_SHORT, true).show()
                 }
                 return
             }
             else -> {
-                Toast.makeText(applicationContext, "Other Permission Requested", Toast.LENGTH_LONG).show()
+                Toasty.info(applicationContext, "他のパーミッションの要求", Toast.LENGTH_SHORT, true).show()
             }
         }
     }
