@@ -1,7 +1,7 @@
 package com.kyotob.client.view
 
 import android.content.Context
-import android.graphics.Color
+import android.support.v4.content.res.ResourcesCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -42,8 +42,9 @@ class MessageView(context: Context) : FrameLayout(context) {
 
     fun setImage(url: String?) {
         if (url != null) {
-            profileImageView.setBackgroundColor(Color.WHITE)
             Picasso.get().load("$baseUrl/image/download/$url").into(profileImageView)
+        } else {
+            profileImageView.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.boy, null))
         }
     }
 }
