@@ -38,7 +38,6 @@ class ChatActivity : AppCompatActivity() {
     private var currentPath: String? = null
     private var uri: Uri? = null
 
-    private val timer = Timer()
     private lateinit var listAdapter: MessageListAdapter
     private lateinit var client: Client
     private lateinit var token: String
