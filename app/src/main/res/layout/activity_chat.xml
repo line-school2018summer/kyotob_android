@@ -43,14 +43,15 @@
 
     </android.support.design.widget.TextInputLayout>
 
-    <Button
+    <ImageView
         android:id="@+id/submit"
-        android:layout_width="wrap_content"
-        android:layout_height="52dp"
-        android:layout_marginBottom="4dp"
-        android:layout_marginEnd="4dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_weight="1"
         android:text="@string/send"
+        android:background="@drawable/send_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

@@ -92,7 +92,7 @@ class ChatActivity : AppCompatActivity() {
             override fun onFailure(call: Call<Array<GetMessageResponse>>?, t: Throwable?) {}
         })
 
-        val submitButton = findViewById<Button>(R.id.submit)
+        val submitButton = findViewById<ImageView>(R.id.submit)
         val textArea = findViewById<TextInputEditText>(R.id.message)
 
         // 送信ボタン押下
