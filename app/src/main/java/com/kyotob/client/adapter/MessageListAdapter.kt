@@ -9,6 +9,7 @@ import com.kyotob.client.view.MessageView
 
 class MessageListAdapter(private val context: Context): BaseAdapter() {
     var messages: Array<GetMessageResponse> = emptyArray()
+    var icons: HashMap<String, String> = HashMap()
 
     override fun getCount(): Int = messages.size
 
@@ -19,5 +20,6 @@ class MessageListAdapter(private val context: Context): BaseAdapter() {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View =
             ((convertView as? MessageView) ?: MessageView(context)).apply {
                 setMessage(messages[position])
+                setImage(icons[messages[position].userName])
             }
 }

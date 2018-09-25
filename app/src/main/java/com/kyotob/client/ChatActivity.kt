@@ -20,9 +20,7 @@ import android.widget.*
 import com.google.gson.*
 import com.kyotob.client.adapter.MessageListAdapter
 import com.kyotob.client.database.RoomDatabaseHelper
-import com.kyotob.client.entities.GetMessageResponse
-import com.kyotob.client.entities.GetTimerMessageResponse
-import com.kyotob.client.entities.PostMessageRequest
+import com.kyotob.client.entities.*
 import net.gotev.uploadservice.*
 import retrofit2.*
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
@@ -42,6 +40,9 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var client: Client
     private lateinit var token: String
     private var roomId: Int = -1
+
+    // ユーザー名がキーとなり、対応するアイコンの URL が値となる
+    private var icons: HashMap<String, String> = HashMap()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +86,27 @@ class ChatActivity : AppCompatActivity() {
 
         client.getMessages(roomId, token).enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
-                listAdapter.messages = response?.body() ?: emptyArray()
+                val body = response?.body()
+
+                if (body != null) {
+                    listAdapter.messages = body
+                    body.forEach { item ->
+                        if (!icons.containsKey(item.userName)) {
+                            client.searchUser(item.userName, token).enqueue(object : Callback<SearchUserResponse> {
+                                override fun onResponse(call: Call<SearchUserResponse>, response: Response<SearchUserResponse>) {
+                                    val resBody = response.body()
+                                    if (resBody != null) icons[item.userName] = resBody.imageUrl
+                                }
+
+                                override fun onFailure(call: Call<SearchUserResponse>, t: Throwable) {}
+                            })
+                        }
+                    }
+                    listAdapter.icons = icons
+                } else {
+                    listAdapter.messages = emptyArray()
+                }
+
                 listView.adapter = listAdapter
             }
 
@@ -189,7 +210,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     // メッセージを更新
-    fun updateMessages() {
+    private fun updateMessages() {
         client.getMessages(roomId, token).enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
                 Log.d("responseBody", response?.body().toString())
