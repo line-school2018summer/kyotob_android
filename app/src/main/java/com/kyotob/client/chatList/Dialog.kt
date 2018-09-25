@@ -14,8 +14,8 @@ import com.kyotob.client.R
 // Dialogの諸々の設定ををするクラス
 class Dialog : DialogFragment() {
 
-    lateinit var mpager: ViewPager
-    lateinit var tabLayout: TabLayout
+    private lateinit var mpager: ViewPager
+    private lateinit var tabLayout: TabLayout
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // AlertDialogをつくる

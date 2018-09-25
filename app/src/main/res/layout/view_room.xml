@@ -6,9 +6,9 @@
     android:layout_height="wrap_content"
     android:layout_margin="10dp"
     android:background="@drawable/shape_room_view"
+    android:elevation="6dp"
     android:orientation="vertical"
-    android:padding="25dp"
-    android:elevation="6dp">
+    android:padding="25dp">
 
     <ImageView
         android:id="@+id/profile_image_view"
@@ -33,8 +33,8 @@
         android:id="@+id/latest_message_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@id/user_name_text_view"
         android:layout_below="@id/user_name_text_view"
+        android:layout_alignStart="@id/user_name_text_view"
         android:layout_marginTop="8dp"
         android:textColor="#d3d1d1"
         android:textSize="14dp"
@@ -57,10 +57,10 @@
         android:id="@+id/time_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/profile_image_view"
-        android:textColor="#8c8c8c"
+        android:layout_alignParentEnd="true"
         android:text="2:00"
+        android:textColor="#8c8c8c"
         android:textSize="12sp" />
 
 </RelativeLayout>

@@ -31,7 +31,6 @@ import ru.gildor.coroutines.retrofit.await
 import ru.gildor.coroutines.retrofit.awaitResponse
 import java.net.ConnectException
 
-
 data class FriendItemForView(
         val name: String,
         val screenName: String,
@@ -43,11 +42,11 @@ class GroupFragment: Fragment() {
     lateinit var nameText: EditText
     lateinit var iconButton: ImageButton
     lateinit var registerButton: Button
-    lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerView: RecyclerView
     lateinit var adapter: RecyclerAdapter
     lateinit var sharedPreferences: SharedPreferences
-    val job = Job()
-    val usersRepository = UsersRepository()
+    private val job = Job()
+    private val usersRepository = UsersRepository()
 
     var iconPath = "abc.png"
 
@@ -85,7 +84,7 @@ class GroupFragment: Fragment() {
         return root
     }
 
-    fun showUpdateIconDialog() {
+    private fun showUpdateIconDialog() {
         val fragmentManager = fragmentManager
         val imageDialog = ImageDialog()
         imageDialog.setTargetFragment(this, 10)
@@ -98,7 +97,7 @@ class GroupFragment: Fragment() {
         updateIcon(uri!!)
     }
 
-    fun updateIcon(uri: Uri) {
+    private fun updateIcon(uri: Uri) {
         try {
             launch (UI) {
                 val part = createIconUpload(uri, activity!!)
@@ -116,7 +115,7 @@ class GroupFragment: Fragment() {
         }
     }
 
-    suspend fun getFriendList(): List<FriendItem> {
+    private suspend fun getFriendList(): List<FriendItem> {
         return withContext(CommonPool) {
             val name = sharedPreferences.getString(USER_NAME_KEY, "default")
             val token = sharedPreferences.getString(TOKEN_KEY, "default")
@@ -124,7 +123,7 @@ class GroupFragment: Fragment() {
         }
     }
 
-    suspend fun clickRegisterButton() {
+    private suspend fun clickRegisterButton() {
         val roomName = nameText.text.toString()
         val name = sharedPreferences.getString(USER_NAME_KEY, "default")
         val memberList: List<String> = adapter.itemList.filter {it.isChecked}.map{it.name} + listOf(name)
@@ -143,7 +142,7 @@ class GroupFragment: Fragment() {
         }
     }
 
-    fun showToast(message: String) {
+    private fun showToast(message: String) {
         val toast = Toast.makeText(activity, message, Toast.LENGTH_LONG)
         toast.show()
     }

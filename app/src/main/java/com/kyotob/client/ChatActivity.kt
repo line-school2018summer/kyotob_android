@@ -24,6 +24,7 @@ import com.kyotob.client.entities.GetMessageResponse
 import com.kyotob.client.entities.GetTimerMessageResponse
 import com.kyotob.client.entities.PostMessageRequest
 import es.dmoral.toasty.Toasty
+import com.kyotob.client.entities.*
 import net.gotev.uploadservice.*
 import retrofit2.*
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
@@ -39,7 +40,6 @@ class ChatActivity : AppCompatActivity() {
     private var currentPath: String? = null
     private var uri: Uri? = null
 
-    private val timer = Timer()
     private lateinit var listAdapter: MessageListAdapter
     private lateinit var client: Client
     private lateinit var token: String
@@ -87,14 +87,36 @@ class ChatActivity : AppCompatActivity() {
 
         client.getMessages(roomId, token).enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
-                listAdapter.messages = response?.body() ?: emptyArray()
+                val body = response?.body()
+
+                if (body != null) {
+                    listAdapter.messages = body
+                    body.forEach { item ->
+                        if (!listAdapter.icons.containsKey(item.userName)) {
+                            client.searchUser(item.userName, token).enqueue(object : Callback<SearchUserResponse> {
+                                override fun onResponse(call: Call<SearchUserResponse>, response: Response<SearchUserResponse>) {
+                                    val resBody = response.body()
+                                    if (resBody != null) {
+                                        listAdapter.icons[item.userName] = resBody.imageUrl
+                                        listAdapter.notifyDataSetChanged()
+                                    }
+                                }
+
+                                override fun onFailure(call: Call<SearchUserResponse>, t: Throwable) {}
+                            })
+                        }
+                    }
+                } else {
+                    listAdapter.messages = emptyArray()
+                }
+
                 listView.adapter = listAdapter
             }
 
             override fun onFailure(call: Call<Array<GetMessageResponse>>?, t: Throwable?) {}
         })
 
-        val submitButton = findViewById<Button>(R.id.submit)
+        val submitButton = findViewById<ImageView>(R.id.submit)
         val textArea = findViewById<TextInputEditText>(R.id.message)
 
         // 送信ボタン押下
@@ -194,7 +216,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     // メッセージを更新
-    fun updateMessages() {
+    private fun updateMessages() {
         client.getMessages(roomId, token).enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
                 Log.d("responseBody", response?.body().toString())
@@ -210,6 +232,7 @@ class ChatActivity : AppCompatActivity() {
             override fun onResponse(call: Call<Array<GetTimerMessageResponse>>?, response: Response<Array<GetTimerMessageResponse>>?) {
                 if(response!!.isSuccessful) {
                     if (response?.body()!!.contentEquals(emptyArray())) {
+                        println("空")
                     } else {
                         // メッセージを取得
                         val tmpMessage: Array<GetTimerMessageResponse> = response.body()!!
@@ -322,6 +345,7 @@ class ChatActivity : AppCompatActivity() {
                                 })
                     })
                     .startUpload()
+            Log.d("finishflag", "aaa")
         } catch (e: Exception) {
             Log.e("AndroidUploadService", e.toString())
         }
