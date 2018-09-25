@@ -41,9 +41,6 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var token: String
     private var roomId: Int = -1
 
-    // ユーザー名がキーとなり、対応するアイコンの URL が値となる
-    private var icons: HashMap<String, String> = HashMap()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
@@ -91,18 +88,20 @@ class ChatActivity : AppCompatActivity() {
                 if (body != null) {
                     listAdapter.messages = body
                     body.forEach { item ->
-                        if (!icons.containsKey(item.userName)) {
+                        if (!listAdapter.icons.containsKey(item.userName)) {
                             client.searchUser(item.userName, token).enqueue(object : Callback<SearchUserResponse> {
                                 override fun onResponse(call: Call<SearchUserResponse>, response: Response<SearchUserResponse>) {
                                     val resBody = response.body()
-                                    if (resBody != null) icons[item.userName] = resBody.imageUrl
+                                    if (resBody != null) {
+                                        listAdapter.icons[item.userName] = resBody.imageUrl
+                                        listAdapter.notifyDataSetChanged()
+                                    }
                                 }
 
                                 override fun onFailure(call: Call<SearchUserResponse>, t: Throwable) {}
                             })
                         }
                     }
-                    listAdapter.icons = icons
                 } else {
                     listAdapter.messages = emptyArray()
                 }
