@@ -10,10 +10,11 @@ import android.support.v7.app.*
 import android.util.Log
 import android.widget.*
 import com.google.gson.*
-import com.kyotob.client.entities.PostMessageRequest
 import com.kyotob.client.entities.SendTimerMessageRequest
+import com.squareup.picasso.Picasso
 import es.dmoral.toasty.Toasty
-import kotlinx.android.synthetic.main.fragment_setting_item.view.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import net.gotev.uploadservice.*
 import retrofit2.*
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
@@ -29,7 +30,8 @@ class TimerMessageActivity : AppCompatActivity() {
     private var roomId: Int = -1
     // 画像URL
     private lateinit var imageURL: String
-    // Todo: アイテムのインスタンスをlateInit
+    // ImageView
+    private lateinit var image: ImageView
     // 時間
     private var time: Int = 0
 
@@ -40,14 +42,16 @@ class TimerMessageActivity : AppCompatActivity() {
         UploadService.NAMESPACE = BuildConfig.APPLICATION_ID
         UploadService.NAMESPACE = "com.kyotob.client"
         // RoomIdを取得する
-
         val intent = this.intent
         roomId = intent.getIntExtra("ROOM_ID", -1)
         // 画像URLを初期化
         imageURL = "def.png"
 
+        image = findViewById(R.id.timer_send_image_view)
+        image.setImageResource(R.drawable.def)
+
         // ImageView押下時の挙動
-        findViewById<ImageView>(R.id.imageView).setOnClickListener {
+        findViewById<ImageView>(R.id.timer_send_image_view).setOnClickListener {
             val items = arrayOf("写真をとる", "写真をえらぶ", "デフォルトに戻す")
                 AlertDialog.Builder(this)
                         .setTitle("画像を選択する")
@@ -57,6 +61,7 @@ class TimerMessageActivity : AppCompatActivity() {
                                 1 -> { despatchGallaryIntent() }
                                 2 -> {
                                     imageURL = "def.png"
+                                    image.setImageResource(R.drawable.def)
                                 }
                             }
                         })
@@ -103,7 +108,7 @@ class TimerMessageActivity : AppCompatActivity() {
                                         Toasty.warning(applicationContext, "送信が拒否されました", Toast.LENGTH_SHORT, true).show()
                                     }
                                     else -> {
-                                        // Todo: アニメーション
+                                        // Todo: アニメーションつけたい
                                         Toasty.success(applicationContext, "メッセージを${time}時間後に送信します", Toast.LENGTH_SHORT, true).show()
                                     }
                                 }
@@ -157,7 +162,12 @@ class TimerMessageActivity : AppCompatActivity() {
                     .setMaxRetries(2)
                     .setDelegate(DelegeteForUpload { response ->
                         Log.d("IMAGE URL", response)
+                        // 画像を再設定
                         imageURL = response
+                        // UIスレッドで画像を再設定
+                        launch(UI) {
+                            Picasso.get().load("$baseUrl/image/download/$imageURL").into(image)
+                        }
                     })
                     .startUpload()
             Log.d("finishflag", "aaa")

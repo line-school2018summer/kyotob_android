@@ -14,7 +14,6 @@ import com.kyotob.client.database.RoomDatabaseHelper
 import com.kyotob.client.database.RoomsUnreadModel
 import com.kyotob.client.entities.Room
 import com.squareup.picasso.Picasso
-import com.kyotob.client.R.id.imageView
 import com.kyotob.client.CircleTransform
 
 
