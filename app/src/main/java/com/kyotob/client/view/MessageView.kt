@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import com.kyotob.client.CircleTransform
 import com.kyotob.client.R
 import com.kyotob.client.baseUrl
 import com.kyotob.client.entities.GetMessageResponse
@@ -42,9 +43,9 @@ class MessageView(context: Context) : FrameLayout(context) {
 
     fun setImage(url: String?) {
         if (url != null) {
-            Picasso.get().load("$baseUrl/image/download/$url").into(profileImageView)
+            Picasso.get().load("$baseUrl/image/download/$url").transform(CircleTransform()).into(profileImageView)
         } else {
-            profileImageView.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.boy, null))
+            Picasso.get().load("foo").placeholder(R.drawable.boy).transform(CircleTransform()).into(profileImageView)
         }
     }
 }
