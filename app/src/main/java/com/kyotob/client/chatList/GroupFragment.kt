@@ -3,6 +3,7 @@ package com.kyotob.client.chatList
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -14,13 +15,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
-import com.kyotob.client.ChatListActivity
-import com.kyotob.client.R
-import com.kyotob.client.TOKEN_KEY
-import com.kyotob.client.USER_DATA_KEY
-import com.kyotob.client.USER_NAME_KEY
+import com.bumptech.glide.Glide
+import com.kyotob.client.*
 import com.kyotob.client.entities.FriendItem
 import com.kyotob.client.repositories.user.UsersRepository
+import com.kyotob.client.util.ImageDialog
+import com.kyotob.client.util.createIconUpload
+import com.kyotob.client.util.imageActivityResult
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
@@ -29,7 +30,6 @@ import kotlinx.coroutines.experimental.withContext
 import ru.gildor.coroutines.retrofit.await
 import ru.gildor.coroutines.retrofit.awaitResponse
 import java.net.ConnectException
-
 
 data class FriendItemForView(
         val name: String,
@@ -42,11 +42,13 @@ class GroupFragment: Fragment() {
     lateinit var nameText: EditText
     lateinit var iconButton: ImageButton
     lateinit var registerButton: Button
-    lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerView: RecyclerView
     lateinit var adapter: RecyclerAdapter
     lateinit var sharedPreferences: SharedPreferences
-    val job = Job()
-    val usersRepository = UsersRepository()
+    private val job = Job()
+    private val usersRepository = UsersRepository()
+
+    var iconPath = "abc.png"
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         sharedPreferences = activity!!.getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
@@ -56,7 +58,9 @@ class GroupFragment: Fragment() {
         registerButton = root.findViewById(R.id.registerButton)
         recyclerView = root.findViewById(R.id.member_recycleview)
         recyclerView.layoutManager = LinearLayoutManager(context!!)
+        iconButton.setImageResource(R.drawable.boy)
 
+        // Todo: ネットーワークに繋がっていないとき、おちる
         //friendList
         launch(UI, parent = job) {
             try {
@@ -75,12 +79,43 @@ class GroupFragment: Fragment() {
         }
 
         iconButton.setOnClickListener {
-            //todo: icon
+            showUpdateIconDialog()
         }
         return root
     }
 
-    suspend fun getFriendList(): List<FriendItem> {
+    private fun showUpdateIconDialog() {
+        val fragmentManager = fragmentManager
+        val imageDialog = ImageDialog()
+        imageDialog.setTargetFragment(this, 10)
+        imageDialog.show(fragmentManager, "image選択")
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        val uri = imageActivityResult(requestCode, resultCode, data, activity!!.applicationContext)
+        updateIcon(uri!!)
+    }
+
+    private fun updateIcon(uri: Uri) {
+        try {
+            launch (UI) {
+                val part = createIconUpload(uri, activity!!)
+                val response = withContext(CommonPool) { UsersRepository().uploadIcon(part).awaitResponse() }
+                if (response.isSuccessful) {
+                    iconPath = response.body()!!.path
+                    showToast("変更されました")
+                    Glide.with(this@GroupFragment).load(baseUrl+"image/download/" + iconPath).into(iconButton)
+                } else {
+                    showToast(response.code().toString())
+                }
+            }
+        } catch (e: Throwable) {
+            showToast(e.message!!)
+        }
+    }
+
+    private suspend fun getFriendList(): List<FriendItem> {
         return withContext(CommonPool) {
             val name = sharedPreferences.getString(USER_NAME_KEY, "default")
             val token = sharedPreferences.getString(TOKEN_KEY, "default")
@@ -88,14 +123,14 @@ class GroupFragment: Fragment() {
         }
     }
 
-    suspend fun clickRegisterButton() {
+    private suspend fun clickRegisterButton() {
         val roomName = nameText.text.toString()
         val name = sharedPreferences.getString(USER_NAME_KEY, "default")
         val memberList: List<String> = adapter.itemList.filter {it.isChecked}.map{it.name} + listOf(name)
         val token = sharedPreferences.getString(TOKEN_KEY, "default")
         try {
             val response = withContext(CommonPool) {
-                usersRepository.postGroupRoomRequest(token!!, roomName, memberList).awaitResponse()
+                usersRepository.postGroupRoomRequest(token!!, roomName, memberList, iconPath).awaitResponse()
             }
             if(response.isSuccessful) {
                 val intent = Intent(activity?.application, ChatListActivity::class.java)
@@ -105,5 +140,15 @@ class GroupFragment: Fragment() {
         } catch (exception: Throwable) {
             if (this.isVisible) Toast.makeText(context, exception.message, Toast.LENGTH_LONG).show()
         }
+    }
+
+    private fun showToast(message: String) {
+        val toast = Toast.makeText(activity, message, Toast.LENGTH_LONG)
+        toast.show()
+    }
+
+    fun setDefaultIcon() {
+        iconButton.setImageResource(R.drawable.boy)
+        iconPath = "abc.png"
     }
 }

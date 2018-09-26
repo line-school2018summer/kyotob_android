@@ -4,7 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/thunder"
     tools:context=".chatList.ChatListActivity">
+
+    <View
+        android:id="@+id/view2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha=".5"
+        android:background="@android:color/background_dark" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_user_button"
@@ -27,7 +35,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
-    </ListView>
+        app:layout_constraintTop_toTopOf="parent"
+        android:divider="@null"></ListView>
 
 </android.support.constraint.ConstraintLayout>

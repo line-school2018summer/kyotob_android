@@ -15,12 +15,13 @@ data class newNamePost(
 
 data class PostGroupRoomRequest(
         val room_name: String,
-        val user_name_list: List<HashMap<String, String>>
+        val user_name_list: List<HashMap<String, String>>,
+        val icon_path: String
 )
 interface UserApi {
 
     @PUT("user/{name}")
-    fun putName(
+    fun putUserData(
             @Path("name") userName: String,
             @Header("access_token") token: String,
             @Body body: HashMap<String, String>

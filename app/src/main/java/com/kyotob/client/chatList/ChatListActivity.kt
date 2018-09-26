@@ -1,15 +1,19 @@
-package com.kyotob.client
+package com.kyotob.client.chatList
 
+import android.Manifest
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
-
 import android.os.Bundle
-import android.os.Handler
 import android.support.design.widget.FloatingActionButton
-import android.view.View
+import android.view.Menu
+import android.view.MenuItem
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
+import android.view.KeyEvent
 import com.kyotob.client.adapter.RoomListAdapter
 import com.kyotob.client.entities.Room
 import android.widget.*
@@ -25,9 +29,10 @@ import android.widget.Toast
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.kyotob.client.*
-import com.kyotob.client.chatList.Dialog
 import com.kyotob.client.database.RoomDatabaseHelper
-import com.kyotob.client.database.RoomsMidokuModel
+import com.kyotob.client.database.RoomsUnreadModel
+import com.kyotob.client.setting.SettingActivity
+import es.dmoral.toasty.Toasty
 // WebSocket用
 import java.net.URI
 import java.sql.Timestamp
@@ -42,16 +47,23 @@ data class WebSocketMessage(
 )
 
 class ChatListActivity : AppCompatActivity() {
+    lateinit var listAdapter: RoomListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_list)
 
+        // Request for the permission to access device's microphone
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.RECORD_AUDIO), 1)
+        }
+
         // RoomsViewでカスタマイズされたListViewにデータを入れて、表示させる。その際に、Adapterが緩衝材になる
         // 1, ListViewAdapterのインスタンスをつくる
-        val listAdapter = RoomListAdapter(applicationContext)
+        listAdapter = RoomListAdapter(applicationContext)
         // 2, listViewのインスタンスをつくる
-        var listView = findViewById<ListView>(R.id.chats_list)
+        val listView = findViewById<ListView>(R.id.chats_list)
         // 3, このクラスのインスタンスをlistViewのadapterに代入することで簡単にlistのitemをデザインできる
         listView.adapter = listAdapter
 
@@ -65,13 +77,12 @@ class ChatListActivity : AppCompatActivity() {
             val roomDatabaseHelper = RoomDatabaseHelper(this) // インスタンス
             roomDatabaseHelper.updateData(itemInfo.roomId, 0) // データの挿入
             // ----------------------------------
-            updateChatList(listAdapter) // 画面の更新
             // ChatActivityを表示
             val chatActivityIntent = Intent(this, ChatActivity::class.java)
             // 遷移先に値を渡す
             chatActivityIntent.putExtra("ROOM_ID", itemInfo.roomId)
             // 遷移
-            startActivity(chatActivityIntent)
+            startActivityForResult(chatActivityIntent, 200)
         }
 
         // FloatingIconのインスタンスを作る
@@ -85,7 +96,7 @@ class ChatListActivity : AppCompatActivity() {
         }
 
         // 通信 -> パース -> 表示の更新
-        updateChatList(listAdapter)
+        updateChatList()
 
         // WebSocket用の通信を非同期(AsyncTask)で実行
         DoAsync {
@@ -95,7 +106,7 @@ class ChatListActivity : AppCompatActivity() {
             // 初期化のため WebSocket コンテナのオブジェクトを取得する
             val container = ContainerProvider.getWebSocketContainer()
             // サーバー・エンドポイントの URI
-            val uri = URI.create("wss://" + baseIP + "/" + name) // 要変更
+            val uri = URI.create("wss://$baseIP/$name") // 要変更
             try {
                 // サーバー・エンドポイントとのセッションを確立する
                 container.connectToServer(WebSocketEndPoint { msg ->
@@ -106,17 +117,17 @@ class ChatListActivity : AppCompatActivity() {
                     // ---------- SQLITE ----------------
                     val roomDatabaseHelper = RoomDatabaseHelper(this) // インスタンス
                     // データを検索
-                    val midokuNum = roomDatabaseHelper.searchData(webSocketMessage.roomId)
-                    if (midokuNum == -1) { // 新規Roomの場合
-                        val midokuModel = RoomsMidokuModel(webSocketMessage.roomId, 0) // データ
-                        roomDatabaseHelper.inserData(midokuModel) // データの挿入
+                    val unreadCount = roomDatabaseHelper.searchData(webSocketMessage.roomId)
+                    if (unreadCount == -1) { // 新規Roomの場合
+                        val unreadModel = RoomsUnreadModel(webSocketMessage.roomId, 0) // データ
+                        roomDatabaseHelper.insertData(unreadModel) // データの挿入
                     } else {// 既存のRoomの場合
-                        roomDatabaseHelper.updateData(webSocketMessage.roomId, midokuNum + 1) // データの挿入
+                        roomDatabaseHelper.updateData(webSocketMessage.roomId, unreadCount + 1) // データの挿入
                     }
                     // ----------------------------------
 
                     // Messageを受信すると、chatListの表示を更新する
-                    updateChatList(listAdapter)
+                    updateChatList()
                 }, uri)
             } catch (e: Exception) {
                 // Fail to connect Internet access
@@ -127,14 +138,47 @@ class ChatListActivity : AppCompatActivity() {
         // ----------------------------------------
     }
 
+    // ChatActivityから戻ってきたときに実行される
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        // 画面を更新する
+        updateChatList()
+    }
+
+    // 戻るボタン押下時の挙動
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        AlertDialog.Builder(this)
+                .setTitle("ログアウトしますか？")
+                .setPositiveButton("ok"){ _, _ ->
+                    finish()
+                }.show()
+        return true
+    }
+
+    // AppBarにボタンを追加
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        getMenuInflater().inflate(R.menu.setting_icon, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    // Settingボタン押下時の挙動
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        val id = item?.itemId
+        if (id == R.id.setting_item) {
+            val intent = Intent(this, SettingActivity::class.java)
+            startActivity(intent)
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 
     // 通信結果のJsonをパースして、UIに反映させる
-    fun updateChatList(chatListAdapter: RoomListAdapter) {
+    private fun updateChatList() {
         val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
         val token = sharedPreferences.getString(TOKEN_KEY, null)
 
         /* JSON のスネークケースで表現されるフィールド名を、
-Java オブジェクトでキャメルケースに対応させるための設定 */
+           Java オブジェクトでキャメルケースに対応させるための設定 */
         val gson = GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create()
@@ -156,17 +200,17 @@ Java オブジェクトでキャメルケースに対応させるための設定
                 // 通信成功時
                 if (response.isSuccessful) {
                     // 一覧を更新する
-                    chatListAdapter.rooms = response.body()!!
-                    chatListAdapter.notifyDataSetChanged()
+                    listAdapter.rooms = response.body()!!
+                    listAdapter.notifyDataSetChanged()
                 } else { // Bad request
-                    Toast.makeText(applicationContext, "Bad Request", Toast.LENGTH_LONG).show()
+                    Toasty.warning(applicationContext, "不正なリクエスト", Toast.LENGTH_LONG, true).show()
                 }
             }
 
             // Request失敗時に呼ばれる
             override fun onFailure(call: Call<List<Room>>?, t: Throwable?) {
                 // Fail to connect Internet access
-                Toast.makeText(applicationContext, "Fail to Connect Internet Access", Toast.LENGTH_LONG).show()
+                Toasty.error(applicationContext, "インターネットに繋がっていません", Toast.LENGTH_LONG, true).show()
             }
         })
 
@@ -188,7 +232,7 @@ class WebSocketEndPoint(private val handler: (msg: String) -> Unit) {
     // Socket通信を開始するときに呼び出される
     @OnOpen
     fun onOpen(session: Session, config: EndpointConfig) {
-        println("client-[open] " + session)
+        println("client-[open] $session")
     }
 
     // Message受信時に呼び出される

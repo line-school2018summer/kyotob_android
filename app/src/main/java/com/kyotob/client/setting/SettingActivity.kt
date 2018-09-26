@@ -20,7 +20,7 @@ class SettingActivity : AppCompatActivity() {
                     replaceFragmentInActivity(it, R.id.contentFrame)
                 }
 
-        val settingPresenter = SettingPresenter(settingFragment, getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE))
+        val settingPresenter = SettingPresenter(settingFragment, this)
     }
 
     override fun onSupportNavigateUp(): Boolean {

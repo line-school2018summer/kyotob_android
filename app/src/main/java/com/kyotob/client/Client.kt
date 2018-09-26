@@ -5,8 +5,8 @@ import retrofit2.Call
 import retrofit2.http.*
 
 interface Client {
-    @GET("/user")
-    fun getUser(@Query("id") query: String): UserResponse?
+    @GET("/user/{user_name}")
+    fun getUser(@Query("user_name") username: String, @Header("access_token") token: String): Call<UserResponse>
 
     // User検索用
     @GET("/user/search/{user_name}")
@@ -30,4 +30,17 @@ interface Client {
     fun sendMessage(@Path("room_id") roomId: Int,
                     @Body body: PostMessageRequest,
                     @Header("access_token") token: String): Call<Boolean>
+
+    // 時間差メッセージの受信
+    @GET("/room/{room_id}/messages/timer")
+    fun getTimerMessages(@Path("room_id") roomId: Int,
+                    @Header("access_token") token: String): Call<Array<GetTimerMessageResponse>>
+
+    // 時間差メッセージの送信
+    @Headers("Content-Type: application/json")
+    @POST("/room/{room_id}/messages/timer")
+    fun sendTimerMessage(@Path("room_id") roomId: Int,
+                    @Body body: SendTimerMessageRequest,
+                    @Header("access_token") token: String): Call<Boolean>
+
 }

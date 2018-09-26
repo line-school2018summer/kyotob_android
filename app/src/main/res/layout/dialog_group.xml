@@ -12,11 +12,14 @@
 
         <Button
             android:id="@+id/registerButton"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="136dp"
             android:layout_marginTop="40dp"
+            android:background="@drawable/make_new_group_button"
             android:text="作成"
+            android:textColor="@color/colorEditTextCursorHighlite"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -45,18 +48,21 @@
             android:inputType="textPersonName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:textColor="@color/White"
+            android:theme="@style/EditTextStyle"/>
     </android.support.constraint.ConstraintLayout>
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="メンバー" />
+        android:text="メンバー"
+        android:textColor="@color/White"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/member_recycleview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>

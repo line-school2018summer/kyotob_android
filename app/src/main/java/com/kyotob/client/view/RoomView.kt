@@ -8,12 +8,15 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import com.kyotob.client.R
-import com.kyotob.client.baseIP
+import com.kyotob.client.baseUrl
 import com.kyotob.client.bindView
 import com.kyotob.client.database.RoomDatabaseHelper
-import com.kyotob.client.database.RoomsMidokuModel
+import com.kyotob.client.database.RoomsUnreadModel
 import com.kyotob.client.entities.Room
 import com.squareup.picasso.Picasso
+import com.kyotob.client.CircleTransform
+
+
 
 // 個々のRoomViewの雛形を作るつくるクラス
 // RoomViewAdapterで利用する
@@ -49,21 +52,25 @@ class RoomView(context: Context): FrameLayout(context) {
         // 表示名を変更
         userNameTextView.text = room.roomName
         // 最新のメッセージを変更
-        latestMessageTextView.text = room.recentMessage
+        if(room.recentMessage.matches(Regex(".*.png|.*.jpg|.*.jpeg"))) {
+            latestMessageTextView.text = "画像が送信されました"
+        } else {
+            latestMessageTextView.text = room.recentMessage
+        }
+
         // 時間を変更
         timeTextView.text = room.createdAt.toString().substring(11, 16)
 
         // 画像をセットする
-        profileImageView.setBackgroundColor(Color.WHITE)
-        Picasso.get().load("http://" + baseIP + "/image/download/" + room.imageUrl).into(profileImageView)
+        Picasso.get().load(baseUrl + "/image/download/" + room.imageUrl).transform(CircleTransform()).into(profileImageView)
 
         // ---------- SQLITE ----------------
         val roomDatabaseHelper = RoomDatabaseHelper(context) // インスタンス
         // データを検索
         val midokuNum = roomDatabaseHelper.searchData(room.roomId)
         if (midokuNum == -1 || midokuNum == 0) { // 新規Roomの場合
-            val midokuModel = RoomsMidokuModel(room.roomId, 0) // データ
-            roomDatabaseHelper.inserData(midokuModel) // データの挿入
+            val midokuModel = RoomsUnreadModel(room.roomId, 0) // データ
+            roomDatabaseHelper.insertData(midokuModel) // データの挿入
             newMessageCounter.visibility = View.INVISIBLE // 表示
         } else {// 既存のRoomの場合
             newMessageCounter.text = midokuNum.toString() // 表示の更新

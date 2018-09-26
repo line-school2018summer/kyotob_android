@@ -1,24 +1,21 @@
 package com.kyotob.client.chatList
 
-import android.app.Dialog
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
-import android.app.AlertDialog
 import android.support.design.widget.TabLayout
 import android.support.v4.view.ViewPager
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
-import android.widget.Button
 import com.kyotob.client.R
 
 // Dialogの諸々の設定ををするクラス
 class Dialog : DialogFragment() {
 
-    lateinit var mpager: ViewPager
-    lateinit var tabLayout: TabLayout
+    private lateinit var mpager: ViewPager
+    private lateinit var tabLayout: TabLayout
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // AlertDialogをつくる
@@ -30,8 +27,10 @@ class Dialog : DialogFragment() {
 
         //tabの設定
         mpager = view.findViewById(R.id.viewpager)
-        mpager.adapter = TabAdapter(childFragmentManager?: throw Exception("dialog fragmentManager is null"))
+        mpager.adapter = TabAdapter(childFragmentManager)
         tabLayout = view.findViewById(R.id.tabs)
+        tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#3bc8ef"))
+        tabLayout.setTabTextColors(Color.parseColor("#ffffff"), Color.parseColor("#3bc8ef"))
         tabLayout.setupWithViewPager(mpager)
 
         // builderにビューをセットする
@@ -39,7 +38,7 @@ class Dialog : DialogFragment() {
         // builderを返す
         //return builder.create()
 
-        dialog.window.requestFeature(Window.FEATURE_NO_TITLE)
+        dialog?.window?.requestFeature(Window.FEATURE_NO_TITLE)
         dialog.setCanceledOnTouchOutside(true)
 
         return view

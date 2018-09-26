@@ -4,7 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.kyotob.client.ChatActivity">
+    tools:context="com.kyotob.client.ChatActivity"
+    android:background="@drawable/thunder">
+    <View
+        android:id="@+id/view2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha=".5"
+        android:background="@android:color/background_dark" />
 
     <ListView
         android:id="@+id/list_view"
@@ -17,11 +24,13 @@
     <View
         android:id="@+id/message_bar"
         android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:background="#DDDDDD"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:layout_height="0dp"
+        android:background="#2f2735"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/text_input_layout" />
 
     <android.support.design.widget.TextInputLayout
+        android:id="@+id/text_input_layout"
         android:layout_width="283dp"
         android:layout_height="49dp"
         android:layout_marginBottom="10dp"
@@ -34,18 +43,21 @@
         <android.support.design.widget.TextInputEditText
             android:id="@+id/message"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:backgroundTint="#DDDDDD"
+            android:textColor="#DDDDDD" />
 
     </android.support.design.widget.TextInputLayout>
 
-    <Button
+    <ImageView
         android:id="@+id/submit"
-        android:layout_width="wrap_content"
-        android:layout_height="52dp"
-        android:layout_marginBottom="4dp"
-        android:layout_marginEnd="4dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_weight="1"
         android:text="@string/send"
+        android:background="@drawable/send_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
