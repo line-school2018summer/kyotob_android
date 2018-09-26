@@ -6,6 +6,12 @@
     android:layout_height="match_parent"
     tools:context="com.kyotob.client.ChatActivity"
     android:background="@drawable/thunder">
+    <View
+        android:id="@+id/view2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha=".5"
+        android:background="@android:color/background_dark" />
 
     <ListView
         android:id="@+id/list_view"

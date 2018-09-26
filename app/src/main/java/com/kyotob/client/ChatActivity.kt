@@ -54,6 +54,11 @@ class ChatActivity : AppCompatActivity() {
         UploadService.NAMESPACE = BuildConfig.APPLICATION_ID
         UploadService.NAMESPACE = "com.kyotob.client"
 
+        // Preference から情報を取得
+        val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
+        token = sharedPreferences.getString(TOKEN_KEY, null) ?: throw Exception("token is null")
+        val userName = sharedPreferences.getString(USER_NAME_KEY, null) ?: throw Exception("userName is null")
+
         // RoomIdを取得する
         val intent = this.intent
         roomId = intent.getIntExtra("ROOM_ID", -1)
@@ -64,6 +69,7 @@ class ChatActivity : AppCompatActivity() {
 
         // ListAdapterのインスタンスを作る
         listAdapter = MessageListAdapter(applicationContext)
+                listAdapter.myName = userName
         // ListViewのインスタンスを作る
         val listView = findViewById<ListView>(R.id.list_view)
 
@@ -80,11 +86,6 @@ class ChatActivity : AppCompatActivity() {
 
         // クライアントの実装の生成
         client = retrofit.create(Client::class.java)
-
-        val sharedPreferences = getSharedPreferences(USER_DATA_KEY, Context.MODE_PRIVATE)
-        token = sharedPreferences.getString(TOKEN_KEY, null) ?: throw Exception("token is null")
-        val userName = sharedPreferences.getString(USER_NAME_KEY, null) ?: throw Exception("userName is null")
-
         client.getMessages(roomId, token).enqueue(object : Callback<Array<GetMessageResponse>> {
             override fun onResponse(call: Call<Array<GetMessageResponse>>?, response: Response<Array<GetMessageResponse>>?) {
                 val body = response?.body()
