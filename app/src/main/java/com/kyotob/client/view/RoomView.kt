@@ -62,7 +62,6 @@ class RoomView(context: Context): FrameLayout(context) {
         timeTextView.text = room.createdAt.toString().substring(11, 16)
 
         // 画像をセットする
-        profileImageView.setBackgroundColor(Color.WHITE)
         Picasso.get().load(baseUrl + "/image/download/" + room.imageUrl).transform(CircleTransform()).into(profileImageView)
 
         // ---------- SQLITE ----------------

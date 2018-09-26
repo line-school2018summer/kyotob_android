@@ -11,7 +11,7 @@ import com.squareup.picasso.Transformation;
 /**
  * Created by julian on 13/6/21.
  */
-public class CircleTransform implements Transformation {
+public class CircleTransformForChatView implements Transformation {
     @Override
     public Bitmap transform(Bitmap source) {
         int size = Math.min(source.getWidth(), source.getHeight());
@@ -28,7 +28,7 @@ public class CircleTransform implements Transformation {
 
         Canvas canvas = new Canvas(bitmap);
         // 背景色を設定
-        canvas.drawColor(Color.parseColor("#00313535"));
+        canvas.drawColor(Color.parseColor("#00000000"));
         Paint paint = new Paint();
         BitmapShader shader = new BitmapShader(squaredBitmap, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP);
         paint.setShader(shader);
